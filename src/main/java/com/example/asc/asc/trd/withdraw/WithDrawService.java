@@ -35,10 +35,10 @@ public class WithDrawService {
      */
     public Map<String, String> withDraw(HttpServletRequest req, HttpServletResponse resp) {
         //windows系统的文件信息
-        String filepath = WithDrawService.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
-        String configPath = WithDrawService.class.getResource("/").getPath() + "cert";
-//        String filepath = "/home/www/hailiying/app/acsdemo/config/hailiying_key.pfx";
-//        String configPath = "/home/www/hailiying/app/acsdemo/config";
+//        String filepath = WithDrawService.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
+//        String configPath = WithDrawService.class.getResource("/").getPath() + "cert";
+        String filepath = "/home/www/hailiying/config/hailiying_key.pfx";
+        String configPath = "/home/www/hailiying/config";
         String password = "Hailiying123!@#";
         Map<String, String> treeMap = new TreeMap<>();
         try {
