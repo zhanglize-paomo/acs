@@ -36,24 +36,7 @@ public class WithDrawController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public Map<String,String> withDraw(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, String> result = new HashMap<String, String>();
-        result.put("code", "0");//成功
-        try {
-            Map<String, String> map = service.withDraw(request, response);
-
-//            result.put("rtnCode",map.get("rtnCode"));
-//            result.put("rtnMsg",map.get("rtnMsg"));
-//            if(!map.get("rtnCode").equals("0000")){
-//                result.put("msg", "代付失败");
-//            }else{
-//                result.put("msg", "success");
-//            }
-//            result.put("rtnCode",map.get("rtnCode"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+        return service.withDraw(request, response);
     }
 
 }
