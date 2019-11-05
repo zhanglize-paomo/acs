@@ -1,6 +1,9 @@
 package com.example.asc.asc.trd.withdraw;
 
+import com.blue.security.PriKeySigner;
+import com.blue.security.SignatureFactory;
 import com.example.asc.asc.util.DateUtils;
+import com.trz.netwk.api.system.InitSystem;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT1018Request;
 import com.trz.netwk.api.trd.TrdT1018Response;
@@ -32,6 +35,14 @@ public class WithDrawService {
      * @return
      */
     public Map<String, String> withDraw(HttpServletRequest req, HttpServletResponse resp) {
+        // 私钥文件路径
+//        //windows系统的文件信息
+//        String filepath = WithDrawService.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
+//        String configPath = WithDrawService.class.getResource("/").getPath() + "netwk";
+
+        String filepath = "/home/www/hailiying/app/acsdemo/config/hailiying_key.pfx";
+        String configPath = "/home/www/hailiying/app/acsdemo/config";
+        String password = "Hailiying123!@#";
         Map<String,String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
@@ -61,18 +72,20 @@ public class WithDrawService {
             trdRequest.setCltacc_cltnm(cltacc_cltnm);
             trdRequest.setMsghd_ptncd(PtnCd);
             trdRequest.setMsghd_bkcd(BkCd);
+            SignatureFactory.addSigner(cltacc_subno,new PriKeySigner(filepath,password));
             // 3. 报文处理
             trdRequest.process();
-            System.out.println("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            System.out.println("签名原文[" + trdRequest.getRequestMessage() + "]");
-            System.out.println("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
+            InitSystem.initialize(configPath);
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT1018Response trdResponse = new TrdT1018Response(respMsg);
-            System.out.println("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
@@ -95,11 +108,8 @@ public class WithDrawService {
             }
             // 显示返回报文
             req.setAttribute("plainText", trdResponse.getResponsePlainText());
-//            req.getRequestDispatcher("/demo/response.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
-//            req.setAttribute("plainText", e);
-//            req.getRequestDispatcher("/demo/response.jsp").forward(req, resp);
         }
         return null;
     }
