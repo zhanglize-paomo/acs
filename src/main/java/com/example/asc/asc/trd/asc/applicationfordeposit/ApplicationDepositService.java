@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -30,6 +32,7 @@ public class ApplicationDepositService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDepositService.class);
 
     private UserAccountService userAccountService;
+
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
@@ -57,15 +60,14 @@ public class ApplicationDepositService {
             String bkacc_accno = req.getParameter("bkacc_accno");
             /** 开户名称 */
             String bkacc_accnm = req.getParameter("bkacc_accnm");
-            //根据资金账户查询对应的用户申请信息获得用户的费率信息
-            UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
-            //TODO 总金额 = 发生额+ 转账手续费
-            /** 发生额(资金单位:分) */
-            long amt_aclamt = Long.valueOf(req.getParameter("amt_aclamt"));
-            /** 转账手续费 */
-            long amt_feeamt = Long.valueOf(req.getParameter("amt_feeamt"));
             /** 总金额 */
             long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
+            //根据总金额计算出手续费以及发生额度
+            Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
+            /** 发生额(资金单位:分) */
+            long amt_aclamt = map.get("amt_aclamt");
+            /** 转账手续费 */
+            long amt_feeamt = map.get("amt_feeamt");
             //合作方编号
             String PtnCd = "HLYI2019";
             //托管方编号
@@ -110,6 +112,7 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
+                //TODO 将数据添加到出库申请表中
                 treeMap = getTreeMap(trdResponse);
             } else {
                 treeMap = getTreeMap(trdResponse);
@@ -118,6 +121,22 @@ public class ApplicationDepositService {
             e.printStackTrace();
         }
         return treeMap;
+    }
+
+    /**
+     * 根据总金额计算出手续费以及发生额度
+     *
+     * @param cltacc_subno 资金账号
+     * @param amt_tamt     总金额
+     * @return
+     */
+    private Map<String, Long> countAmount(String cltacc_subno, long amt_tamt) {
+        Map<String, Long> map = new HashMap<>();
+        //根据资金账户查询对应的用户申请信息获得用户的费率信息
+        UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
+        //获取到费率信息
+        BigDecimal feeRate = new BigDecimal(userAccount.getFeeRate()).divide(new BigDecimal(10000)).multiply(new BigDecimal(10000));
+        return map;
     }
 
     /**
@@ -135,4 +154,17 @@ public class ApplicationDepositService {
         treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
         return treeMap;
     }
+
+    public static void main(String[] args) {
+        BigDecimal b1 = new BigDecimal(Integer.toString(3));
+        System.out.println(b1);
+
+
+        BigDecimal feeRate = new BigDecimal(Integer.toString(30)).divide(new BigDecimal(1000)).multiply(new BigDecimal(10000));
+        BigDecimal b2 = new BigDecimal(Integer.toString(10000));
+        BigDecimal b3 = b2.multiply(feeRate).divide(new BigDecimal(10000));
+
+        System.out.println("========"+b3);
+    }
+
 }

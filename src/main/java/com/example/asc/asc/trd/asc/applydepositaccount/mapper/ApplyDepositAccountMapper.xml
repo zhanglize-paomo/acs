@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.applydepositaccount.mapper.ApplyDepositAccountMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccount">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="msghd_trdt" jdbcType="VARCHAR" property="msghdTrdt"/>
+        <result column="srl_ptnsrl" jdbcType="VARCHAR" property="srlPtnsrl"/>
+        <result column="cltacc_subno" jdbcType="VARCHAR" property="cltaccSubno"/>
+        <result column="cltacc_cltnm" jdbcType="VARCHAR" property="cltaccCltnm"/>
+        <result column="bkacc_accno" jdbcType="VARCHAR" property="bkaccAccno"/>
+        <result column="bkacc_accnm" jdbcType="VARCHAR" property="bkaccAccnm"/>
+        <result column="amt_tamt" jdbcType="VARCHAR" property="amtTamt"/>
+        <result column="amt_aclamt" jdbcType="VARCHAR" property="amtAclamt"/>
+        <result column="amt_feeamt" jdbcType="VARCHAR" property="amtFeeamt"/>
+        <result column="fee_rate" jdbcType="INTEGER" property="feeRate"/>
+        <result column="balflag" jdbcType="VARCHAR" property="balflag"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="srl_platsrl" jdbcType="VARCHAR" property="srlPlatsrl"/>
+        <result column="usage" jdbcType="VARCHAR" property="usage"/>
+        <result column="create_time" jdbcType="VARCHAR" property="createTime"/>
+        <result column="modify_time" jdbcType="VARCHAR" property="modifyTime"/>
+    </resultMap>
+
+</mapper>

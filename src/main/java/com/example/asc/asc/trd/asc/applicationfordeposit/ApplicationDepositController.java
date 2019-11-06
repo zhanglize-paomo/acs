@@ -36,4 +36,6 @@ public class ApplicationDepositController {
     public Map<String,String> applicationDeposit(HttpServletRequest request, HttpServletResponse response) {
         return service.applicationDeposit(request, response);
     }
+
+
 }
