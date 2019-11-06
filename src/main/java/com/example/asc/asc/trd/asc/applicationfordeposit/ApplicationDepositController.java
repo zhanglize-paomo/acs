@@ -37,5 +37,16 @@ public class ApplicationDepositController {
         return service.applicationDeposit(request, response);
     }
 
+    /**
+     * 出入金结果查询[T2012]
+     *
+     * @return
+     */
+    @RequestMapping(value = "query",method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String,String> queryApplicationDeposit(HttpServletRequest request, HttpServletResponse response) {
+        return service.queryApplicationDeposit(request, response);
+    }
+
 
 }

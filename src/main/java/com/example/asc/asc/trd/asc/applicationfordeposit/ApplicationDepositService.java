@@ -7,6 +7,8 @@ import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdCommonResponse;
+import com.trz.netwk.api.trd.TrdT2012Request;
+import com.trz.netwk.api.trd.TrdT2012Response;
 import com.trz.netwk.api.trd.TrdT2022Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,18 @@ public class ApplicationDepositService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDepositService.class);
 
     private UserAccountService userAccountService;
+
+    public static void main(String[] args) {
+        BigDecimal b1 = new BigDecimal(Integer.toString(3));
+        System.out.println(b1);
+
+
+        BigDecimal feeRate = new BigDecimal(Integer.toString(30)).divide(new BigDecimal(1000)).multiply(new BigDecimal(10000));
+        BigDecimal b2 = new BigDecimal(Integer.toString(10000));
+        BigDecimal b3 = b2.multiply(feeRate).divide(new BigDecimal(10000));
+
+        System.out.println("========" + b3);
+    }
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -155,16 +169,78 @@ public class ApplicationDepositService {
         return treeMap;
     }
 
-    public static void main(String[] args) {
-        BigDecimal b1 = new BigDecimal(Integer.toString(3));
-        System.out.println(b1);
-
-
-        BigDecimal feeRate = new BigDecimal(Integer.toString(30)).divide(new BigDecimal(1000)).multiply(new BigDecimal(10000));
-        BigDecimal b2 = new BigDecimal(Integer.toString(10000));
-        BigDecimal b3 = b2.multiply(feeRate).divide(new BigDecimal(10000));
-
-        System.out.println("========"+b3);
+    /**
+     * 出入金结果查询[T2012]
+     *
+     * @return
+     */
+    public Map<String, String> queryApplicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+        try {
+            req.setCharacterEncoding("UTF-8");
+            resp.setCharacterEncoding("UTF-8");
+            /** 交易日期 */
+            String msghd_trdt = req.getParameter("msghd_trdt");
+            /** 待查询原交易流水号 */
+            String orgsrl = req.getParameter("orgsrl");
+//            //加载配置文件信息
+//            FileConfigure.getFileConfigure(cltacc_subno);
+            // 2. 实例化交易对象
+            TrdT2012Request trdRequest = new TrdT2012Request();
+            trdRequest.setMsghd_trdt(msghd_trdt);
+            trdRequest.setOrgsrl(orgsrl);
+            // 3. 报文处理
+            trdRequest.process();
+            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            // 4. 与融资平台通信
+            TrdMessenger trdMessenger = new TrdMessenger();
+            // message
+            String respMsg = trdMessenger.send(trdRequest);
+            // 5. 处理交易结果
+            TrdT2012Response trdResponse = new TrdT2012Response(respMsg);
+            System.out.println("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            // 交易成功 000000
+            if ("000000".equals(trdResponse.getMsghd_rspcode())) {
+                // ！！！ 在这里添加合作方处理逻辑！！！
+                System.out.println("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]"); // 返回信息
+                System.out.println("[srl_ptnsrl]=[" + trdResponse.getSrl_ptnsrl() + "]"); // 合作方流水号
+                System.out.println("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]"); // 平台流水号
+                System.out.println("[cltacc_subno]=[" + trdResponse.getCltacc_subno() + "]"); // 子账号
+                System.out.println("[cltacc_cltnm]=[" + trdResponse.getCltacc_cltnm() + "]"); // 户名
+                System.out.println("[amt_aclamt]=[" + trdResponse.getAmt_aclamt() + "]分"); // 发生额
+                System.out.println("[amt_aclamt]=[" + trdResponse.getAmt_feeamt() + "]分"); // 转账手续费
+                System.out.println("[amt_ccycd]=[" + trdResponse.getAmt_ccycd() + "]"); // 币种，默认“CNY”
+                System.out.println("[state]=[" + trdResponse.getState() + "]"); // 交易结果:1成功;2失败;3处理中
+                System.out.println("[resttime]=[" + trdResponse.getResttime() + "]"); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
+                System.out.println("[opion]=[" + trdResponse.getOpion() + "]"); // 失败原因
+                System.out.println("[ubalsta]=[" + trdResponse.getUbalsta() + "]"); // 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
+                System.out.println("[ubaltim]=[" + trdResponse.getUbaltim() + "]"); // 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
+                System.out.println("[usage]=[" + trdResponse.getUsage() + "]"); // 资金用途(附言)
+                // 业务标示
+                // 入金业务时指：
+                // A00 正常入金
+                // B00 入金成功后，再冻结资金
+                // 出金业务时指：
+                // A00 正常出金
+                // B01 解冻资金后，再出金
+                System.out.println("[trsflag]=[" + trdResponse.getTrsflag() + "]");
+                System.out.println("[fdate]=[" + trdResponse.getFdate() + "]"); // 原交易日期
+                System.out.println("[ftime]=[" + trdResponse.getFtime() + "]"); // 原交易时间
+                System.out.println("[spec1]=[" + trdResponse.getSpec1() + "]"); // 备用1
+                System.out.println("[spec2]=[" + trdResponse.getSpec2() + "]"); // 备用2
+                System.out.println("[dremark1]=[" + trdResponse.getDremark1() + "]"); // 合作方自定义备注1
+                System.out.println("[dremark2]=[" + trdResponse.getDremark2() + "]"); // 合作方自定义备注2
+                System.out.println("[dremark3]=[" + trdResponse.getDremark3() + "]"); // 合作方自定义备注3
+                System.out.println("[dremark4]=[" + trdResponse.getDremark4() + "]"); // 合作方自定义备注4
+                System.out.println("[dremark5]=[" + trdResponse.getDremark5() + "]"); // 合作方自定义备注5
+                System.out.println("[dremark6]=[" + trdResponse.getDremark6() + "]"); // 合作方自定义备注6
+            } else {
+                // ！！！ 在这里添加合作方处理逻辑！！！
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
-
 }
