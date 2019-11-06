@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.useraccount.mapper.UserAccountMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.useraccount.domain.UserAccount">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="idcardType" jdbcType="VARCHAR" property="idcardType"/>
+        <result column="idcardNo" jdbcType="VARCHAR" property="idcardNo"/>
+        <result column="idcardName" jdbcType="VARCHAR" property="idcardName"/>
+        <result column="tel" jdbcType="VARCHAR" property="tel"/>
+        <result column="accountType" jdbcType="VARCHAR" property="accountType"/>
+        <result column="uscId" jdbcType="VARCHAR" property="uscId"/>
+        <result column="ptnSrl" jdbcType="VARCHAR" property="ptnSrl"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="orderNo" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="cltPid" jdbcType="VARCHAR" property="cltPid"/>
+        <result column="bnkEid" jdbcType="VARCHAR" property="bnkEid"/>
+        <result column="subNo" jdbcType="VARCHAR" property="subNo"/>
+        <result column="openBkCd" jdbcType="VARCHAR" property="openBkCd"/>
+        <result column="openBkNm" jdbcType="VARCHAR" property="openBkNm"/>
+        <result column="feeRate" jdbcType="INTEGER" property="feeRate"/>
+        <result column="created_at" jdbcType="VARCHAR" property="createdAt"/>
+        <result column="updated_at" jdbcType="VARCHAR" property="updatedAt"/>
+        <result column="deleted_at" jdbcType="VARCHAR" property="deletedAt"/>
+    </resultMap>
+    <select id="findBySubNo" resultMap="resultMap">
+         select * from user_account where subNo = #{subno}
+    </select>
+
+</mapper>

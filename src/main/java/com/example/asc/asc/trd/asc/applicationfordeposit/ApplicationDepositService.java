@@ -1,6 +1,8 @@
 package com.example.asc.asc.trd.asc.applicationfordeposit;
 
 
+import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
+import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.trz.netwk.api.system.TrdMessenger;
@@ -8,6 +10,7 @@ import com.trz.netwk.api.trd.TrdCommonResponse;
 import com.trz.netwk.api.trd.TrdT2022Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +28,12 @@ import java.util.TreeMap;
 public class ApplicationDepositService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDepositService.class);
+
+    private UserAccountService userAccountService;
+    @Autowired
+    public void setUserAccountService(UserAccountService userAccountService) {
+        this.userAccountService = userAccountService;
+    }
 
     /**
      * 出金-申请[T2022]
@@ -48,6 +57,8 @@ public class ApplicationDepositService {
             String bkacc_accno = req.getParameter("bkacc_accno");
             /** 开户名称 */
             String bkacc_accnm = req.getParameter("bkacc_accnm");
+            //根据资金账户查询对应的用户申请信息获得用户的费率信息
+            UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
             //TODO 总金额 = 发生额+ 转账手续费
             /** 发生额(资金单位:分) */
             long amt_aclamt = Long.valueOf(req.getParameter("amt_aclamt"));
