@@ -1,9 +1,7 @@
 package com.example.asc.asc.trd.withdraw;
 
-import com.blue.security.PriKeySigner;
-import com.blue.security.SignatureFactory;
-import com.example.asc.asc.util.DateUtils;
-import com.trz.netwk.api.system.InitSystem;
+import com.example.asc.asc.trd.common.DateCommonUtils;
+import com.example.asc.asc.trd.common.FileConfigure;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT1018Request;
 import com.trz.netwk.api.trd.TrdT1018Response;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -34,18 +31,12 @@ public class WithDrawService {
      * @return
      */
     public Map<String, String> withDraw(HttpServletRequest req, HttpServletResponse resp) {
-        //windows系统的文件信息
-//        String filepath = WithDrawService.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
-//        String configPath = WithDrawService.class.getResource("/").getPath() + "cert";
-        String filepath = "/home/www/hailiying/config/hailiying_key.pfx";
-        String configPath = "/home/www/hailiying/config";
-        String password = "Hailiying123!@#";
         Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
             //交易日期
-            String msghd_trdt = judgeDateFormat(req.getParameter("msghd_trdt"));
+            String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             //合作方编号
             String PtnCd = "HLYI2019";
             //托管方编号
@@ -54,6 +45,8 @@ public class WithDrawService {
             String cltacc_subno = req.getParameter("cltacc_subno");
             /** 户名 */
             String cltacc_cltnm = req.getParameter("cltacc_cltnm");
+            //加载配置文件信息
+            FileConfigure.getFileConfigure(cltacc_subno);
             // 2. 实例化交易对象
             TrdT1018Request trdRequest = new TrdT1018Request();
             trdRequest.setMsghd_trdt(msghd_trdt);
@@ -61,7 +54,6 @@ public class WithDrawService {
             trdRequest.setCltacc_cltnm(cltacc_cltnm);
             trdRequest.setMsghd_ptncd(PtnCd);
             trdRequest.setMsghd_bkcd(BkCd);
-            SignatureFactory.addSigner(cltacc_subno, new PriKeySigner(filepath, password));
             // 3. 报文处理
             trdRequest.process();
             logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
@@ -69,7 +61,6 @@ public class WithDrawService {
             logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
-            InitSystem.initialize(configPath);
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
@@ -116,21 +107,4 @@ public class WithDrawService {
         return treeMap;
     }
 
-    /**
-     * 判断日期是否对应的日期格式
-     *
-     * @param msghd_trdt
-     * @return
-     */
-    private String judgeDateFormat(String msghd_trdt) {
-        if (msghd_trdt == null) {
-            return DateUtils.timeToDate(new Date());
-        } else {
-            if (DateUtils.judgeDateFormat(msghd_trdt)) {
-                return msghd_trdt;
-            } else {
-                return DateUtils.timeToDate(DateUtils.stringToDate(msghd_trdt));
-            }
-        }
-    }
 }
