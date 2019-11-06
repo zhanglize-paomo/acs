@@ -1,4 +1,4 @@
-package com.example.asc.asc.trd.withdraw;
+package com.example.asc.asc.trd.asc.applicationfordeposit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,35 +8,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 查询可 T0/T1 出金额度[T1018]
+ * 出金-申请[T2022]
  *
  * @author zhanglize
- * @create 2019/11/4
+ * @create 2019/11/6
  */
 @Controller
-@RequestMapping("/with-draw")
-public class WithDrawController {
+@RequestMapping("/application-deposit")
+public class ApplicationDepositController {
 
-    private WithDrawService service;
-
+    private ApplicationDepositService service;
     @Autowired
-    public void setService(WithDrawService service) {
+    public void setService(ApplicationDepositService service) {
         this.service = service;
     }
 
     /**
-     * 查询可 T0/T1 出金额度
+     * 出金-申请[T2022]
      *
      * @return
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(value = "apply",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,String> withDraw(HttpServletRequest request, HttpServletResponse response) {
-        return service.withDraw(request, response);
+    public Map<String,String> applicationDeposit(HttpServletRequest request, HttpServletResponse response) {
+        return service.applicationDeposit(request, response);
     }
-
 }

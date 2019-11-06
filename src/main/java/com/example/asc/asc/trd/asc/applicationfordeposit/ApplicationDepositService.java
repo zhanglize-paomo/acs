@@ -1,4 +1,4 @@
-package com.example.asc.asc.trd.applicationfordeposit;
+package com.example.asc.asc.trd.asc.applicationfordeposit;
 
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
@@ -125,6 +125,7 @@ public class ApplicationDepositService {
 //                }
 //            }
 //            trdRequest.setOrderListList(reqList);
+
             // 3. 报文处理
             trdRequest.process();
             logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
