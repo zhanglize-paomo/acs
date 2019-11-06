@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 出金-申请[T2022]业务层
@@ -31,6 +32,7 @@ public class ApplicationDepositService {
      * @return
      */
     public Map<String, String> applicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+        Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -46,6 +48,7 @@ public class ApplicationDepositService {
             String bkacc_accno = req.getParameter("bkacc_accno");
             /** 开户名称 */
             String bkacc_accnm = req.getParameter("bkacc_accnm");
+            //TODO 总金额 = 发生额+ 转账手续费
             /** 发生额(资金单位:分) */
             long amt_aclamt = Long.valueOf(req.getParameter("amt_aclamt"));
             /** 转账手续费 */
@@ -82,51 +85,6 @@ public class ApplicationDepositService {
             trdRequest.setAmt_tamt(amt_tamt);
             trdRequest.setMsghd_ptncd(PtnCd);
             trdRequest.setMsghd_bkcd(BkCd);
-
-//            String orderlist_billnos[] = req.getParameterValues("orderlist_billno");
-//            String orderlist_ordernos[] = req.getParameterValues("orderlist_orderno");
-//            String orderlist_recvids[] = req.getParameterValues("orderlist_recvid");
-//            String orderlist_recvnms[] = req.getParameterValues("orderlist_recvnm");
-//            String orderlist_payids[] = req.getParameterValues("orderlist_payid");
-//            String orderlist_paynms[] = req.getParameterValues("orderlist_paynm");
-//            String orderlist_condates[] = req.getParameterValues("orderlist_condate");
-//            String orderlist_conamts[] = req.getParameterValues("orderlist_conamt");
-//            String orderlist_payamts[] = req.getParameterValues("orderlist_payamt");
-//            String orderlist_paydates[] = req.getParameterValues("orderlist_paydate");
-//            String orderlist_ordermemos[] = req.getParameterValues("orderlist_ordermemo");
-
-//            List<OrderList> reqList = new ArrayList<OrderList>();
-//            int size = orderlist_billnos.length;
-//            for (int i = 0; i < size; i++) {
-//                String orderlist_billno = orderlist_billnos[i];
-//                if (StringUtil.isNotEmpty(orderlist_billno)) {
-//                    OrderList orderList = new OrderList();
-//                    String orderlist_orderno = orderlist_ordernos[i];
-//                    String orderlist_recvid = orderlist_recvids[i];
-//                    String orderlist_recvnm = orderlist_recvnms[i];
-//                    String orderlist_payid = orderlist_payids[i];
-//                    String orderlist_paynm = orderlist_paynms[i];
-//                    String orderlist_condate = orderlist_condates[i];
-//                    String orderlist_paydate = orderlist_paydates[i];
-//                    String orderlist_ordermemo = orderlist_ordermemos[i];
-//                    long orderlist_conamt = MoneyUtil.toNumber(orderlist_conamts[i]).longValue();
-//                    long orderlist_payamt = MoneyUtil.toNumber(orderlist_payamts[i]).longValue();
-//                    orderList.setBillno(orderlist_billno);
-//                    orderList.setOrderno(orderlist_orderno);
-//                    orderList.setRecvid(orderlist_recvid);
-//                    orderList.setRecvnm(orderlist_recvnm);
-//                    orderList.setPayid(orderlist_payid);
-//                    orderList.setPaynm(orderlist_paynm);
-//                    orderList.setCondate(orderlist_condate);
-//                    orderList.setConamt(orderlist_conamt);
-//                    orderList.setPayamt(orderlist_payamt);
-//                    orderList.setPaydate(orderlist_paydate);
-//                    orderList.setOrdermemo(orderlist_ordermemo);
-//                    reqList.add(orderList);
-//                }
-//            }
-//            trdRequest.setOrderListList(reqList);
-
             // 3. 报文处理
             trdRequest.process();
             logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
@@ -141,16 +99,29 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                //如果出金交易成功
-                logger.info("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");  // 返回信息
-                logger.info("[srl_ptnsrl]=[" + trdResponse.getSrl_ptnsrl() + "]");  // 合作方流水号
-                logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]"); // 平台流水号
+                treeMap = getTreeMap(trdResponse);
             } else {
-
+                treeMap = getTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return treeMap;
+    }
+
+    /**
+     * 获取返回消息报文信息
+     *
+     * @param trdResponse
+     * @return
+     */
+    private Map<String, String> getTreeMap(TrdCommonResponse trdResponse) {
+        Map<String, String> treeMap = new TreeMap<>();
+        //获取请求报文信息
+        treeMap.put("msghd_rspcode", trdResponse.getMsghd_rspcode());
+        treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
+        treeMap.put("srl_platsrl", trdResponse.getSrl_platsrl()); // 平台流水号
+        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
+        return treeMap;
     }
 }
