@@ -22,7 +22,6 @@ import java.util.TreeMap;
  */
 @Service
 public class WithDrawService {
-
     private static final Logger logger = LoggerFactory.getLogger(WithDrawService.class);
 
     /**
@@ -106,5 +105,4 @@ public class WithDrawService {
         treeMap.put("t0amt_ctamtb01", String.valueOf(trdResponse.getT0amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
         return treeMap;
     }
-
 }
