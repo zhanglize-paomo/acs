@@ -1,6 +1,8 @@
 package com.example.asc.asc.trd.asc.applicationfordeposit;
 
 
+import com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccount;
+import com.example.asc.asc.trd.asc.applydepositaccount.service.ApplyDepositAccountService;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.DateCommonUtils;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,16 +36,11 @@ public class ApplicationDepositService {
 
     private UserAccountService userAccountService;
 
-    public static void main(String[] args) {
-        BigDecimal b1 = new BigDecimal(Integer.toString(3));
-        System.out.println(b1);
+    private ApplyDepositAccountService applyDepositAccountService;
 
-
-        BigDecimal feeRate = new BigDecimal(Integer.toString(30)).divide(new BigDecimal(1000)).multiply(new BigDecimal(10000));
-        BigDecimal b2 = new BigDecimal(Integer.toString(10000));
-        BigDecimal b3 = b2.multiply(feeRate).divide(new BigDecimal(10000));
-
-        System.out.println("========" + b3);
+    @Autowired
+    public void setApplyDepositAccountService(ApplyDepositAccountService applyDepositAccountService) {
+        this.applyDepositAccountService = applyDepositAccountService;
     }
 
     @Autowired
@@ -76,6 +72,12 @@ public class ApplicationDepositService {
             String bkacc_accnm = req.getParameter("bkacc_accnm");
             /** 总金额 */
             long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
+            //查询单笔金额是否超过5万的额度
+            if (amt_tamt > 5000000) {
+                treeMap.put("code", "301");
+                treeMap.put("msg", "单笔资金提现总额超过规定额度");
+                return treeMap;
+            }
             //根据总金额计算出手续费以及发生额度
             Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
             /** 发生额(资金单位:分) */
@@ -95,6 +97,12 @@ public class ApplicationDepositService {
             String balflag = req.getParameter("balflag");
             /** 资金用途(附言) */
             String usage = req.getParameter("usage");
+            //查询该资金账户在当天是否超过提现次数五次
+            if (applyDepositAccountService.queryCount(cltacc_subno, msghd_trdt).size() == 5) {
+                treeMap.put("code", "300");
+                treeMap.put("msg", "该资金账户当天提现次数已达上限");
+                return treeMap;
+            }
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
             // 2. 实例化交易对象
@@ -126,15 +134,42 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                //TODO 将数据添加到出库申请表中
+                insertAccount(trdRequest,trdResponse,"处理中");
                 treeMap = getTreeMap(trdResponse);
             } else {
+                //交易失败添加到出库申请表中
+                insertAccount(trdRequest,trdResponse,"失败");
                 treeMap = getTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return treeMap;
+    }
+
+    /**
+     * 添加数据到出金申请表中
+     *  @param trdRequest
+     * @param trdResponse
+     * @param status
+     */
+    private void insertAccount(TrdT2022Request trdRequest, TrdCommonResponse trdResponse, String status) {
+        ApplyDepositAccount account = new ApplyDepositAccount();
+        account.setAmtAclamt(String.valueOf(trdRequest.getAmt_aclamt()));
+        account.setAmtFeeamt(String.valueOf(trdRequest.getAmt_feeamt()));
+        account.setAmtTamt(String.valueOf(trdRequest.getAmt_tamt()));
+        account.setBalflag(trdRequest.getBalflag());
+        account.setBkaccAccnm(trdRequest.getBkacc_accnm());
+        account.setBkaccAccno(trdRequest.getBkacc_accno());
+        account.setCltaccCltnm(trdRequest.getCltacc_cltnm());
+        account.setCltaccSubno(trdRequest.getCltacc_subno());
+        account.setFeeRate((int) trdRequest.getAmt_feeamt());
+        account.setMsghdTrdt(trdRequest.getMsghd_trdt());
+        account.setSrlPlatsrl(trdResponse.getSrl_platsrl());
+        account.setSrlPtnsrl(trdRequest.getSrl_ptnsrl());
+        account.setStatus(status);
+        account.setUsage(trdRequest.getUsage());
+        applyDepositAccountService.insert(account);
     }
 
     /**
@@ -149,7 +184,13 @@ public class ApplicationDepositService {
         //根据资金账户查询对应的用户申请信息获得用户的费率信息
         UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
         //获取到费率信息
-        BigDecimal feeRate = new BigDecimal(userAccount.getFeeRate()).divide(new BigDecimal(10000)).multiply(new BigDecimal(10000));
+        Integer feeRate = Integer.valueOf(userAccount.getFeeRate());
+        /** 转账手续费 */
+        long amt_feeamt = amt_tamt * feeRate / 10000;
+        /** 发生额(资金单位:分) */
+        long amt_aclamt = amt_tamt - amt_feeamt;
+        map.put("amt_feeamt", amt_feeamt);
+        map.put("amt_aclamt", amt_aclamt);
         return map;
     }
 
@@ -243,4 +284,5 @@ public class ApplicationDepositService {
         }
         return null;
     }
+
 }

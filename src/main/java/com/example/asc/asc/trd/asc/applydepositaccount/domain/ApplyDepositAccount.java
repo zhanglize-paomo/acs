@@ -11,7 +11,7 @@ public class ApplyDepositAccount {
     /**
      * 主键
      */
-    private int id;
+    private Long id;
 
     /**
      * 交易日期
@@ -96,7 +96,7 @@ public class ApplyDepositAccount {
     public ApplyDepositAccount() {
     }
 
-    public ApplyDepositAccount(int id, String msghdTrdt, String srlPtnsrl, String cltaccSubno, String cltaccCltnm, String bkaccAccno, String bkaccAccnm, String amtTamt, String amtAclamt, String amtFeeamt, int feeRate, String balflag, String srlPlatsrl, String usage, String status, String createTime, String modifyTime) {
+    public ApplyDepositAccount(Long id, String msghdTrdt, String srlPtnsrl, String cltaccSubno, String cltaccCltnm, String bkaccAccno, String bkaccAccnm, String amtTamt, String amtAclamt, String amtFeeamt, int feeRate, String balflag, String srlPlatsrl, String usage, String status, String createTime, String modifyTime) {
         this.id = id;
         this.msghdTrdt = msghdTrdt;
         this.srlPtnsrl = srlPtnsrl;
@@ -116,11 +116,11 @@ public class ApplyDepositAccount {
         this.modifyTime = modifyTime;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
