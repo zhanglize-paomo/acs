@@ -63,11 +63,11 @@ public class ApplicationDepositService {
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("srl_ptnsrl");
-            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
-                treeMap.put("code", "303");
-                treeMap.put("msg", "合作方交易流水号重复使用");
-                return treeMap;
-            }
+//            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
+//                treeMap.put("code", "303");
+//                treeMap.put("msg", "合作方交易流水号重复使用");
+//                return treeMap;
+//            }
             /** 资金账号 */
             String cltacc_subno = req.getParameter("cltacc_subno");
             /** 户名 */
@@ -83,7 +83,7 @@ public class ApplicationDepositService {
                 treeMap.put("code", "301");
                 treeMap.put("msg", "单笔资金提现总额超过规定额度");
                 return treeMap;
-            }else if(amt_tamt == 0){
+            } else if (amt_tamt == 0) {
                 treeMap.put("code", "302");
                 treeMap.put("msg", "单笔资金提现总额不能为0或者空");
                 return treeMap;
@@ -198,6 +198,15 @@ public class ApplicationDepositService {
         Integer feeRate = Integer.valueOf(userAccount.getFeeRate());
         /** 转账手续费 */
         long amt_feeamt = amt_tamt * feeRate / 10000;
+        //判断手续费是否为0
+        if (feeRate == 0) {
+            amt_feeamt = 0;
+        } else {
+            amt_feeamt = amt_tamt * feeRate / 10000;
+            if (amt_feeamt == 0) {
+                amt_feeamt = 1;
+            }
+        }
         /** 发生额(资金单位:分) */
         long amt_aclamt = amt_tamt - amt_feeamt;
         map.put("amt_feeamt", amt_feeamt);
@@ -286,8 +295,8 @@ public class ApplicationDepositService {
     /**
      * 出入金结果查询[T2012]
      *
-     * @param msghd_trdt  交易日期
-     * @param orgsrl      待查询原交易流水号
+     * @param msghd_trdt 交易日期
+     * @param orgsrl     待查询原交易流水号
      * @return
      */
     public Map<String, String> queryApplicationDeposit(String msghd_trdt, String orgsrl) {

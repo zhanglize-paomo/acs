@@ -40,7 +40,7 @@
     </update>
 
     <select id="queryFlagStaus" resultMap="resultMap">
-          select * from apply_deposit_account where balflag = #{balflag} AND status = #{status} AND
+          select * from apply_deposit_account where balflag = #{balflag} AND status = #{status}
             <if test="msghdTrdt != null">
              AND msghd_trdt = #{msghdTrdt,jdbcType=CHAR}
             </if>
