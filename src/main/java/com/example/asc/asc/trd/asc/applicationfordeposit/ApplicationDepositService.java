@@ -64,7 +64,7 @@ public class ApplicationDepositService {
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("srl_ptnsrl");
             if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
-                treeMap.put("code", "302");
+                treeMap.put("code", "303");
                 treeMap.put("msg", "合作方交易流水号重复使用");
                 return treeMap;
             }
@@ -82,6 +82,10 @@ public class ApplicationDepositService {
             if (amt_tamt > 5000000) {
                 treeMap.put("code", "301");
                 treeMap.put("msg", "单笔资金提现总额超过规定额度");
+                return treeMap;
+            }else if(amt_tamt == 0){
+                treeMap.put("code", "302");
+                treeMap.put("msg", "单笔资金提现总额不能为0或者空");
                 return treeMap;
             }
             //根据总金额计算出手续费以及发生额度
