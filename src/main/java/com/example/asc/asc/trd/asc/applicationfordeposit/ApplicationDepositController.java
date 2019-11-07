@@ -47,6 +47,4 @@ public class ApplicationDepositController {
     public Map<String,String> queryApplicationDeposit(HttpServletRequest request, HttpServletResponse response) {
         return service.queryApplicationDeposit(request, response);
     }
-
-
 }

@@ -29,4 +29,21 @@ public interface ApplyDepositAccountMapper {
      * @return
      */
     int insert(ApplyDepositAccount account);
+
+    /**
+     * 根据合作方交易流水号查询
+     *
+     * @param srlPtnsrl
+     * @return
+     */
+    ApplyDepositAccount querySrlPtnsrl(String srlPtnsrl);
+    /**
+     * 修改出金申请表数据信息
+     *
+     *
+     * @param id
+     * @param account
+     * @return
+     */
+    int update(@Param(value = "id") Long id,@Param(value = "account") ApplyDepositAccount account);
 }

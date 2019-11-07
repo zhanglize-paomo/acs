@@ -62,6 +62,11 @@ public class ApplicationDepositService {
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("srl_ptnsrl");
+            if(applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null){
+                treeMap.put("code", "302");
+                treeMap.put("msg", "合作方交易流水号重复使用");
+                return treeMap;
+            }
             /** 资金账号 */
             String cltacc_subno = req.getParameter("cltacc_subno");
             /** 户名 */
@@ -195,7 +200,7 @@ public class ApplicationDepositService {
     }
 
     /**
-     * 获取返回消息报文信息
+     * 获取出金申请返回消息报文信息
      *
      * @param trdResponse
      * @return
@@ -211,11 +216,56 @@ public class ApplicationDepositService {
     }
 
     /**
+     * 获取出金结果查询接口信息
+     *
+     * @param trdResponse
+     * @return
+     */
+    private Map<String, String> getQueryTreeMap(TrdT2012Response trdResponse) {
+        Map<String, String> treeMap = new TreeMap<>();
+        treeMap.put("msghd_rspmsg",trdResponse.getMsghd_rspmsg()); // 返回信息
+        treeMap.put("srl_ptnsrl",trdResponse.getSrl_ptnsrl()); // 合作方流水号
+        treeMap.put("srl_platsrl",trdResponse.getSrl_platsrl());// 平台流水号
+        treeMap.put("cltacc_subno",trdResponse.getCltacc_subno()); // 子账号
+        treeMap.put("cltacc_cltnm",trdResponse.getCltacc_cltnm()); // 户名
+        treeMap.put("amt_aclamt",String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
+        treeMap.put("amt_aclamt",String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
+        treeMap.put("amt_ccycd",trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
+        treeMap.put("state",trdResponse.getState()); // 交易结果:1成功;2失败;3处理中
+        treeMap.put("resttime",trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
+        treeMap.put("opion",trdResponse.getMsghd_rspmsg());// 失败原因
+        treeMap.put("ubalsta",trdResponse.getUbalsta());// 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
+        treeMap.put("ubaltim",trdResponse.getUbaltim());// 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
+        treeMap.put("usage",trdResponse.getUsage());// 资金用途(附言)
+        // 业务标示
+        // 入金业务时指：
+        // A00 正常入金
+        // B00 入金成功后，再冻结资金
+        // 出金业务时指：
+        // A00 正常出金
+        // B01 解冻资金后，再出金
+        treeMap.put("trsflag",trdResponse.getTrsflag());// 失败原因
+        treeMap.put("fdate",trdResponse.getMsghd_rspmsg());// 原交易日期
+        treeMap.put("ftime",trdResponse.getFtime()); // 原交易时间
+        treeMap.put("spec1",trdResponse.getSpec1());// 备用1
+        treeMap.put("spec2",trdResponse.getSpec2()); // 备用2
+        treeMap.put("dremark1",trdResponse.getDremark1());// 合作方自定义备注1
+        treeMap.put("dremark2",trdResponse.getDremark2());// 合作方自定义备注2
+        treeMap.put("dremark3",trdResponse.getDremark3());// 合作方自定义备注3
+        treeMap.put("dremark4",trdResponse.getDremark4());// 合作方自定义备注4
+        treeMap.put("dremark5",trdResponse.getDremark5());// 合作方自定义备注5
+        treeMap.put("dremark6",trdResponse.getDremark6());// 合作方自定义备注6
+        return treeMap;
+    }
+
+
+    /**
      * 出入金结果查询[T2012]
      *
      * @return
      */
     public Map<String, String> queryApplicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+        Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -223,8 +273,9 @@ public class ApplicationDepositService {
             String msghd_trdt = req.getParameter("msghd_trdt");
             /** 待查询原交易流水号 */
             String orgsrl = req.getParameter("orgsrl");
-//            //加载配置文件信息
-//            FileConfigure.getFileConfigure(cltacc_subno);
+            ApplyDepositAccount account = applyDepositAccountService.querySrlPtnsrl(orgsrl);
+            //加载配置文件信息
+            FileConfigure.getFileConfigure(account.getCltaccSubno());
             // 2. 实例化交易对象
             TrdT2012Request trdRequest = new TrdT2012Request();
             trdRequest.setMsghd_trdt(msghd_trdt);
@@ -240,49 +291,23 @@ public class ApplicationDepositService {
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT2012Response trdResponse = new TrdT2012Response(respMsg);
-            System.out.println("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            String state = trdResponse.getState();  // 交易结果:1成功;2失败;3处理中
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                // ！！！ 在这里添加合作方处理逻辑！！！
-                System.out.println("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]"); // 返回信息
-                System.out.println("[srl_ptnsrl]=[" + trdResponse.getSrl_ptnsrl() + "]"); // 合作方流水号
-                System.out.println("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]"); // 平台流水号
-                System.out.println("[cltacc_subno]=[" + trdResponse.getCltacc_subno() + "]"); // 子账号
-                System.out.println("[cltacc_cltnm]=[" + trdResponse.getCltacc_cltnm() + "]"); // 户名
-                System.out.println("[amt_aclamt]=[" + trdResponse.getAmt_aclamt() + "]分"); // 发生额
-                System.out.println("[amt_aclamt]=[" + trdResponse.getAmt_feeamt() + "]分"); // 转账手续费
-                System.out.println("[amt_ccycd]=[" + trdResponse.getAmt_ccycd() + "]"); // 币种，默认“CNY”
-                System.out.println("[state]=[" + trdResponse.getState() + "]"); // 交易结果:1成功;2失败;3处理中
-                System.out.println("[resttime]=[" + trdResponse.getResttime() + "]"); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
-                System.out.println("[opion]=[" + trdResponse.getOpion() + "]"); // 失败原因
-                System.out.println("[ubalsta]=[" + trdResponse.getUbalsta() + "]"); // 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
-                System.out.println("[ubaltim]=[" + trdResponse.getUbaltim() + "]"); // 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
-                System.out.println("[usage]=[" + trdResponse.getUsage() + "]"); // 资金用途(附言)
-                // 业务标示
-                // 入金业务时指：
-                // A00 正常入金
-                // B00 入金成功后，再冻结资金
-                // 出金业务时指：
-                // A00 正常出金
-                // B01 解冻资金后，再出金
-                System.out.println("[trsflag]=[" + trdResponse.getTrsflag() + "]");
-                System.out.println("[fdate]=[" + trdResponse.getFdate() + "]"); // 原交易日期
-                System.out.println("[ftime]=[" + trdResponse.getFtime() + "]"); // 原交易时间
-                System.out.println("[spec1]=[" + trdResponse.getSpec1() + "]"); // 备用1
-                System.out.println("[spec2]=[" + trdResponse.getSpec2() + "]"); // 备用2
-                System.out.println("[dremark1]=[" + trdResponse.getDremark1() + "]"); // 合作方自定义备注1
-                System.out.println("[dremark2]=[" + trdResponse.getDremark2() + "]"); // 合作方自定义备注2
-                System.out.println("[dremark3]=[" + trdResponse.getDremark3() + "]"); // 合作方自定义备注3
-                System.out.println("[dremark4]=[" + trdResponse.getDremark4() + "]"); // 合作方自定义备注4
-                System.out.println("[dremark5]=[" + trdResponse.getDremark5() + "]"); // 合作方自定义备注5
-                System.out.println("[dremark6]=[" + trdResponse.getDremark6() + "]"); // 合作方自定义备注6
+                account.setStatus(state);
+                applyDepositAccountService.update(account.getId(),account);
+                //获取到出金结果查询的返回信息
+               treeMap =  getQueryTreeMap(trdResponse);
             } else {
-                // ！！！ 在这里添加合作方处理逻辑！！！
+                account.setStatus(state);
+                applyDepositAccountService.update(account.getId(),account);
+                treeMap =  getQueryTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return treeMap;
     }
 
 }

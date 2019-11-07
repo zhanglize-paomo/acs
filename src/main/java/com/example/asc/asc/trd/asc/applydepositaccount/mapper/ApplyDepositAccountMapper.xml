@@ -28,8 +28,15 @@
                 #{amt_aclamt,jdbcType=CHAR},#{amt_feeamt,jdbcType=CHAR},#{fee_rate,jdbcType=DECIMAL},#{balflag,jdbcType=CHAR},
                  #{status,jdbcType=CHAR},#{srl_platsrl,jdbcType=CHAR}, #{usage,jdbcType=CHAR},#{create_time,jdbcType=CHAR},#{modifyTime,jdbcType=CHAR})
     </insert>
+
     <select id="queryCount" resultMap="resultMap">
           select * from apply_deposit_account where cltacc_subno = #{cltaccSubno} AND msghd_trdt = #{msghdTrdt} AND status = '成功'
     </select>
+    <select id="querySrlPtnsrl" resultMap="resultMap">
+         select * from apply_deposit_account where srl_ptnsrl = #{srlPtnsrl}
+    </select>
 
+    <update id="update" parameterType="com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccount">
+        UPDATE apply_deposit_account SET status = #{account.status,jdbcType=VARCHAR},modify_time = now() WHERE  id = #{id}
+    </update>
 </mapper>
