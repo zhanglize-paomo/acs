@@ -163,5 +163,16 @@ public class DateUtils {
         return df.format(new Date());
     }
 
+    /**
+     * 获取到昨天的日期信息 yyyyMMdd
+     *
+     * @param
+     * @return
+     */
+    public static String yesterDayTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        return DATE_FORMAT.format(cal.getTime());//获取昨天日期
+    }
 
 }

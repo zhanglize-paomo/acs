@@ -35,8 +35,15 @@
     <select id="querySrlPtnsrl" resultMap="resultMap">
          select * from apply_deposit_account where srl_ptnsrl = #{srlPtnsrl}
     </select>
-
     <update id="update" parameterType="com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccount">
         UPDATE apply_deposit_account SET status = #{account.status,jdbcType=VARCHAR},modify_time = now() WHERE  id = #{id}
     </update>
+
+    <select id="queryFlagStaus" resultMap="resultMap">
+          select * from apply_deposit_account where balflag = #{balflag} AND status = #{status} AND
+            <if test="msghdTrdt != null">
+             AND msghd_trdt = #{msghdTrdt,jdbcType=CHAR}
+            </if>
+    </select>
+
 </mapper>

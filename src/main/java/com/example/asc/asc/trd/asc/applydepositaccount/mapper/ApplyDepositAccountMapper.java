@@ -46,4 +46,16 @@ public interface ApplyDepositAccountMapper {
      * @return
      */
     int update(@Param(value = "id") Long id,@Param(value = "account") ApplyDepositAccount account);
+
+    /**
+     * 根据结算方式表示以及交易状态查询出对应的出金申请数据信息
+     *
+     * @param balflag  结算表示
+     * @param status   交易状态
+     * @param msghdTrdt 交易日期
+     * @return
+     */
+    List<ApplyDepositAccount> queryFlagStaus(@Param(value = "balflag") String balflag,
+                                             @Param(value = "status") String status,
+                                             @Param(value = "msghdTrdt") String msghdTrdt);
 }

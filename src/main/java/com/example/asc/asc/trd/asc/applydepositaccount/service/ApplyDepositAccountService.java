@@ -69,4 +69,16 @@ public class ApplyDepositAccountService {
     public int update(Long id, ApplyDepositAccount account) {
         return mapper.update(id,account);
     }
+
+    /**
+     * 根据结算方式表示以及交易状态查询出对应的出金申请数据信息
+     *
+     * @param balflag  结算表示
+     * @param status   交易状态
+     * @param msghdTrdt 交易日期
+     * @return
+     */
+    public List<ApplyDepositAccount> queryFlagStaus(String balflag, String status, String msghdTrdt) {
+        return mapper.queryFlagStaus(balflag,status,msghdTrdt);
+    }
 }

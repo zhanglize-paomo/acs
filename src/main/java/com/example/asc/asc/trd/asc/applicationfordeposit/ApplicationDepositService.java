@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -265,14 +266,29 @@ public class ApplicationDepositService {
      * @return
      */
     public Map<String, String> queryApplicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
-        Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
-            /** 交易日期 */
-            String msghd_trdt = req.getParameter("msghd_trdt");
-            /** 待查询原交易流水号 */
-            String orgsrl = req.getParameter("orgsrl");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        /** 交易日期 */
+        String msghd_trdt = req.getParameter("msghd_trdt");
+        /** 待查询原交易流水号 */
+        String orgsrl = req.getParameter("orgsrl");
+        return queryApplicationDeposit(msghd_trdt, orgsrl);
+    }
+
+    /**
+     * 出入金结果查询[T2012]
+     *
+     * @param msghd_trdt  交易日期
+     * @param orgsrl      待查询原交易流水号
+     * @return
+     */
+    public Map<String, String> queryApplicationDeposit(String msghd_trdt, String orgsrl) {
+        Map<String, String> treeMap = new TreeMap<>();
+        try {
             ApplyDepositAccount account = applyDepositAccountService.querySrlPtnsrl(orgsrl);
             //加载配置文件信息
             FileConfigure.getFileConfigure(account.getCltaccSubno());
