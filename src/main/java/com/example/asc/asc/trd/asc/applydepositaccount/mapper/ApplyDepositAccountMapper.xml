@@ -22,11 +22,11 @@
     </resultMap>
     <insert id="insert">
           insert into apply_deposit_account (id,msghd_trdt,srl_ptnsrl,cltacc_subno,cltacc_cltnm,bkacc_accno,bkacc_accnm,
-                     amt_tamt,amt_aclamt,amt_feeamt,fee_rate,balflag,status,srl_platsrl,usage,create_time,modify_time)
-          values (#{id,jdbcType=DECIMAL}, #{msghd_trdt,jdbcType=CHAR},#{srl_ptnsrl,jdbcType=CHAR}, #{cltacc_subno,jdbcType=CHAR},
-                #{cltacc_cltnm,jdbcType=CHAR},#{bkacc_accno,jdbcType=CHAR}, #{bkacc_accnm,jdbcType=CHAR},#{amt_tamt,jdbcType=CHAR},
-                #{amt_aclamt,jdbcType=CHAR},#{amt_feeamt,jdbcType=CHAR},#{fee_rate,jdbcType=DECIMAL},#{balflag,jdbcType=CHAR},
-                 #{status,jdbcType=CHAR},#{srl_platsrl,jdbcType=CHAR}, #{usage,jdbcType=CHAR},#{create_time,jdbcType=CHAR},#{modifyTime,jdbcType=CHAR})
+                     amt_tamt,amt_aclamt,amt_feeamt,fee_rate,balflag,status,srl_platsrl,`usage`,create_time)
+          values (#{id,jdbcType=DECIMAL}, #{msghdTrdt,jdbcType=CHAR},#{srlPtnsrl,jdbcType=CHAR}, #{cltaccSubno,jdbcType=CHAR},
+                #{cltaccCltnm,jdbcType=CHAR},#{bkaccAccno,jdbcType=CHAR}, #{bkaccAccnm,jdbcType=CHAR},#{amtTamt,jdbcType=CHAR},
+                #{amtAclamt,jdbcType=CHAR},#{amtFeeamt,jdbcType=CHAR},#{feeRate,jdbcType=INTEGER},#{balflag,jdbcType=CHAR},
+                 #{status,jdbcType=CHAR},#{srlPlatsrl,jdbcType=CHAR},#{usage,jdbcType=CHAR},#{createTime,jdbcType=CHAR})
     </insert>
 
     <select id="queryCount" resultMap="resultMap">
