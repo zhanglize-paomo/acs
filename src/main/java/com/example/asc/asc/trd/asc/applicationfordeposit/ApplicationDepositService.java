@@ -62,7 +62,7 @@ public class ApplicationDepositService {
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("srl_ptnsrl");
-            if(applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null){
+            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
                 treeMap.put("code", "302");
                 treeMap.put("msg", "合作方交易流水号重复使用");
                 return treeMap;
@@ -139,11 +139,11 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                insertAccount(trdRequest,trdResponse,"处理中");
+                insertAccount(trdRequest, trdResponse, "处理中");
                 treeMap = getTreeMap(trdResponse);
             } else {
                 //交易失败添加到出库申请表中
-                insertAccount(trdRequest,trdResponse,"失败");
+                insertAccount(trdRequest, trdResponse, "失败");
                 treeMap = getTreeMap(trdResponse);
             }
         } catch (Exception e) {
@@ -154,7 +154,8 @@ public class ApplicationDepositService {
 
     /**
      * 添加数据到出金申请表中
-     *  @param trdRequest
+     *
+     * @param trdRequest
      * @param trdResponse
      * @param status
      */
@@ -223,20 +224,20 @@ public class ApplicationDepositService {
      */
     private Map<String, String> getQueryTreeMap(TrdT2012Response trdResponse) {
         Map<String, String> treeMap = new TreeMap<>();
-        treeMap.put("msghd_rspmsg",trdResponse.getMsghd_rspmsg()); // 返回信息
-        treeMap.put("srl_ptnsrl",trdResponse.getSrl_ptnsrl()); // 合作方流水号
-        treeMap.put("srl_platsrl",trdResponse.getSrl_platsrl());// 平台流水号
-        treeMap.put("cltacc_subno",trdResponse.getCltacc_subno()); // 子账号
-        treeMap.put("cltacc_cltnm",trdResponse.getCltacc_cltnm()); // 户名
-        treeMap.put("amt_aclamt",String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
-        treeMap.put("amt_aclamt",String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
-        treeMap.put("amt_ccycd",trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
-        treeMap.put("state",trdResponse.getState()); // 交易结果:1成功;2失败;3处理中
-        treeMap.put("resttime",trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
-        treeMap.put("opion",trdResponse.getMsghd_rspmsg());// 失败原因
-        treeMap.put("ubalsta",trdResponse.getUbalsta());// 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
-        treeMap.put("ubaltim",trdResponse.getUbaltim());// 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
-        treeMap.put("usage",trdResponse.getUsage());// 资金用途(附言)
+        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg()); // 返回信息
+        treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
+        treeMap.put("srl_platsrl", trdResponse.getSrl_platsrl());// 平台流水号
+        treeMap.put("cltacc_subno", trdResponse.getCltacc_subno()); // 子账号
+        treeMap.put("cltacc_cltnm", trdResponse.getCltacc_cltnm()); // 户名
+        treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
+        treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
+        treeMap.put("amt_ccycd", trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
+        treeMap.put("state", trdResponse.getState()); // 交易结果:1成功;2失败;3处理中
+        treeMap.put("resttime", trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
+        treeMap.put("opion", trdResponse.getMsghd_rspmsg());// 失败原因
+        treeMap.put("ubalsta", trdResponse.getUbalsta());// 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
+        treeMap.put("ubaltim", trdResponse.getUbaltim());// 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
+        treeMap.put("usage", trdResponse.getUsage());// 资金用途(附言)
         // 业务标示
         // 入金业务时指：
         // A00 正常入金
@@ -244,20 +245,19 @@ public class ApplicationDepositService {
         // 出金业务时指：
         // A00 正常出金
         // B01 解冻资金后，再出金
-        treeMap.put("trsflag",trdResponse.getTrsflag());// 失败原因
-        treeMap.put("fdate",trdResponse.getMsghd_rspmsg());// 原交易日期
-        treeMap.put("ftime",trdResponse.getFtime()); // 原交易时间
-        treeMap.put("spec1",trdResponse.getSpec1());// 备用1
-        treeMap.put("spec2",trdResponse.getSpec2()); // 备用2
-        treeMap.put("dremark1",trdResponse.getDremark1());// 合作方自定义备注1
-        treeMap.put("dremark2",trdResponse.getDremark2());// 合作方自定义备注2
-        treeMap.put("dremark3",trdResponse.getDremark3());// 合作方自定义备注3
-        treeMap.put("dremark4",trdResponse.getDremark4());// 合作方自定义备注4
-        treeMap.put("dremark5",trdResponse.getDremark5());// 合作方自定义备注5
-        treeMap.put("dremark6",trdResponse.getDremark6());// 合作方自定义备注6
+        treeMap.put("trsflag", trdResponse.getTrsflag());// 失败原因
+        treeMap.put("fdate", trdResponse.getMsghd_rspmsg());// 原交易日期
+        treeMap.put("ftime", trdResponse.getFtime()); // 原交易时间
+        treeMap.put("spec1", trdResponse.getSpec1());// 备用1
+        treeMap.put("spec2", trdResponse.getSpec2()); // 备用2
+        treeMap.put("dremark1", trdResponse.getDremark1());// 合作方自定义备注1
+        treeMap.put("dremark2", trdResponse.getDremark2());// 合作方自定义备注2
+        treeMap.put("dremark3", trdResponse.getDremark3());// 合作方自定义备注3
+        treeMap.put("dremark4", trdResponse.getDremark4());// 合作方自定义备注4
+        treeMap.put("dremark5", trdResponse.getDremark5());// 合作方自定义备注5
+        treeMap.put("dremark6", trdResponse.getDremark6());// 合作方自定义备注6
         return treeMap;
     }
-
 
     /**
      * 出入金结果查询[T2012]
@@ -296,13 +296,13 @@ public class ApplicationDepositService {
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 account.setStatus(state);
-                applyDepositAccountService.update(account.getId(),account);
+                applyDepositAccountService.update(account.getId(), account);
                 //获取到出金结果查询的返回信息
-               treeMap =  getQueryTreeMap(trdResponse);
+                treeMap = getQueryTreeMap(trdResponse);
             } else {
                 account.setStatus(state);
-                applyDepositAccountService.update(account.getId(),account);
-                treeMap =  getQueryTreeMap(trdResponse);
+                applyDepositAccountService.update(account.getId(), account);
+                treeMap = getQueryTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
