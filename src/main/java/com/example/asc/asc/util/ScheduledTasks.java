@@ -6,7 +6,6 @@ import com.example.asc.asc.trd.asc.applydepositaccount.service.ApplyDepositAccou
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,8 +38,8 @@ public class ScheduledTasks {
     /**
      * 每天早上9:30 到下午16:40,每隔俩个小时查询一次申请表中的数据查看是否到账
      */
-//    @Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(cron = "1 * * * * ?")
+//    @Scheduled(cron = "0 30 9,11,14,16 * * ?")
+//    @Scheduled(cron = "1 * * * * ?")
     public void pollT0Task() {
         logger.info("T0 轮询池定时任务 :" + DateUtils.stringToDate());
         String balflag = "T0";
@@ -54,10 +53,10 @@ public class ScheduledTasks {
     }
 
     /**
-     * 每天14：00查询昨天T1的资金到没到帐
+     * 每天14：00到下午17：00每隔一个小时查询昨天T1的资金到没到帐
      */
-//    @Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(cron = "1 * * * * ?")
+//    @Scheduled(cron = "0 0 14,15,16,17 * * ?")
+//    @Scheduled(cron = "1 * * * * ?")
     public void pollT1Task() {
         logger.info("T1 轮询池定时任务 :" + DateUtils.stringToDate());
         String balflag = "T1";
