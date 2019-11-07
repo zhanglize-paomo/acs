@@ -63,11 +63,11 @@ public class ApplicationDepositService {
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("srl_ptnsrl");
-//            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
-//                treeMap.put("code", "303");
-//                treeMap.put("msg", "合作方交易流水号重复使用");
-//                return treeMap;
-//            }
+            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
+                treeMap.put("code", "303");
+                treeMap.put("msg", "合作方交易流水号重复使用");
+                return treeMap;
+            }
             /** 资金账号 */
             String cltacc_subno = req.getParameter("cltacc_subno");
             /** 户名 */
