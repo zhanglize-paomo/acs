@@ -324,7 +324,11 @@ public class ApplicationDepositService {
             String state = trdResponse.getState();  // 交易结果:1成功;2失败;3处理中
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                account.setStatus(state);
+                if (state.equals("1")) {
+                    account.setStatus("成功");
+                } else if (state.equals("2")) {
+                    account.setStatus("失败");
+                }
                 applyDepositAccountService.update(account.getId(), account);
                 //获取到出金结果查询的返回信息
                 treeMap = getQueryTreeMap(trdResponse);
