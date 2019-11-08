@@ -144,11 +144,11 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                insertAccount(trdRequest, trdResponse, "处理中");
+                insertAccount(trdRequest, trdResponse, "3");
                 treeMap = getTreeMap(trdResponse);
             } else {
                 //交易失败添加到出库申请表中
-                insertAccount(trdRequest, trdResponse, "失败");
+                insertAccount(trdRequest, trdResponse, "2");
                 treeMap = getTreeMap(trdResponse);
             }
         } catch (Exception e) {
@@ -324,11 +324,7 @@ public class ApplicationDepositService {
             String state = trdResponse.getState();  // 交易结果:1成功;2失败;3处理中
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                if (state.equals("1")) {
-                    account.setStatus("成功");
-                } else if (state.equals("2")) {
-                    account.setStatus("失败");
-                }
+                account.setStatus(state);
                 applyDepositAccountService.update(account.getId(), account);
                 //获取到出金结果查询的返回信息
                 treeMap = getQueryTreeMap(trdResponse);

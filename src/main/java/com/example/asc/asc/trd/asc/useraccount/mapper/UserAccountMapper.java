@@ -19,4 +19,5 @@ public interface UserAccountMapper {
      * @return
      */
     UserAccount findBySubNo(String subno);
+
 }

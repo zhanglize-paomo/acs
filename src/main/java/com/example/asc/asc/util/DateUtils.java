@@ -1,5 +1,6 @@
 package com.example.asc.asc.util;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,6 +25,7 @@ public class DateUtils {
     public static final String DEFAULT_TIME_PATTERN = "HH:mm";
 
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");//日期格式
+    public static final SimpleDateFormat DATE_FORMAT_ = new SimpleDateFormat("yyyy-MM-dd");//日期格式
     public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");//时间时间
     public static final SimpleDateFormat DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//完整日期加时间格式
     public static final Date NOW_DATE = new Date();//当前时间
@@ -75,6 +77,23 @@ public class DateUtils {
             System.out.println(e.getMessage());
         }
         return null;
+    }
+
+
+    /**
+     * 将日期转换为指定格式的日期的形式
+     * string-->yyyy-MM-dd HH:mm:ss
+     *
+     * @param date
+     * @return
+     */
+    public static Date toDate(Date date) {
+        try {
+            date = DATE_FORMAT_.parse(DATE_FORMAT_.format(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
     }
 
     /**
@@ -173,6 +192,17 @@ public class DateUtils {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         return DATE_FORMAT.format(cal.getTime());//获取昨天日期
+    }
+
+
+    /**
+     * 获取到当天Timestamp yyyy-MM-dd HH:mm:ss
+     *
+     * @param
+     * @return
+     */
+    public static Timestamp toTimestamp() {
+        return Timestamp.valueOf(DATE_AND_TIME_FORMAT.format(new Date()));
     }
 
 }

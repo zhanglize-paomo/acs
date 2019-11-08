@@ -30,7 +30,7 @@
     </insert>
 
     <select id="queryCount" resultMap="resultMap">
-          select * from apply_deposit_account where cltacc_subno = #{cltaccSubno} AND msghd_trdt = #{msghdTrdt} AND status = '成功'
+          select * from apply_deposit_account where cltacc_subno = #{cltaccSubno} AND msghd_trdt = #{msghdTrdt} AND status = '1'
     </select>
     <select id="querySrlPtnsrl" resultMap="resultMap">
          select * from apply_deposit_account where srl_ptnsrl = #{srlPtnsrl}
