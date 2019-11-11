@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.withdraw;
 
 
+import com.example.asc.asc.trd.common.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 /**
  * 查询可 T0/T1 出金额度[T1018]
@@ -35,7 +35,7 @@ public class WithDrawController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,String> withDraw(HttpServletRequest request, HttpServletResponse response) {
+    public BaseResponse withDraw(HttpServletRequest request, HttpServletResponse response) {
         return service.withDraw(request, response);
     }
 

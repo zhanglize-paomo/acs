@@ -1,10 +1,12 @@
 package com.example.asc.asc.trd.asc.withdraw;
 
+import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT1018Request;
 import com.trz.netwk.api.trd.TrdT1018Response;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,8 @@ public class WithDrawService {
      *
      * @return
      */
-    public Map<String, String> withDraw(HttpServletRequest req, HttpServletResponse resp) {
+    public BaseResponse withDraw(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
         Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
@@ -68,14 +71,14 @@ public class WithDrawService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                treeMap = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
+                response = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
             } else {
-                treeMap = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
+                response = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return treeMap;
+        return response;
     }
 
     /**
@@ -86,24 +89,29 @@ public class WithDrawService {
      * @param cltacc_cltnm
      * @return
      */
-    private Map<String, String> getTreeMap(TrdT1018Response trdResponse, String cltacc_subno, String cltacc_cltnm) {
-        Map<String, String> treeMap = new TreeMap<>();
+    private BaseResponse getTreeMap(TrdT1018Response trdResponse, String cltacc_subno, String cltacc_cltnm) {
         //获取请求报文信息
-        treeMap.put("msghd_rspcode", trdResponse.getMsghd_rspcode());
-        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
-        treeMap.put("cltacc_subno", cltacc_subno);  // 资金账号
-        treeMap.put("cltacc_cltnm", cltacc_cltnm); // 户名
-        treeMap.put("amt_ccycd", trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
-        // 账户余额-智融资金账户
-        treeMap.put("acsamt_balamt", String.valueOf(trdResponse.getAcsamt_balamt()));  // 资金余额(单位:分)
-        treeMap.put("acsamt_useamt", String.valueOf(trdResponse.getAcsamt_useamt()));  // 可用资金
-        treeMap.put("acsamt_frzamt", String.valueOf(trdResponse.getAcsamt_frzamt())); // 冻结资金
-        // 可T1代付出金的额度
-        treeMap.put("t1amt_ctamta00", String.valueOf(trdResponse.getT1amt_ctamta00()));  // 正常出金（A00）时的额度(单位:分)
-        treeMap.put("t1amt_ctamtb01", String.valueOf(trdResponse.getT1amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
-        // 可T0代付出金的额度
-        treeMap.put("t0amt_ctamta00", String.valueOf(trdResponse.getT0amt_ctamta00())); // 正常出金（A00）时的额度(单位:分)
-        treeMap.put("t0amt_ctamtb01", String.valueOf(trdResponse.getT0amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
-        return treeMap;
+        BaseResponse response = new BaseResponse();
+        Map<String, String> treeMap = new TreeMap<>();
+        treeMap.put("t0amt_ctamta00",String.valueOf(trdResponse.getT1amt_ctamta00()));
+        response.setCode(trdResponse.getMsghd_rspcode());
+        response.setMsg(trdResponse.getMsghd_rspmsg());
+        response.setData(JSONObject.fromObject(treeMap));
+//        treeMap.put("msghd_rspcode", trdResponse.getMsghd_rspcode());
+//        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
+//        treeMap.put("cltacc_subno", cltacc_subno);  // 资金账号
+//        treeMap.put("cltacc_cltnm", cltacc_cltnm); // 户名
+//        treeMap.put("amt_ccycd", trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
+//        // 账户余额-智融资金账户
+//        treeMap.put("acsamt_balamt", String.valueOf(trdResponse.getAcsamt_balamt()));  // 资金余额(单位:分)
+//        treeMap.put("acsamt_useamt", String.valueOf(trdResponse.getAcsamt_useamt()));  // 可用资金
+//        treeMap.put("acsamt_frzamt", String.valueOf(trdResponse.getAcsamt_frzamt())); // 冻结资金
+//        // 可T1代付出金的额度
+//        treeMap.put("t1amt_ctamta00", String.valueOf(trdResponse.getT1amt_ctamta00()));  // 正常出金（A00）时的额度(单位:分)
+//        treeMap.put("t1amt_ctamtb01", String.valueOf(trdResponse.getT1amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
+//        // 可T0代付出金的额度
+//        treeMap.put("t0amt_ctamta00", String.valueOf(trdResponse.getT0amt_ctamta00())); // 正常出金（A00）时的额度(单位:分)
+//        treeMap.put("t0amt_ctamtb01", String.valueOf(trdResponse.getT0amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
+        return response;
     }
 }
