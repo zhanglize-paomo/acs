@@ -39,6 +39,20 @@ public class EntryExitAccountController {
     }
 
     /**
+     * 支付直通车,异步交易通知地址信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "orderscantopay",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String,String>  orderScantoPay(HttpServletRequest request, HttpServletResponse response) {
+        //对数据进行校验
+        checkData(request);
+        return service.orderScantoPay(request, response);
+    }
+
+
+    /**
      * H5支付,调用云闪付的平台进行支付
      *
      * @return
@@ -61,6 +75,7 @@ public class EntryExitAccountController {
      */
     private Map<String,String> checkData(HttpServletRequest request) {
         Map<String, String> treeMap = new TreeMap<>();
+        Map<String, String> map = new TreeMap<>();
         String appid = request.getParameter("appid");  //客户的唯一标示
         if(StringUtils.isEmpty(appid)){
             treeMap.put("code","ZF300");
@@ -105,6 +120,7 @@ public class EntryExitAccountController {
             treeMap.put("msg","客户资金账户不存在");
             return treeMap;
         }
+        //客户发送请求信息的后台异步消息通知地址信息
         String servNoticeUrl = request.getParameter("servNoticeUrl");  //后台异步通知url
         if(StringUtils.isEmpty(servNoticeUrl)){
             treeMap.put("code","ZF306");
@@ -140,7 +156,28 @@ public class EntryExitAccountController {
             treeMap.put("msg","签名信息不可为空");
             return treeMap;
         }
+        map.put("appid",appid);
+        map.put("money",money);
+        map.put("ptnSrl",ptnSrl);
+        map.put("subNo",subNo);
+        map.put("servNoticeUrl",servNoticeUrl);
+        map.put("subject",subject);
+        map.put("goodsDesc",goodsDesc);
+        map.put("timestamp",timestamp);
         //对签名的信息进行数据的校验
+        checkDigest(map,digest);
+        return null;
+    }
+
+    /**
+     * 对数据进行签名的数据校验
+     *
+     * @param map
+     * @param digest
+     * @return
+     */
+    private Map<String, String> checkDigest(Map<String, String> map, String digest) {
+
 
         return null;
     }
