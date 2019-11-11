@@ -63,13 +63,13 @@ public class MD5 {
 
 			if (excludeStr == null || !key.equalsIgnoreCase(replaceKeyStr + excludeStr)) {
 				Object value = mapParams.get(key);
-//				if (value != null && org.apache.commons.lang.StringUtils.isNotBlank(value.toString())) {
-//					if (replaceKeyStr != null) {
-//						key = key.replace(replaceKeyStr, "");
-//					}
-//					content.append(new StringBuilder().append(value).toString());
-//					++index;
-//				}
+				if (value != null && org.apache.commons.lang.StringUtils.isNotBlank(value.toString())) {
+					if (replaceKeyStr != null) {
+						key = key.replace(replaceKeyStr, "");
+					}
+					content.append(new StringBuilder().append(value).toString());
+					++index;
+				}
 			}
 
 		}

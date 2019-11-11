@@ -11,6 +11,7 @@ import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
+import com.example.asc.asc.util.MoneyUtils;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdCommonResponse;
 import com.trz.netwk.api.trd.TrdT2012Request;
@@ -53,8 +54,6 @@ public class ApplicationDepositService {
         this.applyDepositAccountService = applyDepositAccountService;
     }
 
-
-
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
@@ -91,7 +90,7 @@ public class ApplicationDepositService {
             /** 开户名称 */
             String bkacc_accnm = settlement.getAccNm();
             /** 总金额 */
-            long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
+            long amt_tamt = Long.valueOf(MoneyUtils.changeY2F(req.getParameter("amt_tamt")));
             //查询单笔金额是否超过5万的额度
             if (amt_tamt > 5000000) {
                 response.setCode("CJ302");
