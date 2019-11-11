@@ -47,7 +47,7 @@ public class ApplicationDepositController {
      */
     @RequestMapping(value = "query",method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,String> queryApplicationDeposit(HttpServletRequest request, HttpServletResponse response) {
+    public BaseResponse queryApplicationDeposit(HttpServletRequest request, HttpServletResponse response) {
         return service.queryApplicationDeposit(request, response);
     }
 }

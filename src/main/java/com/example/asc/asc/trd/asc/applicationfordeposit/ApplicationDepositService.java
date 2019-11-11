@@ -256,11 +256,12 @@ public class ApplicationDepositService {
      * @param trdResponse
      * @return
      */
-    private Map<String, String> getQueryTreeMap(TrdT2012Response trdResponse) {
+    private BaseResponse getQueryTreeMap(TrdT2012Response trdResponse) {
+        BaseResponse response = new BaseResponse();
+        response.setCode("000000");
+        response.setMsg(trdResponse.getMsghd_rspmsg());  // 返回信息
         Map<String, String> treeMap = new TreeMap<>();
-        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg()); // 返回信息
         treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
-        treeMap.put("srl_platsrl", trdResponse.getSrl_platsrl());// 平台流水号
         treeMap.put("cltacc_subno", trdResponse.getCltacc_subno()); // 子账号
         treeMap.put("cltacc_cltnm", trdResponse.getCltacc_cltnm()); // 户名
         treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
@@ -282,15 +283,7 @@ public class ApplicationDepositService {
         treeMap.put("trsflag", trdResponse.getTrsflag());// 失败原因
         treeMap.put("fdate", trdResponse.getMsghd_rspmsg());// 原交易日期
         treeMap.put("ftime", trdResponse.getFtime()); // 原交易时间
-        treeMap.put("spec1", trdResponse.getSpec1());// 备用1
-        treeMap.put("spec2", trdResponse.getSpec2()); // 备用2
-        treeMap.put("dremark1", trdResponse.getDremark1());// 合作方自定义备注1
-        treeMap.put("dremark2", trdResponse.getDremark2());// 合作方自定义备注2
-        treeMap.put("dremark3", trdResponse.getDremark3());// 合作方自定义备注3
-        treeMap.put("dremark4", trdResponse.getDremark4());// 合作方自定义备注4
-        treeMap.put("dremark5", trdResponse.getDremark5());// 合作方自定义备注5
-        treeMap.put("dremark6", trdResponse.getDremark6());// 合作方自定义备注6
-        return treeMap;
+        return response;
     }
 
     /**
@@ -298,7 +291,7 @@ public class ApplicationDepositService {
      *
      * @return
      */
-    public Map<String, String> queryApplicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+    public BaseResponse queryApplicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -319,8 +312,8 @@ public class ApplicationDepositService {
      * @param orgsrl     待查询原交易流水号
      * @return
      */
-    public Map<String, String> queryApplicationDeposit(String msghd_trdt, String orgsrl) {
-        Map<String, String> treeMap = new TreeMap<>();
+    public BaseResponse queryApplicationDeposit(String msghd_trdt, String orgsrl) {
+        BaseResponse response = new BaseResponse();
         try {
             ApplyDepositAccount account = applyDepositAccountService.querySrlPtnsrl(orgsrl);
             //加载配置文件信息
@@ -347,16 +340,16 @@ public class ApplicationDepositService {
                 account.setStatus(state);
                 applyDepositAccountService.update(account.getId(), account);
                 //获取到出金结果查询的返回信息
-                treeMap = getQueryTreeMap(trdResponse);
+                response = getQueryTreeMap(trdResponse);
             } else {
                 account.setStatus(state);
                 applyDepositAccountService.update(account.getId(), account);
-                treeMap = getQueryTreeMap(trdResponse);
+                response = getQueryTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return treeMap;
+        return response;
     }
 
 }
