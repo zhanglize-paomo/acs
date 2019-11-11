@@ -1,5 +1,7 @@
 package com.example.asc.asc.trd.asc.withdraw;
 
+import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
+import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
@@ -9,6 +11,7 @@ import com.trz.netwk.api.trd.TrdT1018Response;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +27,11 @@ import java.util.TreeMap;
  */
 @Service
 public class WithDrawService {
+    private UserAccountService userAccountService;
+    @Autowired
+    public void setUserAccountService(UserAccountService userAccountService) {
+        this.userAccountService = userAccountService;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(WithDrawService.class);
 
@@ -45,9 +53,17 @@ public class WithDrawService {
             //托管方编号
             String BkCd = "ZXYH0001";
             /** 资金账号 */
-            String cltacc_subno = req.getParameter("cltacc_subno");
+            String cltacc_subno = req.getParameter("subNo");
+            //根据资金账号查询户名信息
+            UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
+            if(userAccount == null){
+                response.setCode("CJ300");
+                response.setMsg("资金账号不存在,请核对资金账户信息");
+                response.setData(null);
+                return response;
+            }
             /** 户名 */
-            String cltacc_cltnm = req.getParameter("cltacc_cltnm");
+            String cltacc_cltnm = userAccount.getName();
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
             // 2. 实例化交易对象
@@ -71,9 +87,9 @@ public class WithDrawService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                response = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
+                response = getTreeMap(trdResponse);
             } else {
-                response = getTreeMap(trdResponse, cltacc_subno, cltacc_cltnm);
+                response = getTreeMap(trdResponse);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,11 +101,9 @@ public class WithDrawService {
      * 获取返回消息报文信息
      *
      * @param trdResponse
-     * @param cltacc_subno
-     * @param cltacc_cltnm
      * @return
      */
-    private BaseResponse getTreeMap(TrdT1018Response trdResponse, String cltacc_subno, String cltacc_cltnm) {
+    private BaseResponse getTreeMap(TrdT1018Response trdResponse) {
         //获取请求报文信息
         BaseResponse response = new BaseResponse();
         Map<String, String> treeMap = new TreeMap<>();
@@ -97,21 +111,6 @@ public class WithDrawService {
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
         response.setData(JSONObject.fromObject(treeMap));
-//        treeMap.put("msghd_rspcode", trdResponse.getMsghd_rspcode());
-//        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
-//        treeMap.put("cltacc_subno", cltacc_subno);  // 资金账号
-//        treeMap.put("cltacc_cltnm", cltacc_cltnm); // 户名
-//        treeMap.put("amt_ccycd", trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
-//        // 账户余额-智融资金账户
-//        treeMap.put("acsamt_balamt", String.valueOf(trdResponse.getAcsamt_balamt()));  // 资金余额(单位:分)
-//        treeMap.put("acsamt_useamt", String.valueOf(trdResponse.getAcsamt_useamt()));  // 可用资金
-//        treeMap.put("acsamt_frzamt", String.valueOf(trdResponse.getAcsamt_frzamt())); // 冻结资金
-//        // 可T1代付出金的额度
-//        treeMap.put("t1amt_ctamta00", String.valueOf(trdResponse.getT1amt_ctamta00()));  // 正常出金（A00）时的额度(单位:分)
-//        treeMap.put("t1amt_ctamtb01", String.valueOf(trdResponse.getT1amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
-//        // 可T0代付出金的额度
-//        treeMap.put("t0amt_ctamta00", String.valueOf(trdResponse.getT0amt_ctamta00())); // 正常出金（A00）时的额度(单位:分)
-//        treeMap.put("t0amt_ctamtb01", String.valueOf(trdResponse.getT0amt_ctamtb01()));  // 解冻出金（B01）时的额度(单位:分)
         return response;
     }
 }
