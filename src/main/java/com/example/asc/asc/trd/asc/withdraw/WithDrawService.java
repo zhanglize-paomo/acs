@@ -5,6 +5,7 @@ import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
+import com.example.asc.asc.util.MoneyUtils;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT1018Request;
 import com.trz.netwk.api.trd.TrdT1018Response;
@@ -42,7 +43,6 @@ public class WithDrawService {
      */
     public BaseResponse withDraw(HttpServletRequest req, HttpServletResponse resp) {
         BaseResponse response = new BaseResponse();
-        Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -87,9 +87,9 @@ public class WithDrawService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                response = getTreeMap(trdResponse);
+                response = getTreeMap(trdResponse,cltacc_subno);
             } else {
-                response = getTreeMap(trdResponse);
+                response = getTreeMap(trdResponse,cltacc_subno);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,13 +101,15 @@ public class WithDrawService {
      * 获取返回消息报文信息
      *
      * @param trdResponse
+     * @param cltacc_subno
      * @return
      */
-    private BaseResponse getTreeMap(TrdT1018Response trdResponse) {
+    private BaseResponse getTreeMap(TrdT1018Response trdResponse, String cltacc_subno) {
         //获取请求报文信息
         BaseResponse response = new BaseResponse();
         Map<String, String> treeMap = new TreeMap<>();
-        treeMap.put("t0amt_ctamta00",String.valueOf(trdResponse.getT1amt_ctamta00()));
+        treeMap.put("t0amt_ctamta00", MoneyUtils.convertPart(trdResponse.getT1amt_ctamta00()));
+        treeMap.put("subNo", cltacc_subno);
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
         response.setData(JSONObject.fromObject(treeMap));
