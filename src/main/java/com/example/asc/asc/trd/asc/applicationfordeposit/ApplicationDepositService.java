@@ -262,8 +262,8 @@ public class ApplicationDepositService {
         Map<String, String> treeMap = new TreeMap<>();
         treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
         treeMap.put("cltacc_subno", trdResponse.getCltacc_subno()); // 子账号
-        treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
-        treeMap.put("amt_feeamt", String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
+        treeMap.put("amt_aclamt", MoneyUtils.convertPart(trdResponse.getAmt_aclamt())); // 发生额
+        treeMap.put("amt_feeamt", MoneyUtils.convertPart(trdResponse.getAmt_feeamt())); // 转账手续费
         treeMap.put("state", trdResponse.getState()); // 交易结果:1成功;2失败;3处理中
         treeMap.put("resttime", trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
         treeMap.put("opion", trdResponse.getMsghd_rspmsg());// 失败原因
