@@ -1,5 +1,6 @@
 package com.example.asc.asc.trd.asc.applicationfordeposit;
 
+import com.example.asc.asc.trd.common.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,7 +36,7 @@ public class ApplicationDepositController {
      */
     @RequestMapping(value = "apply",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,String> applicationDeposit(HttpServletRequest request, HttpServletResponse response) {
+    public BaseResponse applicationDeposit(HttpServletRequest request, HttpServletResponse response) {
         return service.applicationDeposit(request, response);
     }
 

@@ -5,6 +5,9 @@ import com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccoun
 import com.example.asc.asc.trd.asc.applydepositaccount.service.ApplyDepositAccountService;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
+import com.example.asc.asc.trd.asc.useraccountsettlement.domain.UserAccountSettlement;
+import com.example.asc.asc.trd.asc.useraccountsettlement.service.UserAccountSettlementService;
+import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
@@ -37,13 +40,19 @@ public class ApplicationDepositService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDepositService.class);
 
     private UserAccountService userAccountService;
-
     private ApplyDepositAccountService applyDepositAccountService;
+    private UserAccountSettlementService settlementService;
+    @Autowired
+    public void setSettlementService(UserAccountSettlementService settlementService) {
+        this.settlementService = settlementService;
+    }
 
     @Autowired
     public void setApplyDepositAccountService(ApplyDepositAccountService applyDepositAccountService) {
         this.applyDepositAccountService = applyDepositAccountService;
     }
+
+
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -55,7 +64,8 @@ public class ApplicationDepositService {
      *
      * @return
      */
-    public Map<String, String> applicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+    public BaseResponse applicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
         Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
@@ -67,32 +77,30 @@ public class ApplicationDepositService {
             /** 资金账号 */
             String cltacc_subno = req.getParameter("subNo");
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
-            if(userAccount == null){
-//                treeMap.put("CJ300")
-//                response.setCode("CJ300");
-//                response.setMsg("资金账号不存在,请核对资金账户信息");
-//                response.setData(null);
-//                return response;
+            if (userAccount == null) {
+                response.setCode("CJ300");
+                response.setMsg("资金账号不存在,请核对资金账户信息");
+                response.setData(null);
+                return response;
             }
             /** 户名 */
             String cltacc_cltnm = userAccount.getName();
+            UserAccountSettlement settlement = settlementService.findAccountId(userAccount.getId());
             /** 银行账号(卡号) */
-            String bkacc_accno = req.getParameter("bkacc_accno");
+            String bkacc_accno = settlement.getAccNo();
             /** 开户名称 */
-            String bkacc_accnm = req.getParameter("bkacc_accnm");
-
-
+            String bkacc_accnm = settlement.getAccNm();
             /** 总金额 */
             long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
             //查询单笔金额是否超过5万的额度
             if (amt_tamt > 5000000) {
                 treeMap.put("code", "301");
                 treeMap.put("msg", "单笔资金提现总额超过规定额度");
-                return treeMap;
+                return null;
             } else if (amt_tamt == 0) {
                 treeMap.put("code", "302");
                 treeMap.put("msg", "单笔资金提现总额不能为0或者空");
-                return treeMap;
+                return null;
             }
             //根据总金额计算出手续费以及发生额度
             Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
@@ -117,7 +125,7 @@ public class ApplicationDepositService {
             if (applyDepositAccountService.queryCount(cltacc_subno, msghd_trdt).size() == 5) {
                 treeMap.put("code", "300");
                 treeMap.put("msg", "该资金账户当天提现次数已达上限");
-                return treeMap;
+                return null;
             }
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
@@ -160,7 +168,7 @@ public class ApplicationDepositService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return treeMap;
+        return null;
     }
 
     /**

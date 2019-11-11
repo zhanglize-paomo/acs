@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.useraccountsettlement.mapper.UserAccountSettlementMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.useraccountsettlement.domain.UserAccountSettlement">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="userAccountId" jdbcType="INTEGER" property="userAccountId"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="ptnSrl" jdbcType="VARCHAR" property="ptnSrl"/>
+        <result column="date" jdbcType="DATE" property="date"/>
+        <result column="orderNo" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="accNm" jdbcType="VARCHAR" property="accNm"/>
+        <result column="accNo" jdbcType="VARCHAR" property="accNo"/>
+        <result column="bkId" jdbcType="INTEGER" property="bkId"/>
+        <result column="accTp" jdbcType="VARCHAR" property="accTp"/>
+        <result column="crdTp" jdbcType="VARCHAR" property="crdTp"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="crsMk" jdbcType="VARCHAR" property="crsMk"/>
+        <result column="openBkCd" jdbcType="VARCHAR" property="openBkCd"/>
+        <result column="created_at" jdbcType="VARCHAR" property="createdAt"/>
+        <result column="updated_at" jdbcType="VARCHAR" property="updatedAt"/>
+        <result column="deleted_at" jdbcType="VARCHAR" property="deletedAt"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="fcFlg" jdbcType="VARCHAR" property="fcFlg"/>
+        <result column="cdType" jdbcType="VARCHAR" property="cdType"/>
+        <result column="cdNo" jdbcType="VARCHAR" property="cdNo"/>
+    </resultMap>
+
+    <select id="findAccountId"  resultMap="resultMap">
+        select * from user_account_settlement where userAccountId = #{accountId}
+    </select>
+</mapper>
