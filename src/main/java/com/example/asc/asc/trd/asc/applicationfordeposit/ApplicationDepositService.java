@@ -263,16 +263,12 @@ public class ApplicationDepositService {
         Map<String, String> treeMap = new TreeMap<>();
         treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
         treeMap.put("cltacc_subno", trdResponse.getCltacc_subno()); // 子账号
-        treeMap.put("cltacc_cltnm", trdResponse.getCltacc_cltnm()); // 户名
         treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_aclamt())); // 发生额
-        treeMap.put("amt_aclamt", String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
-        treeMap.put("amt_ccycd", trdResponse.getAmt_ccycd()); // 币种，默认“CNY”
+        treeMap.put("amt_feeamt", String.valueOf(trdResponse.getAmt_feeamt())); // 转账手续费
         treeMap.put("state", trdResponse.getState()); // 交易结果:1成功;2失败;3处理中
         treeMap.put("resttime", trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
         treeMap.put("opion", trdResponse.getMsghd_rspmsg());// 失败原因
         treeMap.put("ubalsta", trdResponse.getUbalsta());// 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
-        treeMap.put("ubaltim", trdResponse.getUbaltim());// 出金结算时间(查询出金结果时返回)-格式YYYYMMDDHH24MISS-UBalSta=1时指成功发送结算申请的时间
-        treeMap.put("usage", trdResponse.getUsage());// 资金用途(附言)
         // 业务标示
         // 入金业务时指：
         // A00 正常入金
@@ -280,9 +276,9 @@ public class ApplicationDepositService {
         // 出金业务时指：
         // A00 正常出金
         // B01 解冻资金后，再出金
-        treeMap.put("trsflag", trdResponse.getTrsflag());// 失败原因
-        treeMap.put("fdate", trdResponse.getMsghd_rspmsg());// 原交易日期
+        treeMap.put("fdate", trdResponse.getFdate());// 原交易日期
         treeMap.put("ftime", trdResponse.getFtime()); // 原交易时间
+        response.setData(JSONObject.fromObject(treeMap));
         return response;
     }
 
