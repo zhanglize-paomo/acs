@@ -3,6 +3,7 @@ package com.example.asc.asc.trd.asc.useraccount.controller;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/user-account")
+@CrossOrigin
 public class UserAccountController {
 
     private UserAccountService service;

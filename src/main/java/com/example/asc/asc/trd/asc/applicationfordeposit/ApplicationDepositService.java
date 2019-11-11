@@ -7,6 +7,7 @@ import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
+import com.example.asc.asc.util.GenerateOrderNoUtil;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdCommonResponse;
 import com.trz.netwk.api.trd.TrdT2012Request;
@@ -62,20 +63,25 @@ public class ApplicationDepositService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = req.getParameter("srl_ptnsrl");
-            if (applyDepositAccountService.querySrlPtnsrl(srl_ptnsrl) != null) {
-                treeMap.put("code", "303");
-                treeMap.put("msg", "合作方交易流水号重复使用");
-                return treeMap;
-            }
+            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea", 530L);
             /** 资金账号 */
-            String cltacc_subno = req.getParameter("cltacc_subno");
+            String cltacc_subno = req.getParameter("subNo");
+            UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
+            if(userAccount == null){
+//                treeMap.put("CJ300")
+//                response.setCode("CJ300");
+//                response.setMsg("资金账号不存在,请核对资金账户信息");
+//                response.setData(null);
+//                return response;
+            }
             /** 户名 */
-            String cltacc_cltnm = req.getParameter("cltacc_cltnm");
+            String cltacc_cltnm = userAccount.getName();
             /** 银行账号(卡号) */
             String bkacc_accno = req.getParameter("bkacc_accno");
             /** 开户名称 */
             String bkacc_accnm = req.getParameter("bkacc_accnm");
+
+
             /** 总金额 */
             long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
             //查询单笔金额是否超过5万的额度
