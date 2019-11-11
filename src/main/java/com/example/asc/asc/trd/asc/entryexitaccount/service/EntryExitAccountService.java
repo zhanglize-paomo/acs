@@ -49,7 +49,7 @@ public class EntryExitAccountService {
     }
 
     /**
-     * 扫码支付
+     * H5支付,调用云闪付的平台进行支付
      *
      * @return
      */
@@ -61,9 +61,9 @@ public class EntryExitAccountService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghd_trdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = req.getParameter("srl_ptnsrl");
+            String srl_ptnsrl = req.getParameter("ptnsrl");
             /** 资金账号 */
-            String cltacc_subno = req.getParameter("cltacc_subno");
+            String cltacc_subno = req.getParameter("subno");
             /** 户名 */
             String cltacc_cltnm = req.getParameter("cltacc_cltnm");
             /** 支付金额 */
@@ -259,5 +259,15 @@ public class EntryExitAccountService {
         account.setOrderNo(GenerateOrderNoUtil.gens("eea",530L));
         account.setCreatedAt(DateUtils.toTimestamp()); //创建时间
         return mapper.insert(account);
+    }
+
+    /**
+     * 根据根据客户方交易流水号判断该交易流水号是否存在
+     *
+     * @param ptnSrl  客户方交易流水号
+     * @return
+     */
+    public EntryExitAccount findByPtnSrl(String ptnSrl) {
+        return mapper.findByPtnSrl(ptnSrl);
     }
 }

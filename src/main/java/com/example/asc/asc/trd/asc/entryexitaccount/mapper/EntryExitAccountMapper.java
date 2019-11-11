@@ -17,4 +17,12 @@ public interface EntryExitAccountMapper {
      * @return
      */
     int insert(EntryExitAccount account);
+
+    /**
+     * 根据根据客户方交易流水号判断该交易流水号是否存在
+     *
+     * @param ptnSrl  客户方交易流水号
+     * @return
+     */
+    EntryExitAccount findByPtnSrl(String ptnSrl);
 }

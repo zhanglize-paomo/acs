@@ -37,4 +37,7 @@
         #{usage,jdbcType=CHAR},#{reqFlg,jdbcType=CHAR},#{notificationUrl,jdbcType=CHAR},#{servnoticeUrl,jdbcType=CHAR},#{url,jdbcType=CHAR},
         #{imageUrl,jdbcType=CHAR},#{created_at,jdbcType=CHAR}, #{updated_at,jdbcType=CHAR})
     </insert>
+    <select id="findByPtnSrl" resultMap="resultMap">
+         select * from entry_exit_account where ptnSrl = #{ptnSrl}
+    </select>
 </mapper>
