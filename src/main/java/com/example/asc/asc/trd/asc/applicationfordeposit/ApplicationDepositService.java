@@ -16,6 +16,7 @@ import com.trz.netwk.api.trd.TrdCommonResponse;
 import com.trz.netwk.api.trd.TrdT2012Request;
 import com.trz.netwk.api.trd.TrdT2012Response;
 import com.trz.netwk.api.trd.TrdT2022Request;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,6 @@ public class ApplicationDepositService {
      */
     public BaseResponse applicationDeposit(HttpServletRequest req, HttpServletResponse resp) {
         BaseResponse response = new BaseResponse();
-        Map<String, String> treeMap = new TreeMap<>();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -78,7 +78,7 @@ public class ApplicationDepositService {
             String cltacc_subno = req.getParameter("subNo");
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
             if (userAccount == null) {
-                response.setCode("CJ300");
+                response.setCode("CJ301");
                 response.setMsg("资金账号不存在,请核对资金账户信息");
                 response.setData(null);
                 return response;
@@ -94,13 +94,15 @@ public class ApplicationDepositService {
             long amt_tamt = Long.valueOf(req.getParameter("amt_tamt"));
             //查询单笔金额是否超过5万的额度
             if (amt_tamt > 5000000) {
-                treeMap.put("code", "301");
-                treeMap.put("msg", "单笔资金提现总额超过规定额度");
-                return null;
+                response.setCode("CJ302");
+                response.setMsg("单笔资金提现总额超过规定额度");
+                response.setData(null);
+                return response;
             } else if (amt_tamt == 0) {
-                treeMap.put("code", "302");
-                treeMap.put("msg", "单笔资金提现总额不能为0或者空");
-                return null;
+                response.setCode("CJ303");
+                response.setMsg("单笔资金提现总额不能为0或者空");
+                response.setData(null);
+                return response;
             }
             //根据总金额计算出手续费以及发生额度
             Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
@@ -123,9 +125,10 @@ public class ApplicationDepositService {
             String usage = req.getParameter("usage");
             //查询该资金账户在当天是否超过提现次数五次
             if (applyDepositAccountService.queryCount(cltacc_subno, msghd_trdt).size() == 5) {
-                treeMap.put("code", "300");
-                treeMap.put("msg", "该资金账户当天提现次数已达上限");
-                return null;
+                response.setCode("CJ304");
+                response.setMsg("该资金账户当天提现次数已达上限");
+                response.setData(null);
+                return response;
             }
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
@@ -159,16 +162,16 @@ public class ApplicationDepositService {
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 insertAccount(trdRequest, trdResponse, "3");
-                treeMap = getTreeMap(trdResponse);
+                response = getTreeMap(trdResponse,cltacc_subno);
             } else {
                 //交易失败添加到出库申请表中
                 insertAccount(trdRequest, trdResponse, "2");
-                treeMap = getTreeMap(trdResponse);
+                response = getTreeMap(trdResponse, cltacc_subno);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return response;
     }
 
     /**
@@ -232,16 +235,19 @@ public class ApplicationDepositService {
      * 获取出金申请返回消息报文信息
      *
      * @param trdResponse
+     * @param cltacc_subno
      * @return
      */
-    private Map<String, String> getTreeMap(TrdCommonResponse trdResponse) {
-        Map<String, String> treeMap = new TreeMap<>();
+    private BaseResponse getTreeMap(TrdCommonResponse trdResponse, String cltacc_subno) {
+        BaseResponse response = new BaseResponse();
+        Map<String,String> map = new TreeMap<>();
         //获取请求报文信息
-        treeMap.put("msghd_rspcode", trdResponse.getMsghd_rspcode());
-        treeMap.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl()); // 合作方流水号
-        treeMap.put("srl_platsrl", trdResponse.getSrl_platsrl()); // 平台流水号
-        treeMap.put("msghd_rspmsg", trdResponse.getMsghd_rspmsg());  // 返回信息
-        return treeMap;
+        response.setCode(trdResponse.getMsghd_rspcode());
+        response.setMsg(trdResponse.getMsghd_rspmsg());  // 返回信息
+        map.put("srl_ptnsrl",trdResponse.getSrl_ptnsrl());  // 合作方流水号
+        map.put("subNo",cltacc_subno); //资金账户
+        response.setData(JSONObject.fromObject(map));
+        return response;
     }
 
     /**
