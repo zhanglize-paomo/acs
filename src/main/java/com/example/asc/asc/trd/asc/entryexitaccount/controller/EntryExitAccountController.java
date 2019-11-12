@@ -6,6 +6,7 @@ import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.util.*;
+import com.trz.netwk.api.ntc.NoticeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -103,9 +104,9 @@ public class EntryExitAccountController {
      */
     @RequestMapping(value = "orderscantopay", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> orderScantoPay(HttpServletRequest request, HttpServletResponse response) {
-        //对数据进行校验
+    public NoticeResponse orderScantoPay(HttpServletRequest request, HttpServletResponse response) {
         checkData(request);
+        //对数据进行校验
         return service.orderScantoPay(request, response);
     }
 

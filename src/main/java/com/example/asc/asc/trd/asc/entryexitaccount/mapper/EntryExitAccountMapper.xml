@@ -37,7 +37,15 @@
         #{usage,jdbcType=CHAR},#{reqFlg,jdbcType=CHAR},#{notificationUrl,jdbcType=CHAR},#{servnoticeUrl,jdbcType=CHAR},#{url,jdbcType=CHAR},
         #{imageUrl,jdbcType=CHAR},#{createdAt,jdbcType=CHAR}, #{updatedAt,jdbcType=CHAR})
     </insert>
+
     <select id="findByPtnSrl" resultMap="resultMap">
          select * from entry_exit_account where ptnSrl = #{ptnSrl}
     </select>
+
+    <update id="update" parameterType="com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount">
+        UPDATE entry_exit_account
+        SET status = #{configure.status,jdbcType=VARCHAR},clientStatus = #{configure.clientStatus,jdbcType=VARCHAR},updated_at = now()
+        WHERE  id = #{id}
+    </update>
+
 </mapper>

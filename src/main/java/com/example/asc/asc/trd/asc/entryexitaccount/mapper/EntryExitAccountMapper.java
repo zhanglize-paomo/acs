@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.mapper;
 
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,4 +26,13 @@ public interface EntryExitAccountMapper {
      * @return
      */
     EntryExitAccount findByPtnSrl(String ptnSrl);
+
+    /**
+     * 根据id修改入金支付对象的信息
+     *
+     * @param id
+     * @param account
+     * @return
+     */
+    int update(@Param("id") int id,@Param("account") EntryExitAccount account);
 }
