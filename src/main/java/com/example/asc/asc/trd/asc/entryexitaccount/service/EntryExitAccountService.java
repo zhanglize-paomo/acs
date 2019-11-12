@@ -10,6 +10,7 @@ import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.DateUtils;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
+import com.example.asc.asc.util.XmlUtil;
 import com.trz.netwk.api.ntc.NoticeRequest;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import com.trz.netwk.api.system.TrdMessenger;
@@ -339,11 +340,15 @@ public class EntryExitAccountService {
             String trdcode = req.getParameter("trdcode");
             String message = req.getParameter("message");
             String signature = req.getParameter("signature");
-            String Srl_ptnsrl = noticeRequest.getSrl_ptnsrl();
             logger.info("ptncode=" + ptncode);
             logger.info("trdcode=" + trdcode);
             logger.info("message=" + message);
             logger.info("signature=" + signature);
+            // 2 生成交易请求对象(验签)
+            noticeRequest = new NoticeRequest(message, signature);
+            logger.info("通知报文: " + noticeRequest.getPlainText());
+            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG")
+                    .get("Srl")).get("SrcPtnSrl").toString();
             if (StringUtil.isEmpty(ptncode) || StringUtil.isEmpty(trdcode) || StringUtil.isEmpty(message) || StringUtil.isEmpty(signature)) {
                 Map<String,String> map = new TreeMap<>();
                 map.put("ptncode",ptncode);
@@ -352,21 +357,18 @@ public class EntryExitAccountService {
                 map.put("signature",signature);
                 noticeResponse.setMsghd_rspcode("SDER04");
                 noticeResponse.setMsghd_rspmsg("参数错误");
-                noticeResponse.setSrl_ptnsrl(Srl_ptnsrl);
+                noticeResponse.setSrl_ptnsrl(SrcPtnSrl);
                 return noticeResponse;
             }
-            // 2 生成交易请求对象(验签)
-            noticeRequest = new NoticeRequest(message, signature);
-            logger.info("通知报文: " + noticeRequest.getPlainText());
             // 3 业务处理  接收到上游的支付返回成功的信息通知
             //根据交易流水号修改该条交易的状态
-            EntryExitAccount account = findByPtnSrl(Srl_ptnsrl);
+            EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
             if (noticeRequest.getMsghd_trcd().equals("T2008")) {
                 account.setStatus("1");
                 account.setClientStatus("1");
                 update(account.getId(), account);
                 //给上游客户响应信息
-                noticeResponse = getNoticeResponse("000000","业务办理成功",Srl_ptnsrl);
+                noticeResponse = getNoticeResponse("000000","业务办理成功",SrcPtnSrl);
                 //TODO 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
 
             } else {
@@ -374,7 +376,7 @@ public class EntryExitAccountService {
                 update(account.getId(), account);
                 //TODO 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
                 //给上游客户响应信息
-                noticeResponse = getNoticeResponse("ERROR","业务办理失败",Srl_ptnsrl);
+                noticeResponse = getNoticeResponse("ERROR","业务办理失败",SrcPtnSrl);
             }
         } catch (Exception e) {
             e.printStackTrace();

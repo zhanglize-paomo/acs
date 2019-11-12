@@ -1,11 +1,9 @@
 package com.example.asc.asc.util;
 
+import net.sf.json.JSONObject;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhanglize
@@ -109,7 +107,7 @@ public class StringUtil {
             }
             String key = keyText[0]; // key
             String value = keyText[1]; // value
-            if(StringUtils.isEmpty(value)){
+            if (StringUtils.isEmpty(value)) {
                 value = SEP3 + keyText[2];
             }
 
@@ -162,4 +160,18 @@ public class StringUtil {
         }
         return list;
     }
+
+
+    /**
+     *
+     * String转map
+     * @param jsonObj
+     * @return
+     */
+    public static Map<Object, Object> jsonToMap(Object jsonObj) {
+        JSONObject jsonObject = JSONObject.fromObject(jsonObj);
+        Map<Object, Object> map = (Map) jsonObject;
+        return map;
+    }
+
 }

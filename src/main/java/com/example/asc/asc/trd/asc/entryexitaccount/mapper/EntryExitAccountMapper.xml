@@ -44,7 +44,7 @@
 
     <update id="update" parameterType="com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount">
         UPDATE entry_exit_account
-        SET status = #{configure.status,jdbcType=VARCHAR},clientStatus = #{configure.clientStatus,jdbcType=VARCHAR},updated_at = now()
+        SET status = #{account.status,jdbcType=VARCHAR},clientStatus = #{account.clientStatus,jdbcType=VARCHAR},updated_at = now()
         WHERE  id = #{id}
     </update>
 
