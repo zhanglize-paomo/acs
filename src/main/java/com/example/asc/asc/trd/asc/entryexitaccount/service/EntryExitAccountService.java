@@ -392,11 +392,10 @@ public class EntryExitAccountService {
      */
     private NoticeResponse getNoticeResponse(String code, String msg, String srl_ptnsrl) {
         NoticeResponse noticeResponse = new NoticeResponse();
-        noticeResponse.setMsghd_rspcode("SDER04");
-        noticeResponse.setMsghd_rspmsg("参数错误");
+        noticeResponse.setMsghd_rspcode(code);
+        noticeResponse.setMsghd_rspmsg(msg);
         noticeResponse.setSrl_ptnsrl(srl_ptnsrl);
         return noticeResponse;
     }
-
 
 }
