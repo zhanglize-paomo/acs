@@ -26,6 +26,6 @@
     </resultMap>
 
     <select id="findAccountId"  resultMap="resultMap">
-        select * from user_account_settlement where userAccountId = #{accountId}
+        select * from user_account_settlement where userAccountId = #{accountId} AND deleted_at IS NULL
     </select>
 </mapper>

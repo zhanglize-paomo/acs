@@ -38,6 +38,8 @@ public class SortUtils {
     }
 
     /**
+     * java对参数按key进行字典升序排列
+     *
      * @param param   参数
      * @param encode  编码
      * @param isLower 是否小写
@@ -46,10 +48,8 @@ public class SortUtils {
     public static String formatUrlParam(Map<String, String> param, String encode, boolean isLower) {
         String params = "";
         Map<String, String> map = param;
-
         try {
             List<Map.Entry<String, String>> itmes = new ArrayList<Map.Entry<String, String>>(map.entrySet());
-
             //对所有传入的参数按照字段名从小到大排序
             //Collections.sort(items); 默认正序
             //可通过实现Comparator接口的compare方法来完成自定义排序
@@ -60,7 +60,6 @@ public class SortUtils {
                     return (o1.getKey().toString().compareTo(o2.getKey()));
                 }
             });
-
             //构造URL 键值对的形式
             StringBuffer sb = new StringBuffer();
             for (Map.Entry<String, String> item : itmes) {
@@ -76,7 +75,6 @@ public class SortUtils {
                     sb.append("&");
                 }
             }
-
             params = sb.toString();
             if (!params.isEmpty()) {
                 params = params.substring(0, params.length() - 1);

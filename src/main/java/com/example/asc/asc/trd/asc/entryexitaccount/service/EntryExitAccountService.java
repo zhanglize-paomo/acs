@@ -6,6 +6,7 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
+import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.DateUtils;
@@ -22,6 +23,7 @@ import com.trz.netwk.api.v6.ntc.NtcK5242Request;
 import com.trz.netwk.api.v6.ntc.NtcK5246Request;
 import com.trz.netwk.api.v6.vo.BusiBill;
 import com.trz.netwk.api.v6.vo.Plan;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +68,8 @@ public class EntryExitAccountService {
      *
      * @return
      */
-    public Map<String, String> scantoPay(HttpServletRequest req, HttpServletResponse resp) {
-        Map<String, String> treeMap = new TreeMap<>();
+    public BaseResponse scantoPay(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -76,7 +78,7 @@ public class EntryExitAccountService {
             /** 合作方交易流水号 */
             String srl_ptnsrl = req.getParameter("ptnsrl");
             /** 资金账号 */
-            String cltacc_subno = req.getParameter("subno");
+            String cltacc_subno = req.getParameter("subNo");
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
             /** 户名 */
             String cltacc_cltnm = userAccount.getName();
@@ -153,11 +155,11 @@ public class EntryExitAccountService {
             TrdT2031Response trdResponse = new TrdT2031Response(respMsg);
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            treeMap = judgeResponse(trdRequest, trdResponse);
+            response = judgeResponse(trdRequest, trdResponse);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return treeMap;
+        return response;
     }
 
     /**
@@ -168,8 +170,8 @@ public class EntryExitAccountService {
      * @return
      * @throws UnsupportedEncodingException
      */
-    private Map<String, String> judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse) throws UnsupportedEncodingException {
-        Map<String, String> treeMap = new TreeMap<>();
+    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse) throws UnsupportedEncodingException {
+        BaseResponse baseResponse = new BaseResponse();
         String billinfo_paytype = trdRequest.getBillinfo_paytype();
         String billinfo_kjsmsflg = trdRequest.getBillinfo_kjsmsflg();
         // 支付方式： 2：网银 9：银联无卡支付 交易成功 000000
@@ -183,7 +185,7 @@ public class EntryExitAccountService {
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
                 //返回成功数据信息给前端页面
-                treeMap = reternData(trdResponse);
+                baseResponse = reternData(trdResponse);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
                 String url = URLDecoder.decode(trdResponse.getUrl(), "UTF-8");
                 String strs[] = url.split("\\?", 2);
@@ -204,15 +206,15 @@ public class EntryExitAccountService {
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
                 //返回成功数据信息给前端页面
-                treeMap = reternData(trdResponse);
+                baseResponse = reternData(trdResponse);
             }
         } else {
             //添加数据到入金支付数据库中
             addEntryExitAccount(trdRequest, trdResponse);
-            treeMap.put("code", trdResponse.getMsghd_rspcode());
-            treeMap.put("msg", trdResponse.getMsghd_rspmsg());
+            baseResponse.setCode(trdResponse.getMsghd_rspcode());
+            baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         }
-        return treeMap;
+        return baseResponse;
     }
 
     /**
@@ -221,12 +223,15 @@ public class EntryExitAccountService {
      * @param trdResponse
      * @return
      */
-    private Map<String, String> reternData(TrdT2031Response trdResponse) {
-        Map<String, String> treeMap = new TreeMap<>();
-        treeMap.put("code", trdResponse.getMsghd_rspcode());
-        treeMap.put("url", trdResponse.getUrl());
-        treeMap.put("msg", trdResponse.getMsghd_rspmsg());
-        return treeMap;
+    private BaseResponse reternData(TrdT2031Response trdResponse) {
+        Map<String,String> map = new TreeMap<>();
+        map.put("url", trdResponse.getUrl());
+        BaseResponse response = new BaseResponse();
+        response.setCode(trdResponse.getMsghd_rspcode());
+        response.setMsg(trdResponse.getMsghd_rspmsg());
+        response.setData(JSONObject.fromObject(map));
+
+        return response;
     }
 
     /**

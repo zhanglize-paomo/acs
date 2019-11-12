@@ -4,10 +4,8 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
-import com.example.asc.asc.util.Base64;
-import com.example.asc.asc.util.MD5;
-import com.example.asc.asc.util.SecuritySHA1Utils;
-import com.example.asc.asc.util.SortUtils;
+import com.example.asc.asc.trd.common.BaseResponse;
+import com.example.asc.asc.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -44,47 +42,48 @@ public class EntryExitAccountController {
      */
     private static String checkDigest(Map<String, String> map, String digest) {
         try {
-            String appid = map.get("appid");
+            String appid = "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC";
             String timestamp = "1564652780";
-            String string = MD5.md5(timestamp);
             String secret = "NSN8KroSxdHJxfJ8bYsHOlWvPBpj30";
-            String str = SortUtils.Ksort(map);
-            String sortvalue = secret + str;
-            digest = Base64.getBase64(SecuritySHA1Utils.shaEncode(appid + string.toUpperCase() +
-                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase()).toUpperCase());
-        }  catch (Exception e) {
+            Map<String, Object> stringObjectMap = StringUtil.StringToMap(SortUtils.Ksort(map));
+            String sortvalue = secret;
+            for (Map.Entry<String, Object> entry : stringObjectMap.entrySet()) {
+                sortvalue += entry.getValue();
+            }
+            digest = Base64.getBase64(
+                    SecuritySHA1Utils.shaEncode(
+                            appid +
+                                    MD5.md5(timestamp).toUpperCase() +
+                                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase())
+                            .toUpperCase()
+            );
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return digest;
     }
 
-    public static void main(String[] args) {
-//        Map<String, String> map = new TreeMap<>();
-//        map.put("")
-
-
-
-//        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
-//        Map<String, String> map = new TreeMap<>();
-//        map.put("appid", "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC");
-//        map.put("fcFlg", "1");
-//        map.put("ptnSrl", "20191107153022");
-//        map.put("subNo", "1931115000186036");
-//        map.put("bkId", "105");
-//        map.put("accNo", "6217000260012247023");
-//        map.put("accNm", "张李泽");
-//        map.put("accTp", "2");
-//        map.put("crdTp", "2");
-//        map.put("cdTp", "A");
-//        map.put("cdNo", "142729199604031815");
-//        map.put("crsMk", "1");
-//        map.put("phone", "18434395962");
-//        String str = checkDigest(map,null);
-//        System.out.println(str);
-//        System.out.println(digest);
-//        if(str.equals(digest)){
-//            System.out.println("31313123");
-//        }
+    public static void main(String[] args) throws Exception {
+        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
+        Map<String, String> map = new TreeMap<>();
+        map.put("fcFlg", "1");
+        map.put("ptnSrl", "20191107153022");
+        map.put("subNo", "1931115000186036");
+        map.put("bkId", "105");
+        map.put("accNo", "6217000260012247023");
+        map.put("accNm", "张李泽");
+        map.put("accTp", "2");
+        map.put("crdTp", "1");
+        map.put("cdTp", "A");
+        map.put("cdNo", "142729199604031815");
+        map.put("crsMk", "1");
+        map.put("phone", "18434395962");
+        String str = checkDigest(map,null);
+        System.out.println(str);
+        System.out.println(digest);
+        if(str.equals(digest)){
+            System.out.println("31313123");
+        }
     }
 
     @Autowired
@@ -117,7 +116,7 @@ public class EntryExitAccountController {
      */
     @RequestMapping(value = "scantopay", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> scantoPay(HttpServletRequest request, HttpServletResponse response) {
+    public BaseResponse scantoPay(HttpServletRequest request, HttpServletResponse response) {
         //对数据进行校验
         checkData(request);
         return service.scantoPay(request, response);
