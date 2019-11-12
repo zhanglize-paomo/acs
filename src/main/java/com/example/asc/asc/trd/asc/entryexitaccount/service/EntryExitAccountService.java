@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,7 +77,7 @@ public class EntryExitAccountService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = req.getParameter("ptnsrl");
+            String srl_ptnsrl = req.getParameter("ptnSrl");
             /** 资金账号 */
             String cltacc_subno = req.getParameter("subNo");
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
@@ -84,14 +85,23 @@ public class EntryExitAccountService {
             String cltacc_cltnm = userAccount.getName();
             /** 支付金额 */
             String billinfo_aclamt = req.getParameter("money");
-            /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
-            String billinfo_paytype = "H";
             /** 支付方式-二级分类(1：企业网银PayType=2必输;2：个人网银PayType=2必输;3：支付宝PayType=6/8/A必输;4：微信PayType=6/8/A必输；5：银联PayType=6必输) */
-            String billinfo_secpaytype = "5";
+            String billinfo_secpaytype = req.getParameter("payType");
+            /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
+            String billinfo_paytype = getPayType(billinfo_secpaytype);
+            if(StringUtils.isEmpty(billinfo_paytype)){
+                response.setCode("ZF310");
+                response.setMsg("支付方式不存在");
+                response.setCode(null);
+                return response;
+            }
+            if(billinfo_secpaytype.equals("6")){
+                billinfo_secpaytype = "5";
+            }
             /** 订单标题:PayType=6/8/A时必输 */
             String billinfo_subject = req.getParameter("subject");
             /** 商品描述:PayType=6/8/A时必输 */
-            String billinfo_goodsdesc = req.getParameter("goodsdesc");
+            String billinfo_goodsdesc = req.getParameter("goodsDesc");
             /** 是否小程序支付 0 不是 1 是 */
             String billinfo_minitag = "0";
             /** 发送端标记:0手机;1PC端 */
@@ -163,6 +173,25 @@ public class EntryExitAccountService {
     }
 
     /**
+     * 根据二级支付方式获取到一级支付方式
+     *
+     * @param billinfo_secpaytype
+     * @return
+     */
+    private String getPayType(String billinfo_secpaytype) {
+        if(billinfo_secpaytype.equals("3")){
+            return "6";
+        }else if(billinfo_secpaytype.equals("4")){
+            return "6";
+        }else if(billinfo_secpaytype.equals("5")){
+            return "6";
+        }else if(billinfo_secpaytype.equals("6")){
+            return "H";
+        }
+        return null;
+    }
+
+    /**
      * 处理返回报文信息处理
      *
      * @param trdRequest
@@ -201,7 +230,7 @@ public class EntryExitAccountService {
                 logger.info("[state]=[" + trdResponse.getState() + "]"); // PayType=5且KJSMSFlg=2时返回交易结果::1成功;2失败;3处理中
             } else if ("8".equals(billinfo_paytype) || "A".equals(billinfo_paytype)) {
                 logger.info("[authcode]=[" + trdResponse.getAuthcode() + "]");  // PayType=8/A时返回授权码
-            } else if ("5".equals(billinfo_paytype)) {
+            } else if ("H".equals(billinfo_paytype)) {
                 logger.info("[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
@@ -230,7 +259,6 @@ public class EntryExitAccountService {
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
         response.setData(JSONObject.fromObject(map));
-
         return response;
     }
 
@@ -253,7 +281,11 @@ public class EntryExitAccountService {
         account.setUrl(trdResponse.getUrl());
         account.setImageUrl(trdResponse.getImageurl());
         account.setSubject(trdRequest.getBillinfo_subject());
-        account.setStatus("0");
+        if(trdResponse.getMsghd_rspcode().equals("000000")){
+            account.setStatus("0");
+        }else{
+            account.setStatus("2");
+        }
         account.setServnoticeUrl(null);
 //        account.setSendToClientTimes();
         account.setReqFlg(trdRequest.getReqflg());
@@ -264,7 +296,7 @@ public class EntryExitAccountService {
         account.setNotificationUrl(null);
         account.setMoney(Long.valueOf(trdRequest.getBillinfo_aclamt()));
         account.setGoodsDesc(trdRequest.getBillinfo_goodsdesc());
-        account.setDate(DateUtils.toDate(new Date()));
+        account.setDate(new Date());
         insert(account);
     }
 

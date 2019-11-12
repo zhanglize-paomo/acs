@@ -35,7 +35,7 @@
         #{payType,jdbcType=CHAR},#{secPayType,jdbcType=CHAR},#{subject,jdbcType=CHAR},#{goodsDesc,jdbcType=CHAR},#{ptnSrl,jdbcType=CHAR},
         #{platSrl,jdbcType=CHAR},#{orderNo,jdbcType=INTEGER},#{status,jdbcType=CHAR},#{clientStatus,jdbcType=CHAR},#{sendToClientTimes,jdbcType=CHAR},
         #{usage,jdbcType=CHAR},#{reqFlg,jdbcType=CHAR},#{notificationUrl,jdbcType=CHAR},#{servnoticeUrl,jdbcType=CHAR},#{url,jdbcType=CHAR},
-        #{imageUrl,jdbcType=CHAR},#{created_at,jdbcType=CHAR}, #{updated_at,jdbcType=CHAR})
+        #{imageUrl,jdbcType=CHAR},#{createdAt,jdbcType=CHAR}, #{updatedAt,jdbcType=CHAR})
     </insert>
     <select id="findByPtnSrl" resultMap="resultMap">
          select * from entry_exit_account where ptnSrl = #{ptnSrl}

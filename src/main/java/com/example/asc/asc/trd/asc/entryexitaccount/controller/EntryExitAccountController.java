@@ -78,10 +78,10 @@ public class EntryExitAccountController {
         map.put("cdNo", "142729199604031815");
         map.put("crsMk", "1");
         map.put("phone", "18434395962");
-        String str = checkDigest(map,null);
+        String str = checkDigest(map, null);
         System.out.println(str);
         System.out.println(digest);
-        if(str.equals(digest)){
+        if (str.equals(digest)) {
             System.out.println("31313123");
         }
     }
@@ -110,15 +110,20 @@ public class EntryExitAccountController {
     }
 
     /**
-     * H5支付,调用云闪付的平台进行支付
+     * 支付,调用云闪付的平台进行支付
      *
      * @return
      */
     @RequestMapping(value = "scantopay", method = RequestMethod.POST)
     @ResponseBody
     public BaseResponse scantoPay(HttpServletRequest request, HttpServletResponse response) {
+        BaseResponse baseResponse = checkData(request);
         //对数据进行校验
-        checkData(request);
+        if (baseResponse != null) {
+            if (baseResponse.getCode() != null) {
+                return baseResponse;
+            }
+        }
         return service.scantoPay(request, response);
     }
 
@@ -128,99 +133,98 @@ public class EntryExitAccountController {
      * @param request
      * @return
      */
-    private Map<String, String> checkData(HttpServletRequest request) {
-        Map<String, String> treeMap = new TreeMap<>();
-        Map<String, String> map = new TreeMap<>();
+    private BaseResponse checkData(HttpServletRequest request) {
+        BaseResponse baseResponse = new BaseResponse();
         String appid = request.getParameter("appid");  //客户的唯一标示
         if (StringUtils.isEmpty(appid)) {
-            treeMap.put("code", "ZF300");
-            treeMap.put("url", null);
-            treeMap.put("msg", "请检查客户的唯一标示");
-            return treeMap;
+            baseResponse.setCode("ZF300");
+            baseResponse.setMsg("请检查客户的唯一标示");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String money = request.getParameter("money");  //金额(以分为单位)
         if (StringUtils.isEmpty(money)) {
-            treeMap.put("code", "ZF301");
-            treeMap.put("url", null);
-            treeMap.put("msg", "请检查支付金额");
-            return treeMap;
+            baseResponse.setCode("ZF301");
+            baseResponse.setMsg("请检查支付金额");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String ptnSrl = request.getParameter("ptnSrl");  //客户方流水号（客户程序逻辑生成）
         if (StringUtils.isEmpty(ptnSrl)) {
-            treeMap.put("code", "ZF302");
-            treeMap.put("url", null);
-            treeMap.put("msg", "客户方流水号不可为空");
-            return treeMap;
+            baseResponse.setCode("ZF302");
+            baseResponse.setMsg("客户方流水号不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         //根据客户方交易流水号判断该交易流水号是否存在
         EntryExitAccount account = service.findByPtnSrl(ptnSrl);
         if (account != null) {
-            treeMap.put("code", "ZF303");
-            treeMap.put("url", null);
-            treeMap.put("msg", "客户方流水号已经存在");
-            return treeMap;
+            baseResponse.setCode("ZF303");
+            baseResponse.setMsg("客户方流水号已经存在");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String subNo = request.getParameter("subNo");  //客户资金账号
         if (StringUtils.isEmpty(subNo)) {
-            treeMap.put("code", "ZF304");
-            treeMap.put("url", null);
-            treeMap.put("msg", "客户资金账户不能为空");
-            return treeMap;
+            baseResponse.setCode("ZF304");
+            baseResponse.setMsg("客户资金账户不能为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         UserAccount userAccount = userAccountService.findBySubNo(subNo);
         //判断客户资金账户是否存在
         if (userAccount == null) {
-            treeMap.put("code", "ZF305");
-            treeMap.put("url", null);
-            treeMap.put("msg", "客户资金账户不存在");
-            return treeMap;
+            baseResponse.setCode("ZF305");
+            baseResponse.setMsg("客户资金账户不存在");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         //客户发送请求信息的后台异步消息通知地址信息
         String servNoticeUrl = request.getParameter("servNoticeUrl");  //后台异步通知url
         if (StringUtils.isEmpty(servNoticeUrl)) {
-            treeMap.put("code", "ZF306");
-            treeMap.put("url", null);
-            treeMap.put("msg", "后台异步通知url不能为空");
-            return treeMap;
+            baseResponse.setCode("ZF306");
+            baseResponse.setMsg("后台异步通知url不能为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String subject = request.getParameter("subject");  //商品主题描述
         if (StringUtils.isEmpty(subject)) {
-            treeMap.put("code", "ZF307");
-            treeMap.put("url", null);
-            treeMap.put("msg", "商品主题描述不可为空");
-            return treeMap;
+            baseResponse.setCode("ZF307");
+            baseResponse.setMsg("商品主题描述不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String goodsDesc = request.getParameter("goodsDesc");  //商品描述
         if (StringUtils.isEmpty(goodsDesc)) {
-            treeMap.put("code", "ZF308");
-            treeMap.put("url", null);
-            treeMap.put("msg", "商品描述不可为空");
-            return treeMap;
+            baseResponse.setCode("ZF308");
+            baseResponse.setMsg("商品描述不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
         String timestamp = request.getParameter("timestamp");  //unix时间戳
         if (StringUtils.isEmpty(timestamp)) {
-            treeMap.put("code", "ZF309");
-            treeMap.put("url", null);
-            treeMap.put("msg", "unix时间戳不可为空");
-            return treeMap;
+            baseResponse.setCode("ZF309");
+            baseResponse.setMsg("unix时间戳不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
         }
-        String digest = request.getParameter("digest");  //签名
-        if (StringUtils.isEmpty(digest)) {
-            treeMap.put("code", "ZF300");
-            treeMap.put("url", null);
-            treeMap.put("msg", "签名信息不可为空");
-            return treeMap;
-        }
-        map.put("appid", appid);
-        map.put("money", money);
-        map.put("ptnSrl", ptnSrl);
-        map.put("subNo", subNo);
-        map.put("servNoticeUrl", servNoticeUrl);
-        map.put("subject", subject);
-        map.put("goodsDesc", goodsDesc);
-        map.put("timestamp", timestamp);
+//        String digest = request.getParameter("digest");  //签名
+//        if (StringUtils.isEmpty(digest)) {
+//            treeMap.put("code", "ZF300");
+//            treeMap.put("url", null);
+//            treeMap.put("msg", "签名信息不可为空");
+//            return treeMap;
+//        }
+//        map.put("appid", appid);
+//        map.put("money", money);
+//        map.put("ptnSrl", ptnSrl);
+//        map.put("subNo", subNo);
+//        map.put("servNoticeUrl", servNoticeUrl);
+//        map.put("subject", subject);
+//        map.put("goodsDesc", goodsDesc);
+//        map.put("timestamp", timestamp);
         //对签名的信息进行数据的校验
-        checkDigest(map, digest);
+//        checkDigest(map, digest);
         return null;
     }
 
