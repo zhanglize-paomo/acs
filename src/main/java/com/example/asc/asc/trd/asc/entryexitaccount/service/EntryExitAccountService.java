@@ -205,7 +205,7 @@ public class EntryExitAccountService {
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
                 //返回成功数据信息给前端页面
-                baseResponse = reternData(trdResponse);
+                baseResponse = reternData(trdResponse, billinfo_paytype);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
                 String url = URLDecoder.decode(trdResponse.getUrl(), "UTF-8");
                 String strs[] = url.split("\\?", 2);
@@ -226,7 +226,7 @@ public class EntryExitAccountService {
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
                 //返回成功数据信息给前端页面
-                baseResponse = reternData(trdResponse);
+                baseResponse = reternData(trdResponse,billinfo_paytype);
             }
         } else {
             //添加数据到入金支付数据库中
@@ -241,15 +241,21 @@ public class EntryExitAccountService {
      * 返回成功数据信息给前端页面
      *
      * @param trdResponse
+     * @param billinfo_paytype
      * @return
      */
-    private BaseResponse reternData(TrdT2031Response trdResponse) {
+    private BaseResponse reternData(TrdT2031Response trdResponse, String billinfo_paytype) {
         Map<String, String> map = new TreeMap<>();
         map.put("url", trdResponse.getUrl());
         BaseResponse response = new BaseResponse();
+        if(billinfo_paytype.equals("H")){
+            response.setData(trdResponse.getAuthcode());
+        }else{
+            response.setData(JSONObject.fromObject(map));
+        }
+
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
-        response.setData(JSONObject.fromObject(map));
         return response;
     }
 

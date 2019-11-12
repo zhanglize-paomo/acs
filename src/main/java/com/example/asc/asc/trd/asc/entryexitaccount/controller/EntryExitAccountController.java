@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 入金直通车_异步交易[T2031]控制器
@@ -64,30 +65,27 @@ public class EntryExitAccountController {
     }
 
     public static void main(String[] args) throws Exception {
-//        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
-//        Map<String, String> map = new TreeMap<>();
-//        map.put("fcFlg", "1");
-//        map.put("ptnSrl", "20191107153022");
-//        map.put("subNo", "1931115000186036");
-//        map.put("bkId", "105");
-//        map.put("accNo", "6217000260012247023");
-//        map.put("accNm", "张李泽");
-//        map.put("accTp", "2");
-//        map.put("crdTp", "1");
-//        map.put("cdTp", "A");
-//        map.put("cdNo", "142729199604031815");
-//        map.put("crsMk", "1");
-//        map.put("phone", "18434395962");
-//        String str = checkDigest(map, null);
-//        System.out.println(str);
-//        System.out.println(digest);
-//        if (str.equals(digest)) {
-//            System.out.println("31313123");
-//        }
-
+        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
+        Map<String, String> map = new TreeMap<>();
+        map.put("fcFlg", "1");
+        map.put("ptnSrl", "20191107153022");
+        map.put("subNo", "1931115000186036");
+        map.put("bkId", "105");
+        map.put("accNo", "6217000260012247023");
+        map.put("accNm", "张李泽");
+        map.put("accTp", "2");
+        map.put("crdTp", "1");
+        map.put("cdTp", "A");
+        map.put("cdNo", "142729199604031815");
+        map.put("crsMk", "1");
+        map.put("phone", "18434395962");
+        String str = checkDigest(map, null);
+        System.out.println(str);
+        System.out.println(digest);
+        if (str.equals(digest)) {
+            System.out.println("31313123");
+        }
     }
-
-
 
     @Autowired
     public void setService(EntryExitAccountService service) {
