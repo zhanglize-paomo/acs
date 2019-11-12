@@ -102,7 +102,7 @@ public class EntryExitAccountController {
      *
      * @return
      */
-    @RequestMapping(value = "orderscantopay", method = RequestMethod.POST)
+    @RequestMapping(value = "notifyurl", method = RequestMethod.POST)
     @ResponseBody
     public NoticeResponse orderScantoPay(HttpServletRequest request, HttpServletResponse response) {
         checkData(request);

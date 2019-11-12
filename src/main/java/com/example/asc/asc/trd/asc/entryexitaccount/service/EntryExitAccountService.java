@@ -99,7 +99,7 @@ public class EntryExitAccountService {
             /** 页面通知URL */
             String notificationurl = req.getParameter("notificationurl");
             /** 后台通知URL-若不传值则默认按照后台配置的地址进行通知交易结果 */
-            String servnoticurl = "http://39.107.40.13:8080/entry-exit-account/orderscantopay";
+            String servnoticurl = req.getParameter("servNoticeUrl");
             /** 资金用途(附言) */
             String usage = "H5支付";
             /** 合作方自定义备注1 */
