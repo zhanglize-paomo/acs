@@ -7,6 +7,7 @@ import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.util.Base64;
 import com.example.asc.asc.util.MD5;
 import com.example.asc.asc.util.SecuritySHA1Utils;
+import com.example.asc.asc.util.SortUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -44,10 +45,10 @@ public class EntryExitAccountController {
     private static String checkDigest(Map<String, String> map, String digest) {
         try {
             String appid = map.get("appid");
-            String timestamp = "1564652769";
+            String timestamp = "1564652780";
             String string = MD5.md5(timestamp);
             String secret = "NSN8KroSxdHJxfJ8bYsHOlWvPBpj30";
-            String str = MD5.getSignContent(map, "", "");
+            String str = SortUtils.Ksort(map);
             String sortvalue = secret + str;
             digest = Base64.getBase64(SecuritySHA1Utils.shaEncode(appid + string.toUpperCase() +
                     SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase()).toUpperCase());
@@ -58,25 +59,32 @@ public class EntryExitAccountController {
     }
 
     public static void main(String[] args) {
-        String digest = "QzVBMDY5MkNDNDEyMjQ0RkVEM0U1MEU4NDFBNTAzQTA3QTNFNDRBRg==";
-        Map<String, String> map = new TreeMap<>();
-        map.put("appid", "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC");
-        map.put("fcFlg", "1");
-        map.put("timestamp", "1564652769");
-        map.put("ptnSrl", "20191107153022");
-        map.put("type", "0");
-        map.put("name", "张李泽");
-        map.put("idType", "A");
-        map.put("idcardNo", "142729199604031815");
-        map.put("idcardName", "张李泽");
-        map.put("mobNo", "18434395962");
-        map.put("accTp", "1");
-        String str = checkDigest(map,null);
-        System.out.println(str);
-        System.out.println(digest);
-        if(str.equals(digest)){
-            System.out.println("31313123");
-        }
+//        Map<String, String> map = new TreeMap<>();
+//        map.put("")
+
+
+
+//        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
+//        Map<String, String> map = new TreeMap<>();
+//        map.put("appid", "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC");
+//        map.put("fcFlg", "1");
+//        map.put("ptnSrl", "20191107153022");
+//        map.put("subNo", "1931115000186036");
+//        map.put("bkId", "105");
+//        map.put("accNo", "6217000260012247023");
+//        map.put("accNm", "张李泽");
+//        map.put("accTp", "2");
+//        map.put("crdTp", "2");
+//        map.put("cdTp", "A");
+//        map.put("cdNo", "142729199604031815");
+//        map.put("crsMk", "1");
+//        map.put("phone", "18434395962");
+//        String str = checkDigest(map,null);
+//        System.out.println(str);
+//        System.out.println(digest);
+//        if(str.equals(digest)){
+//            System.out.println("31313123");
+//        }
     }
 
     @Autowired

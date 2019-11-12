@@ -44,6 +44,7 @@ public class ApplicationDepositService {
     private UserAccountService userAccountService;
     private ApplyDepositAccountService applyDepositAccountService;
     private UserAccountSettlementService settlementService;
+
     @Autowired
     public void setSettlementService(UserAccountSettlementService settlementService) {
         this.settlementService = settlementService;
@@ -161,7 +162,7 @@ public class ApplicationDepositService {
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 insertAccount(trdRequest, trdResponse, "3");
-                response = getTreeMap(trdResponse,cltacc_subno);
+                response = getTreeMap(trdResponse, cltacc_subno);
             } else {
                 //交易失败添加到出库申请表中
                 insertAccount(trdRequest, trdResponse, "2");
@@ -239,12 +240,14 @@ public class ApplicationDepositService {
      */
     private BaseResponse getTreeMap(TrdCommonResponse trdResponse, String cltacc_subno) {
         BaseResponse response = new BaseResponse();
-        Map<String,String> map = new TreeMap<>();
+        Map<String, String> map = new TreeMap<>();
         //获取请求报文信息
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());  // 返回信息
-        map.put("srl_ptnsrl",trdResponse.getSrl_ptnsrl());  // 合作方流水号
-        map.put("subNo",cltacc_subno); //资金账户
+        if (trdResponse.getMsghd_rspcode().equals("000000")) {
+            map.put("srl_ptnsrl", trdResponse.getSrl_ptnsrl());  // 合作方流水号
+        }
+        map.put("subNo", cltacc_subno); //资金账户
         response.setData(JSONObject.fromObject(map));
         return response;
     }
