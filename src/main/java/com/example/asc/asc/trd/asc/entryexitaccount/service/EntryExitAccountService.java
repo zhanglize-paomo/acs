@@ -109,7 +109,7 @@ public class EntryExitAccountService {
             /** 页面通知URL */
             String notificationurl = req.getParameter("notificationurl");
             /** 后台通知URL-若不传值则默认按照后台配置的地址进行通知交易结果 */
-            String servnoticurl = "localhost:8080/entry-exit-account/orderscantopay";
+            String servnoticurl = "192.168.3.58:8080/entry-exit-account/orderscantopay";
             /** 资金用途(附言) */
             String usage = "H5支付";
             /** 合作方自定义备注1 */
@@ -286,7 +286,7 @@ public class EntryExitAccountService {
         }else{
             account.setStatus("2");
         }
-        account.setServnoticeUrl(null);
+        account.setServnoticeUrl(trdRequest.getServnoticurl());
 //        account.setSendToClientTimes();
         account.setReqFlg(trdRequest.getReqflg());
         account.setPtnSrl(trdResponse.getSrl_ptnsrl());
