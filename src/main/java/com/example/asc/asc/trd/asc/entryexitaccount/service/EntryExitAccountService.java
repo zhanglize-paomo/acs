@@ -10,6 +10,7 @@ import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.DateUtils;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
+import com.example.asc.asc.util.HttpUtil2;
 import com.example.asc.asc.util.XmlUtil;
 import com.trz.netwk.api.ntc.NoticeRequest;
 import com.trz.netwk.api.ntc.NoticeResponse;
@@ -44,6 +45,59 @@ public class EntryExitAccountService {
 
     private UserAccountService userAccountService;
     private EntryExitAccountMapper mapper;
+
+    /**
+     * 以post方式调用对方接口方法
+     *
+     * @param pathUrl           请求地址信息
+     * @param data              数据信息
+     * @param num               数量
+     * @param sendToClientTimes 发送次数
+     * @param SrcPtnSrl         订单号信息
+     */
+    public static String doPostOrGet(String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, String SrcPtnSrl) {
+        String str = HttpUtil2.doPost(pathUrl, data, "utf-8");
+        sendMessage(str, pathUrl, data, num, sendToClientTimes, SrcPtnSrl);
+        return str;
+    }
+
+    /**
+     * 判断下游消息是否为空,如果为空,每隔5秒发送一次请求,
+     * 发送4次请求消息,总共估计20秒
+     *
+     * @param str               下游消息信息
+     * @param pathUrl           请求地址信息
+     * @param data              数据信息
+     * @param sendToClientTimes
+     * @param num               次数
+     * @param tranFlow          订单号信息
+     */
+    private static void sendMessage(String str, String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, String tranFlow) {
+        if (StringUtil.isEmpty(str)) {
+            if (StringUtils.isEmpty(sendToClientTimes)) {
+                //默认发送给下游客户四次请求
+                if (num != 4) {
+                    num += 1;
+                    try {
+                        Thread.sleep(5000);
+                        doPostOrGet(pathUrl, data, num, sendToClientTimes, tranFlow);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                if (num != sendToClientTimes) {
+                    num += 1;
+                    try {
+                        Thread.sleep(5000);
+                        doPostOrGet(pathUrl, data, num, sendToClientTimes, tranFlow);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -226,7 +280,7 @@ public class EntryExitAccountService {
                 //添加数据到入金支付数据库中
                 addEntryExitAccount(trdRequest, trdResponse);
                 //返回成功数据信息给前端页面
-                baseResponse = reternData(trdResponse,billinfo_paytype);
+                baseResponse = reternData(trdResponse, billinfo_paytype);
             }
         } else {
             //添加数据到入金支付数据库中
@@ -248,9 +302,9 @@ public class EntryExitAccountService {
         Map<String, String> map = new TreeMap<>();
         map.put("url", trdResponse.getUrl());
         BaseResponse response = new BaseResponse();
-        if(billinfo_paytype.equals("H")){
+        if (billinfo_paytype.equals("H")) {
             response.setData(trdResponse.getAuthcode());
-        }else{
+        } else {
             response.setData(JSONObject.fromObject(map));
         }
 
@@ -267,7 +321,6 @@ public class EntryExitAccountService {
      */
     private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse) {
         EntryExitAccount account = new EntryExitAccount();
-        account.setClientStatus("0");
         account.setSecPayType(trdRequest.getBillinfo_secpaytype());
         //根据资金账户查询到对应的用户id以及用户Account的id
         String cltacc_subno = trdRequest.getCltacc_subno();
@@ -304,6 +357,7 @@ public class EntryExitAccountService {
      * @return
      */
     public int insert(EntryExitAccount account) {
+        account.setClientStatus("0");
         account.setOrderNo(GenerateOrderNoUtil.gens("eea", 530L));
         account.setCreatedAt(DateUtils.toTimestamp()); //创建时间
         return mapper.insert(account);
@@ -352,20 +406,22 @@ public class EntryExitAccountService {
             logger.info("signature=" + signature);
             // 2 生成交易请求对象(验签)
             noticeRequest = new NoticeRequest(message, signature);
-            logger.info("通知报文: " + noticeRequest.getPlainText());
-            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG")
-                    .get("Srl")).get("SrcPtnSrl").toString();
+            logger.info("支付异步通知报文: " + noticeRequest.getPlainText());
+            Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
+            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             if (StringUtil.isEmpty(ptncode) || StringUtil.isEmpty(trdcode) || StringUtil.isEmpty(message) || StringUtil.isEmpty(signature)) {
-                Map<String,String> map = new TreeMap<>();
-                map.put("ptncode",ptncode);
-                map.put("trdcode",trdcode);
-                map.put("message",message);
-                map.put("signature",signature);
+                Map<String, String> map = new TreeMap<>();
+                map.put("ptncode", ptncode);
+                map.put("trdcode", trdcode);
+                map.put("message", message);
+                map.put("signature", signature);
                 noticeResponse.setMsghd_rspcode("SDER04");
                 noticeResponse.setMsghd_rspmsg("参数错误");
                 noticeResponse.setSrl_ptnsrl(SrcPtnSrl);
                 return noticeResponse;
             }
+            //获取到给下游客户返回的数据信息
+            Map<String, Object> map;
             // 3 业务处理  接收到上游的支付返回成功的信息通知
             //根据交易流水号修改该条交易的状态
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
@@ -374,20 +430,57 @@ public class EntryExitAccountService {
                 account.setClientStatus("1");
                 update(account.getId(), account);
                 //给上游客户响应信息
-                noticeResponse = getNoticeResponse("000000","业务办理成功",SrcPtnSrl);
-                //TODO 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
-
+                noticeResponse = getNoticeResponse("000000", "业务办理成功", SrcPtnSrl);
+                /**
+                 * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
+                 */
+                map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl);
+                //根据交易流水号获取到入金支付交易信息
+                if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
+                    int num = 0;
+                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), SrcPtnSrl);
+                }
             } else {
                 account.setStatus("1");
                 update(account.getId(), account);
-                //TODO 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
                 //给上游客户响应信息
-                noticeResponse = getNoticeResponse("ERROR","业务办理失败",SrcPtnSrl);
+                noticeResponse = getNoticeResponse("ERROR", "业务办理失败", SrcPtnSrl);
+                /**
+                 * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
+                 */
+                /**
+                 * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
+                 */
+                map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl);
+                //根据交易流水号获取到入金支付交易信息
+                if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
+                    int num = 0;
+                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), SrcPtnSrl);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return noticeResponse;
+    }
+
+    /**
+     * 返回给下游客户的数据信息
+     *
+     * @param toXmlMap
+     * @param msg
+     * @param SrcPtnSrl
+     * @return
+     */
+    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl) {
+        Map<String, Object> hashMap = new TreeMap<>();
+        Map<String, String> map = new TreeMap<>();
+        hashMap.put("code", "000000");
+        hashMap.put("msg", msg);
+        map.put("SrcPtnSrl", SrcPtnSrl);
+        map.put("AclAmt", com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Amt")).get("AclAmt").toString());
+        hashMap.put("data", map);
+        return hashMap;
     }
 
     /**
@@ -405,5 +498,6 @@ public class EntryExitAccountService {
         noticeResponse.setSrl_ptnsrl(srl_ptnsrl);
         return noticeResponse;
     }
+
 
 }
