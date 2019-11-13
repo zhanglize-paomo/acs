@@ -48,31 +48,29 @@ public class EntryExitAccountService {
 
     /**
      * 以post方式调用对方接口方法
-     *
-     * @param pathUrl           请求地址信息
+     *  @param pathUrl           请求地址信息
      * @param data              数据信息
      * @param num               数量
      * @param sendToClientTimes 发送次数
-     * @param SrcPtnSrl         订单号信息
+     * @param account         订单号信息
      */
-    public static String doPostOrGet(String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, String SrcPtnSrl) {
+    public String doPostOrGet(String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         String str = HttpUtil2.doPost(pathUrl, data, "utf-8");
-        sendMessage(str, pathUrl, data, num, sendToClientTimes, SrcPtnSrl);
+        sendMessage(str, pathUrl, data, num, sendToClientTimes,account);
         return str;
     }
 
     /**
      * 判断下游消息是否为空,如果为空,每隔5秒发送一次请求,
      * 发送4次请求消息,总共估计20秒
-     *
-     * @param str               下游消息信息
+     *  @param str               下游消息信息
      * @param pathUrl           请求地址信息
      * @param data              数据信息
-     * @param sendToClientTimes
      * @param num               次数
-     * @param tranFlow          订单号信息
+     * @param sendToClientTimes
+     * @param account
      */
-    private static void sendMessage(String str, String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, String tranFlow) {
+    private void sendMessage(String str, String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         if (StringUtil.isEmpty(str)) {
             if (StringUtils.isEmpty(sendToClientTimes)) {
                 //默认发送给下游客户四次请求
@@ -80,7 +78,7 @@ public class EntryExitAccountService {
                     num += 1;
                     try {
                         Thread.sleep(5000);
-                        doPostOrGet(pathUrl, data, num, sendToClientTimes, tranFlow);
+                        doPostOrGet(pathUrl, data, num, sendToClientTimes, account);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -90,12 +88,15 @@ public class EntryExitAccountService {
                     num += 1;
                     try {
                         Thread.sleep(5000);
-                        doPostOrGet(pathUrl, data, num, sendToClientTimes, tranFlow);
+                        doPostOrGet(pathUrl, data, num, sendToClientTimes, account);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
+        }else{
+            account.setClientStatus("1");
+            update(account.getId(),account);
         }
     }
 
@@ -438,7 +439,7 @@ public class EntryExitAccountService {
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     int num = 0;
-                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), SrcPtnSrl);
+                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(),account);
                 }
             } else {
                 account.setStatus("1");
@@ -455,7 +456,7 @@ public class EntryExitAccountService {
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     int num = 0;
-                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), SrcPtnSrl);
+                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
             }
         } catch (Exception e) {
