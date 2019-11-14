@@ -135,7 +135,6 @@ public class EntryExitAccountController {
         BaseResponse baseResponse = checkData(treeMap);
         Map<String, String> map = new HashMap<>();
         map.put("timestamp", timestamp);
-        map.put("digest",digest);
         //对数据进行校验
         if (baseResponse != null) {
             if (baseResponse.getCode() != null) {
@@ -148,6 +147,14 @@ public class EntryExitAccountController {
             Map<Object, Object> stringObjectMap = StringUtil.jsonToMap(JSONObject.fromObject(baseResponse1.getData()));
             stringObjectMap.put("timestamp", timestamp);
             stringObjectMap.put("digest", digest);
+            stringObjectMap.put("subNo", request.getParameter("subNo"));
+            stringObjectMap.put("ptnSrl", request.getParameter("ptnSrl"));
+            stringObjectMap.put("goodsDesc", request.getParameter("goodsDesc"));
+            stringObjectMap.put("subject", request.getParameter("subject"));
+            stringObjectMap.put("servNoticeUrl", servNoticeUrl);
+            stringObjectMap.put("money", request.getParameter("money"));
+            stringObjectMap.put("payType", request.getParameter("payType"));
+            stringObjectMap.put("appid",appid);
             baseResponse1.setData(JSONObject.fromObject(stringObjectMap));
         } else {
             baseResponse1.setData(map);
