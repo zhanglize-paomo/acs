@@ -5,10 +5,6 @@ import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountServ
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
-import com.example.asc.asc.util.Base64;
-import com.example.asc.asc.util.MD5;
-import com.example.asc.asc.util.SecuritySHA1Utils;
-import com.example.asc.asc.util.SortUtils;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,8 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 入金直通车_异步交易[T2031]控制器
@@ -37,54 +31,6 @@ public class EntryExitAccountController {
     private EntryExitAccountService service;
     private UserAccountService userAccountService;
 
-    /**
-     * 对数据进行签名的数据校验
-     *
-     * @param map
-     * @param digest
-     * @return
-     */
-    private static String checkDigest(Map<String, String> map, String digest) {
-        try {
-            String appid = "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC";
-            String timestamp = "1564652788";
-            String secret = "NSN8KroSxdHJxfJ8bYsHOlWvPBpj30";
-            Map<String, String> stringObjectMap = SortUtils.Ksort(map);
-            String sortvalue = secret;
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                sortvalue += entry.getValue().trim();
-            }
-            digest = Base64.getBase64(
-                    SecuritySHA1Utils.shaEncode(
-                            appid +
-                                    MD5.md5(timestamp).toUpperCase() +
-                                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase())
-                            .toUpperCase()
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return digest;
-    }
-
-    public static void main(String[] args) throws Exception {
-        String digest = "MzU1QUY2MkIxNDM2QjY4OUNBMTJFRkU3NDUyMThDRTNDMzBFMDg0NA==";
-        TreeMap<String, String> map = new TreeMap<>();
-        //map.put("digest", "RThGMzk2MUU4MThFQzRCQkY3NzE4NTc2QURCNkM0QTZDOTU4M0QzNg==");
-//        map.put("appid", "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC");
-//        map.put("timestamp", "1564652788");
-        map.put("type", "1");
-        map.put("ptnSrl", "20191107153022");
-        map.put("subNo", "1931115000186036");
-        map.put("message", "678593");
-        String str = checkDigest(map, null);
-        System.out.println(str);
-        System.out.println(digest);
-        if (str.equals(digest)) {
-            System.out.println("31313123");
-        }
-    }
-
     @Autowired
     public void setService(EntryExitAccountService service) {
         this.service = service;
@@ -93,6 +39,24 @@ public class EntryExitAccountController {
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
+    }
+
+    /**
+     * 根据参数生成签名信息的接口
+     *
+     * @return
+     */
+    @RequestMapping(value = "check-digest", method = RequestMethod.GET)
+    @ResponseBody
+    public BaseResponse checkDigest(HttpServletRequest request, HttpServletResponse response) {
+        BaseResponse baseResponse = new BaseResponse();
+        String digest = service.checkDigest(request, response);
+        if (!StringUtils.isEmpty(digest)) {
+            baseResponse.setCode("200");
+            baseResponse.setMsg("生成签名成功");
+            baseResponse.setData(digest);
+        }
+        return baseResponse;
     }
 
     /**
@@ -115,7 +79,7 @@ public class EntryExitAccountController {
     @RequestMapping(value = "scantopay", method = RequestMethod.POST)
     @ResponseBody
     public BaseResponse scantoPay(HttpServletRequest request, HttpServletResponse response) {
-        BaseResponse baseResponse = checkData(request);
+        BaseResponse baseResponse = checkData(request, response);
         //对数据进行校验
         if (baseResponse != null) {
             if (baseResponse.getCode() != null) {
@@ -129,9 +93,10 @@ public class EntryExitAccountController {
      * 对支付功能接口的参数的非空校验
      *
      * @param request
+     * @param response
      * @return
      */
-    private BaseResponse checkData(HttpServletRequest request) {
+    private BaseResponse checkData(HttpServletRequest request, HttpServletResponse response) {
         BaseResponse baseResponse = new BaseResponse();
         String appid = request.getParameter("appid");  //客户的唯一标示
         if (StringUtils.isEmpty(appid)) {
@@ -206,25 +171,23 @@ public class EntryExitAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
-//        String digest = request.getParameter("digest");  //签名
-//        if (StringUtils.isEmpty(digest)) {
-//            treeMap.put("code", "ZF300");
-//            treeMap.put("url", null);
-//            treeMap.put("msg", "签名信息不可为空");
-//            return treeMap;
-//        }
-//        map.put("appid", appid);
-//        map.put("money", money);
-//        map.put("ptnSrl", ptnSrl);
-//        map.put("subNo", subNo);
-//        map.put("servNoticeUrl", servNoticeUrl);
-//        map.put("subject", subject);
-//        map.put("goodsDesc", goodsDesc);
-//        map.put("timestamp", timestamp);
+        String digest = request.getParameter("digest");  //签名
+        if (StringUtils.isEmpty(digest)) {
+            baseResponse.setCode("ZF310");
+            baseResponse.setMsg("签名信息不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         //对签名的信息进行数据的校验
-//        checkDigest(map, digest);
+        String redigest = service.checkDigest(request, response);
+        if (!StringUtils.isEmpty(redigest)) {
+            if (!redigest.equals(digest)) {
+                baseResponse.setCode("ZF311");
+                baseResponse.setMsg("签名信息验证失败");
+                baseResponse.setData(null);
+                return baseResponse;
+            }
+        }
         return null;
     }
-
-
 }

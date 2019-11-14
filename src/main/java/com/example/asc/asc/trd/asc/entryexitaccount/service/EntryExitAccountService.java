@@ -5,13 +5,11 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
+import com.example.asc.asc.trd.asc.users.service.UsersService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
-import com.example.asc.asc.util.DateUtils;
-import com.example.asc.asc.util.GenerateOrderNoUtil;
-import com.example.asc.asc.util.HttpUtil2;
-import com.example.asc.asc.util.XmlUtil;
+import com.example.asc.asc.util.*;
 import com.trz.netwk.api.ntc.NoticeRequest;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import com.trz.netwk.api.system.TrdMessenger;
@@ -29,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,26 +43,44 @@ public class EntryExitAccountService {
     private static final Logger logger = LoggerFactory.getLogger(EntryExitAccountService.class);
 
     private UserAccountService userAccountService;
+    private UsersService usersService;
     private EntryExitAccountMapper mapper;
+
+    @Autowired
+    public void setUserAccountService(UserAccountService userAccountService) {
+        this.userAccountService = userAccountService;
+    }
+
+    @Autowired
+    public void setMapper(EntryExitAccountMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    @Autowired
+    public void setUsersService(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     /**
      * 以post方式调用对方接口方法
-     *  @param pathUrl           请求地址信息
+     *
+     * @param pathUrl           请求地址信息
      * @param data              数据信息
      * @param num               数量
      * @param sendToClientTimes 发送次数
-     * @param account         订单号信息
+     * @param account           订单号信息
      */
     public String doPostOrGet(String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         String str = HttpUtil2.doPost(pathUrl, data, "utf-8");
-        sendMessage(str, pathUrl, data, num, sendToClientTimes,account);
+        sendMessage(str, pathUrl, data, num, sendToClientTimes, account);
         return str;
     }
 
     /**
      * 判断下游消息是否为空,如果为空,每隔5秒发送一次请求,
      * 发送4次请求消息,总共估计20秒
-     *  @param str               下游消息信息
+     *
+     * @param str               下游消息信息
      * @param pathUrl           请求地址信息
      * @param data              数据信息
      * @param num               次数
@@ -94,21 +111,12 @@ public class EntryExitAccountService {
                     }
                 }
             }
-        }else{
+        } else {
             account.setClientStatus("1");
-            update(account.getId(),account);
+            update(account.getId(), account);
         }
     }
 
-    @Autowired
-    public void setUserAccountService(UserAccountService userAccountService) {
-        this.userAccountService = userAccountService;
-    }
-
-    @Autowired
-    public void setMapper(EntryExitAccountMapper mapper) {
-        this.mapper = mapper;
-    }
 
     /**
      * 支付,调用云闪付的平台进行支付
@@ -439,7 +447,7 @@ public class EntryExitAccountService {
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     int num = 0;
-                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(),account);
+                    doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
             } else {
                 account.setStatus("1");
@@ -501,4 +509,41 @@ public class EntryExitAccountService {
     }
 
 
+    /**
+     * 对数据进行签名的数据校验
+     *
+     * @param request   request请求
+     * @param response
+     * @return
+     */
+    public String checkDigest(HttpServletRequest request, HttpServletResponse response) {
+        String digest = null;
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        String appid = request.getParameter("appid");
+        String timestamp = request.getParameter("timestamp");
+        try {
+            Enumeration<String> enu = request.getParameterNames();
+            String t;
+            while (enu.hasMoreElements()) {
+                t = enu.nextElement();
+                if (!t.equals("appid") || !t.equals("timestamp") || !t.equals("digest")) {
+                    treeMap.put(t, request.getParameter(t));
+                }
+            }
+            String sortvalue = usersService.findAppId(appid).getSecret();
+            for (Map.Entry<String, String> entry : treeMap.entrySet()) {
+                sortvalue += entry.getValue().trim();
+            }
+            digest = Base64.getBase64(
+                    SecuritySHA1Utils.shaEncode(
+                            appid +
+                                    MD5.md5(timestamp).toUpperCase() +
+                                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase())
+                            .toUpperCase()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return digest;
+    }
 }
