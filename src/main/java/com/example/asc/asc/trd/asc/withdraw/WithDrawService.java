@@ -28,6 +28,8 @@ import java.util.TreeMap;
  */
 @Service
 public class WithDrawService {
+
+    private static final String TAG = "{出金额度}-";
     private UserAccountService userAccountService;
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -75,16 +77,16 @@ public class WithDrawService {
             trdRequest.setMsghd_bkcd(BkCd);
             // 3. 报文处理
             trdRequest.process();
-            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
-            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG + "签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG + "签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT1018Response trdResponse = new TrdT1018Response(respMsg);
-            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 response = getTreeMap(trdResponse,cltacc_subno);
