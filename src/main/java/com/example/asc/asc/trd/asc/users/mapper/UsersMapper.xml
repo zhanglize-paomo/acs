@@ -15,5 +15,10 @@
     <select id="findAppId" resultMap="resultMap">
          select * from users where appId = #{appId}
     </select>
+    <select id="findById" resultMap="resultMap">
+
+         select * from users where id = #{id}
+
+    </select>
 
 </mapper>

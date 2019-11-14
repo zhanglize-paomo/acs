@@ -16,4 +16,12 @@ public interface UsersMapper {
      * @return
      */
     Users findAppId(String appId);
+
+    /**
+     * 根据id查询到对应人员信息
+     *
+     * @param id
+     * @return
+     */
+    Users findById(int id);
 }

@@ -111,7 +111,7 @@ public class EntryExitAccountController {
     @ResponseBody
     public BaseResponse myScantoPay(HttpServletRequest request, HttpServletResponse response) {
         UserAccount userAccount = userAccountService.findBySubNo(request.getParameter("subNo"));
-        Users users = usersService.findUserId(userAccount.getUserId());
+        Users users = usersService.findById(userAccount.getUserId());
         String appid = users.getAppId();
         String timestamp = request.getParameter("timestamp");
         if (StringUtils.isEmpty(timestamp)) {

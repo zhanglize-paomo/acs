@@ -30,7 +30,13 @@ public class UsersService {
         return mapper.findAppId(appId);
     }
 
-    public Users findUserId(int userId) {
-        return null;
+    /**
+     * 根据id查询到对应人员信息
+     *
+     * @param id
+     * @return
+     */
+    public Users findById(int id) {
+        return mapper.findById(id);
     }
 }
