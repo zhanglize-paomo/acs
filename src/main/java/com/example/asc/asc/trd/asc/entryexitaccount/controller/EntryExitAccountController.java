@@ -64,11 +64,17 @@ public class EntryExitAccountController {
     public BaseResponse checkDigest(HttpServletRequest request, HttpServletResponse response) {
         BaseResponse baseResponse = new BaseResponse();
         TreeMap<String,String> treeMap = service.getDigest(request);
-        String digest = service.checkDigest(request, response,treeMap);
+        UserAccount userAccount = userAccountService.findBySubNo(request.getParameter("subNo"));
+        String appid = usersService.findById(userAccount.getUserId()).getAppId();
+        String timestamp = request.getParameter("timestamp");
+        String digest = service.checkDigest(appid, timestamp,treeMap);
         if (!StringUtils.isEmpty(digest)) {
             baseResponse.setCode("200");
             baseResponse.setMsg("生成签名成功");
-            baseResponse.setData(digest);
+            Map<String,String> map = new HashMap<>();
+            map.put("digest",digest);
+            map.put("timestamp",timestamp);
+            baseResponse.setData(JSONObject.fromObject(map));
         }
         return baseResponse;
     }
