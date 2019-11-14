@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.users.mapper.UsersMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.users.domain.Users">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="tel" jdbcType="VARCHAR" property="tel"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="appId" jdbcType="VARCHAR" property="appId"/>
+        <result column="secret" jdbcType="VARCHAR" property="secret"/>
+        <result column="created_at" jdbcType="VARCHAR" property="createdAt"/>
+        <result column="updated_at" jdbcType="VARCHAR" property="updatedAt"/>
+        <result column="deleted_at" jdbcType="VARCHAR" property="deletedAt"/>
+    </resultMap>
+
+    <select id="findAppId" resultMap="resultMap">
+         select * from users where appId = #{appId}
+    </select>
+
+</mapper>
