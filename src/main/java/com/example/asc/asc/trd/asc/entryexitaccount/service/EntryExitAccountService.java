@@ -310,12 +310,14 @@ public class EntryExitAccountService {
      * @return
      */
     private BaseResponse reternData(TrdT2031Response trdResponse, String billinfo_paytype) {
-        Map<String, String> map = new TreeMap<>();
-        map.put("url", trdResponse.getUrl());
         BaseResponse response = new BaseResponse();
         if (billinfo_paytype.equals("H")) {
-            response.setData(trdResponse.getAuthcode());
+            Map<String, String> map = new TreeMap<>();
+            map.put("authcode", trdResponse.getAuthcode());
+            response.setData(JSONObject.fromObject(map));
         } else {
+            Map<String, String> map = new TreeMap<>();
+            map.put("url", trdResponse.getUrl());
             response.setData(JSONObject.fromObject(map));
         }
         response.setCode(trdResponse.getMsghd_rspcode());
@@ -528,8 +530,12 @@ public class EntryExitAccountService {
             String t;
             while (enu.hasMoreElements()) {
                 t = enu.nextElement();
-                if (!t.equals("appid") || !t.equals("timestamp") || !t.equals("digest")) {
-                    treeMap.put(t, request.getParameter(t));
+                if (!t.equals("appid")) {
+                    if (!t.equals("timestamp")) {
+                        if (!t.equals("digest")) {
+                            treeMap.put(t, request.getParameter(t));
+                        }
+                    }
                 }
             }
             String sortvalue = usersService.findAppId(appid).getSecret();
