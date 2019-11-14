@@ -7,7 +7,6 @@ import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.asc.users.domain.Users;
 import com.example.asc.asc.trd.asc.users.service.UsersService;
 import com.example.asc.asc.trd.common.BaseResponse;
-import com.example.asc.asc.util.GenerateOrderNoUtil;
 import com.example.asc.asc.util.StringUtil;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import net.sf.json.JSONObject;
@@ -23,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 入金直通车_异步交易[T2031]控制器
@@ -63,7 +63,8 @@ public class EntryExitAccountController {
     @ResponseBody
     public BaseResponse checkDigest(HttpServletRequest request, HttpServletResponse response) {
         BaseResponse baseResponse = new BaseResponse();
-        String digest = service.checkDigest(request, response);
+        TreeMap<String,String> treeMap = service.getDigest(request);
+        String digest = service.checkDigest(request, response,treeMap);
         if (!StringUtils.isEmpty(digest)) {
             baseResponse.setCode("200");
             baseResponse.setMsg("生成签名成功");
@@ -117,25 +118,24 @@ public class EntryExitAccountController {
         if (StringUtils.isEmpty(timestamp)) {
             timestamp = String.valueOf(System.currentTimeMillis());
         }
-        String ptnSrl = request.getParameter("ptnSrl");
-        if (StringUtils.isEmpty(ptnSrl)) {
-            ptnSrl = GenerateOrderNoUtil.gen("zf", 530L);
-        }
-        String goodsDesc = "内部商品";
-        String subject = "内部商品";
         String servNoticeUrl = "http://39.107.40.13:8080/entry-exit-account/notifyurl";
-        request.setAttribute("appid", appid);
-        request.setAttribute("timestamp", timestamp);
-        request.setAttribute("ptnSrl", ptnSrl);
-        request.setAttribute("goodsDesc", goodsDesc);
-        request.setAttribute("subject", subject);
-        request.setAttribute("servNoticeUrl", servNoticeUrl);
+        TreeMap<String,String> treeMap = new TreeMap<>();
+        treeMap.put("subNo",request.getParameter("subNo"));
+        treeMap.put("ptnSrl",request.getParameter("ptnSrl"));
+        treeMap.put("goodsDesc",request.getParameter("goodsDesc"));
+        treeMap.put("subject",request.getParameter("subject"));
+        treeMap.put("servNoticeUrl",servNoticeUrl);
+        treeMap.put("money",request.getParameter("money"));
+        treeMap.put("payType",request.getParameter("payType"));
         //生产签名的信息
-        String digest = service.checkDigest(request, response);
-        request.setAttribute("digest", digest);
-        BaseResponse baseResponse = checkData(request, response);
+        String digest = service.checkDigest(appid,timestamp,treeMap);
+        treeMap.put("digest",digest);
+        treeMap.put("appid",appid);
+        treeMap.put("timestamp",timestamp);
+        BaseResponse baseResponse = checkData(treeMap);
         Map<String, String> map = new HashMap<>();
         map.put("timestamp", timestamp);
+        map.put("digest",digest);
         //对数据进行校验
         if (baseResponse != null) {
             if (baseResponse.getCode() != null) {
@@ -147,11 +147,97 @@ public class EntryExitAccountController {
         if (baseResponse1.getData() != null) {
             Map<Object, Object> stringObjectMap = StringUtil.jsonToMap(JSONObject.fromObject(baseResponse1.getData()));
             stringObjectMap.put("timestamp", timestamp);
+            stringObjectMap.put("digest", digest);
             baseResponse1.setData(JSONObject.fromObject(stringObjectMap));
         } else {
             baseResponse1.setData(map);
         }
-        return service.scantoPay(request, response);
+        return baseResponse1;
+    }
+
+    private BaseResponse checkData(TreeMap<String, String> treeMap) {
+        BaseResponse baseResponse = new BaseResponse();
+        String appid = treeMap.get("appid");  //客户的唯一标示
+        if (StringUtils.isEmpty(appid)) {
+            baseResponse.setCode("ZF300");
+            baseResponse.setMsg("请检查客户的唯一标示");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String money = treeMap.get("money");  //金额(以分为单位)
+        if (StringUtils.isEmpty(money)) {
+            baseResponse.setCode("ZF301");
+            baseResponse.setMsg("请检查支付金额");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String ptnSrl = treeMap.get("ptnSrl");  //客户方流水号（客户程序逻辑生成）
+        if (StringUtils.isEmpty(ptnSrl)) {
+            baseResponse.setCode("ZF302");
+            baseResponse.setMsg("客户方流水号不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        //根据客户方交易流水号判断该交易流水号是否存在
+        EntryExitAccount account = service.findByPtnSrl(ptnSrl);
+        if (account != null) {
+            baseResponse.setCode("ZF303");
+            baseResponse.setMsg("客户方流水号已经存在");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String subNo = treeMap.get("subNo");  //客户资金账号
+        if (StringUtils.isEmpty(subNo)) {
+            baseResponse.setCode("ZF304");
+            baseResponse.setMsg("客户资金账户不能为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        UserAccount userAccount = userAccountService.findBySubNo(subNo);
+        //判断客户资金账户是否存在
+        if (userAccount == null) {
+            baseResponse.setCode("ZF305");
+            baseResponse.setMsg("客户资金账户不存在");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        //客户发送请求信息的后台异步消息通知地址信息
+        String servNoticeUrl = treeMap.get("servNoticeUrl");  //后台异步通知url
+        if (StringUtils.isEmpty(servNoticeUrl)) {
+            baseResponse.setCode("ZF306");
+            baseResponse.setMsg("后台异步通知url不能为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String subject = treeMap.get("subject");  //商品主题描述
+        if (StringUtils.isEmpty(subject)) {
+            baseResponse.setCode("ZF307");
+            baseResponse.setMsg("商品主题描述不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String goodsDesc = treeMap.get("goodsDesc");  //商品描述
+        if (StringUtils.isEmpty(goodsDesc)) {
+            baseResponse.setCode("ZF308");
+            baseResponse.setMsg("商品描述不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String timestamp = treeMap.get("timestamp");  //unix时间戳
+        if (StringUtils.isEmpty(timestamp)) {
+            baseResponse.setCode("ZF309");
+            baseResponse.setMsg("unix时间戳不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String digest = treeMap.get("digest");  //签名
+        if (StringUtils.isEmpty(digest)) {
+            baseResponse.setCode("ZF310");
+            baseResponse.setMsg("签名信息不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        return null;
     }
 
     /**
@@ -243,8 +329,10 @@ public class EntryExitAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
+        //获取request的参数信息
+        TreeMap<String,String> treeMap = service.getDigest(request);
         //对签名的信息进行数据的校验
-        String redigest = service.checkDigest(request, response);
+        String redigest = service.checkDigest(request, response,treeMap);
         if (!StringUtils.isEmpty(redigest)) {
             if (!redigest.equals(digest)) {
                 baseResponse.setCode("ZF311");
@@ -255,4 +343,5 @@ public class EntryExitAccountController {
         }
         return null;
     }
+
 }

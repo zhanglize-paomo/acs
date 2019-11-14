@@ -520,24 +520,11 @@ public class EntryExitAccountService {
      * @param response
      * @return
      */
-    public String checkDigest(HttpServletRequest request, HttpServletResponse response) {
+    public String checkDigest(HttpServletRequest request, HttpServletResponse response, TreeMap<String, String> treeMap) {
         String digest = null;
-        TreeMap<String, String> treeMap = new TreeMap<>();
         String appid = request.getParameter("appid");
         String timestamp = request.getParameter("timestamp");
         try {
-            Enumeration<String> enu = request.getParameterNames();
-            String t;
-            while (enu.hasMoreElements()) {
-                t = enu.nextElement();
-                if (!t.equals("appid")) {
-                    if (!t.equals("timestamp")) {
-                        if (!t.equals("digest")) {
-                            treeMap.put(t, request.getParameter(t));
-                        }
-                    }
-                }
-            }
             String sortvalue = usersService.findAppId(appid).getSecret();
             for (Map.Entry<String, String> entry : treeMap.entrySet()) {
                 sortvalue += entry.getValue().trim();
@@ -554,4 +541,50 @@ public class EntryExitAccountService {
         }
         return digest;
     }
+
+
+    public String checkDigest(String appid, String timestamp, TreeMap<String, String> treeMap) {
+        String digest = null;
+        try {
+            String sortvalue = usersService.findAppId(appid).getSecret();
+            for (Map.Entry<String, String> entry : treeMap.entrySet()) {
+                sortvalue += entry.getValue().trim();
+            }
+            digest = Base64.getBase64(
+                    SecuritySHA1Utils.shaEncode(
+                            appid +
+                                    MD5.md5(timestamp).toUpperCase() +
+                                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase())
+                            .toUpperCase()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return digest;
+
+    }
+
+    /**
+     * 获取request的参数信息
+     *
+     * @param request
+     * @return
+     */
+    public TreeMap<String, String> getDigest(HttpServletRequest request) {
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        Enumeration<String> enu = request.getParameterNames();
+        String t;
+        while (enu.hasMoreElements()) {
+            t = enu.nextElement();
+            if (!t.equals("appid")) {
+                if (!t.equals("timestamp")) {
+                    if (!t.equals("digest")) {
+                        treeMap.put(t, request.getParameter(t));
+                    }
+                }
+            }
+        }
+        return treeMap;
+    }
+
 }
