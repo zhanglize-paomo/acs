@@ -147,7 +147,7 @@ public class EntryExitAccountService {
             if (StringUtils.isEmpty(billinfo_paytype)) {
                 response.setCode("ZF310");
                 response.setMsg("支付方式不存在");
-                response.setCode(null);
+                response.setData(null);
                 return response;
             }
             if (billinfo_secpaytype.equals("6")) {

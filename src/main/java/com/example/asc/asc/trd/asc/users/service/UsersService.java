@@ -29,4 +29,8 @@ public class UsersService {
     public Users findAppId(String appId) {
         return mapper.findAppId(appId);
     }
+
+    public Users findUserId(int userId) {
+        return null;
+    }
 }
