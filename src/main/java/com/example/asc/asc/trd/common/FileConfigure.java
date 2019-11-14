@@ -20,10 +20,10 @@ public class FileConfigure {
      */
     public static void getFileConfigure(String cltacc_subno) throws Exception {
         //windows系统的文件信息
-        String filepath = FileConfigure.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
-        String configPath = FileConfigure.class.getResource("/").getPath() + "cert";
-//        String filepath = "/home/www/hailiying/config/hailiying_key.pfx";
-//        String configPath = "/home/www/hailiying/config";
+//        String filepath = FileConfigure.class.getResource("/").getPath() + "cert/hailiying_key.pfx";
+//        String configPath = FileConfigure.class.getResource("/").getPath() + "cert";
+        String filepath = "/home/www/hailiying/config/hailiying_key.pfx";
+        String configPath = "/home/www/hailiying/config";
         String password = "Hailiying123!@#";
         SignatureFactory.addSigner(cltacc_subno, new PriKeySigner(filepath, password));
         InitSystem.initialize(configPath);
