@@ -41,7 +41,8 @@ import java.util.TreeMap;
 public class EntryExitAccountService {
 
     private static final Logger logger = LoggerFactory.getLogger(EntryExitAccountService.class);
-
+    private static final String TAG = "{入金支付}-";
+    private static final String TAG_ = "{入金支付异步}-";
     private UserAccountService userAccountService;
     private UsersService usersService;
     private EntryExitAccountMapper mapper;
@@ -195,7 +196,7 @@ public class EntryExitAccountService {
             trdRequest.setBillinfo_paytype(billinfo_paytype);
             trdRequest.setBillinfo_secpaytype(billinfo_secpaytype);
             trdRequest.setBillinfo_minitag(billinfo_minitag);
-            trdRequest.setNotificationurl(notificationurl);
+//            trdRequest.setNotificationurl(notificationurl);
             trdRequest.setServnoticurl(servnoticurl);
             trdRequest.setReqflg(reqflg);
             trdRequest.setUsage(usage);
@@ -208,18 +209,18 @@ public class EntryExitAccountService {
             trdRequest.setTrsflag(trsflag);
             // 3. 报文处理
             trdRequest.process();
-            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
-            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG + "签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG + "签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT2031Response trdResponse = new TrdT2031Response(respMsg);
-            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            response = judgeResponse(trdRequest, trdResponse);
+            response = judgeResponse(trdRequest, trdResponse, notificationurl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -250,23 +251,24 @@ public class EntryExitAccountService {
      *
      * @param trdRequest
      * @param trdResponse
+     * @param notificationurl
      * @return
      * @throws UnsupportedEncodingException
      */
-    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse) throws UnsupportedEncodingException {
+    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl) throws UnsupportedEncodingException {
         BaseResponse baseResponse = new BaseResponse();
         String billinfo_paytype = trdRequest.getBillinfo_paytype();
         String billinfo_kjsmsflg = trdRequest.getBillinfo_kjsmsflg();
         // 支付方式： 2：网银 9：银联无卡支付 交易成功 000000
         if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-            logger.info("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");  // 返回信息
-            logger.info("[srl_ptnsrl]=[" + trdResponse.getSrl_ptnsrl() + "]"); // 合作方流水号
-            logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");  // 平台流水号
+            logger.info(TAG + "[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");  // 返回信息
+            logger.info(TAG + "[srl_ptnsrl]=[" + trdResponse.getSrl_ptnsrl() + "]"); // 合作方流水号
+            logger.info(TAG + "[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");  // 平台流水号
             if ("6".equals(trdRequest.getBillinfo_paytype())) {
-                logger.info("[url]=[" + trdResponse.getUrl() + "]");  // PayType=6时为二维码的CODE地址
-                logger.info("[imageurl]=[" + trdResponse.getImageurl() + "]"); // PayType=6时返回二维码图片地址
+                logger.info(TAG + "[url]=[" + trdResponse.getUrl() + "]");  // PayType=6时为二维码的CODE地址
+                logger.info(TAG + "[imageurl]=[" + trdResponse.getImageurl() + "]"); // PayType=6时返回二维码图片地址
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
@@ -281,19 +283,19 @@ public class EntryExitAccountService {
                 String key2 = kvl2[0];
                 String val2 = kvl2[1];
             } else if ("5".equals(billinfo_paytype) && "2".equals(billinfo_kjsmsflg)) {
-                logger.info("[state]=[" + trdResponse.getState() + "]"); // PayType=5且KJSMSFlg=2时返回交易结果::1成功;2失败;3处理中
+                logger.info(TAG + "[state]=[" + trdResponse.getState() + "]"); // PayType=5且KJSMSFlg=2时返回交易结果::1成功;2失败;3处理中
             } else if ("8".equals(billinfo_paytype) || "A".equals(billinfo_paytype)) {
                 logger.info("[authcode]=[" + trdResponse.getAuthcode() + "]");  // PayType=8/A时返回授权码
             } else if ("H".equals(billinfo_paytype)) {
-                logger.info("[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
+                logger.info(TAG + "[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             }
         } else {
             //添加数据到入金支付数据库中
-            addEntryExitAccount(trdRequest, trdResponse);
+            addEntryExitAccount(trdRequest, trdResponse, notificationurl);
             baseResponse.setCode(trdResponse.getMsghd_rspcode());
             baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         }
@@ -316,7 +318,6 @@ public class EntryExitAccountService {
         } else {
             response.setData(JSONObject.fromObject(map));
         }
-
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
         return response;
@@ -327,8 +328,9 @@ public class EntryExitAccountService {
      *
      * @param trdRequest
      * @param trdResponse
+     * @param notificationurl
      */
-    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse) {
+    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl) {
         EntryExitAccount account = new EntryExitAccount();
         account.setSecPayType(trdRequest.getBillinfo_secpaytype());
         //根据资金账户查询到对应的用户id以及用户Account的id
@@ -346,13 +348,13 @@ public class EntryExitAccountService {
             account.setStatus("2");
         }
         account.setServnoticeUrl(trdRequest.getServnoticurl());
-//        account.setSendToClientTimes();
+//        account.setSendToClientTimes(0);
         account.setReqFlg(trdRequest.getReqflg());
         account.setPtnSrl(trdResponse.getSrl_ptnsrl());
         account.setPlatSrl(trdResponse.getSrl_platsrl());
         account.setPayType(trdRequest.getBillinfo_paytype());
         account.setSecPayType(trdRequest.getBillinfo_secpaytype());
-        account.setNotificationUrl(null);
+        account.setNotificationUrl(notificationurl);
         account.setMoney(Long.valueOf(trdRequest.getBillinfo_aclamt()));
         account.setGoodsDesc(trdRequest.getBillinfo_goodsdesc());
         account.setDate(new Date());
@@ -409,13 +411,13 @@ public class EntryExitAccountService {
             String trdcode = req.getParameter("trdcode");
             String message = req.getParameter("message");
             String signature = req.getParameter("signature");
-            logger.info("ptncode=" + ptncode);
-            logger.info("trdcode=" + trdcode);
-            logger.info("message=" + message);
-            logger.info("signature=" + signature);
+            logger.info(TAG_ + "ptncode=" + ptncode);
+            logger.info(TAG_ + "trdcode=" + trdcode);
+            logger.info(TAG_ + "message=" + message);
+            logger.info(TAG_ + "signature=" + signature);
             // 2 生成交易请求对象(验签)
             noticeRequest = new NoticeRequest(message, signature);
-            logger.info("支付异步通知报文: " + noticeRequest.getPlainText());
+            logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
             Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
             String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             if (StringUtil.isEmpty(ptncode) || StringUtil.isEmpty(trdcode) || StringUtil.isEmpty(message) || StringUtil.isEmpty(signature)) {
@@ -512,7 +514,7 @@ public class EntryExitAccountService {
     /**
      * 对数据进行签名的数据校验
      *
-     * @param request   request请求
+     * @param request  request请求
      * @param response
      * @return
      */
