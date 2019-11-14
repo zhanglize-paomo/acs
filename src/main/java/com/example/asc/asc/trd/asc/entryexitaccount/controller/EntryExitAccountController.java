@@ -5,7 +5,10 @@ import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountServ
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
-import com.example.asc.asc.util.*;
+import com.example.asc.asc.util.Base64;
+import com.example.asc.asc.util.MD5;
+import com.example.asc.asc.util.SecuritySHA1Utils;
+import com.example.asc.asc.util.SortUtils;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 入金直通车_异步交易[T2031]控制器
@@ -43,12 +47,12 @@ public class EntryExitAccountController {
     private static String checkDigest(Map<String, String> map, String digest) {
         try {
             String appid = "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC";
-            String timestamp = "1564652780";
+            String timestamp = "1564652788";
             String secret = "NSN8KroSxdHJxfJ8bYsHOlWvPBpj30";
-            Map<String, Object> stringObjectMap = StringUtil.StringToMap(SortUtils.Ksort(map));
+            Map<String, String> stringObjectMap = SortUtils.Ksort(map);
             String sortvalue = secret;
-            for (Map.Entry<String, Object> entry : stringObjectMap.entrySet()) {
-                sortvalue += entry.getValue();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                sortvalue += entry.getValue().trim();
             }
             digest = Base64.getBase64(
                     SecuritySHA1Utils.shaEncode(
@@ -64,30 +68,21 @@ public class EntryExitAccountController {
     }
 
     public static void main(String[] args) throws Exception {
-//        String digest = "NjY0MDdGNjJEMjgzMkNBQURDNjAwMTNEMDVEODY0NDBGMjcxN0M2OQ==";
-//        Map<String, String> map = new TreeMap<>();
-//        map.put("fcFlg", "1");
-//        map.put("ptnSrl", "20191107153022");
-//        map.put("subNo", "1931115000186036");
-//        map.put("bkId", "105");
-//        map.put("accNo", "6217000260012247023");
-//        map.put("accNm", "张李泽");
-//        map.put("accTp", "2");
-//        map.put("crdTp", "1");
-//        map.put("cdTp", "A");
-//        map.put("cdNo", "142729199604031815");
-//        map.put("crsMk", "1");
-//        map.put("phone", "18434395962");
-//        String str = checkDigest(map, null);
-//        System.out.println(str);
-//        System.out.println(digest);
-//        if (str.equals(digest)) {
-//            System.out.println("31313123");
-//        }
-
-        String string = "<?xml version=\"1.0\" encoding=\"GBK\"?><MSG version=\"1.5\"><MSGHD><TrCd>T2008</TrCd><TrDt>20191113</TrDt><TrTm>102703</TrTm><TrSrc>R</TrSrc><PtnCd>HLYI2019</PtnCd><BkCd>YLYH0001</BkCd></MSGHD><CltAcc><CltNo>=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC</CltNo><SubNo>1931115000186036</SubNo><CltNm>张李泽</CltNm></CltAcc><Amt><AclAmt>100</AclAmt><FeeAmt>0</FeeAmt><TAmt>100</TAmt><CcyCd>CNY</CcyCd></Amt><BkAcc></BkAcc><Srl><PlatSrl>1931600013053908</PlatSrl><SrcPtnSrl>20191112140636</SrcPtnSrl></Srl><TrsFlag>1</TrsFlag><Usage>H5支付</Usage><DTrsFlag>A00</DTrsFlag><RestTime>20191112165607</RestTime><State>1</State><FDate>20191112</FDate><FTime>165501</FTime></MSG>";
-        Map<Object,Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(string).get("MSG"));
-
+        String digest = "MzU1QUY2MkIxNDM2QjY4OUNBMTJFRkU3NDUyMThDRTNDMzBFMDg0NA==";
+        TreeMap<String, String> map = new TreeMap<>();
+        //map.put("digest", "RThGMzk2MUU4MThFQzRCQkY3NzE4NTc2QURCNkM0QTZDOTU4M0QzNg==");
+//        map.put("appid", "=Wq4Nc1oA5EW8ZlSaYYl8NmSGrtTNC");
+//        map.put("timestamp", "1564652788");
+        map.put("type", "1");
+        map.put("ptnSrl", "20191107153022");
+        map.put("subNo", "1931115000186036");
+        map.put("message", "678593");
+        String str = checkDigest(map, null);
+        System.out.println(str);
+        System.out.println(digest);
+        if (str.equals(digest)) {
+            System.out.println("31313123");
+        }
     }
 
     @Autowired

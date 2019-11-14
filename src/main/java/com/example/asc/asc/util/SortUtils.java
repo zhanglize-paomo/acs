@@ -2,7 +2,6 @@ package com.example.asc.asc.util;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -12,8 +11,8 @@ import java.util.*;
  */
 public class SortUtils {
 
-    public static String Ksort(Map<String, String> map) {
-        String sb = "";
+    public static Map<String, String> Ksort(Map<String, String> map) {
+        Map<String, String> stringMap = new HashMap<>();
         String[] key = new String[map.size()];
         int index = 0;
         for (String k : map.keySet()) {
@@ -22,19 +21,19 @@ public class SortUtils {
         }
         Arrays.sort(key);
         for (String s : key) {
-            sb += s + "=" + map.get(s) + "&";
+            stringMap.put(s,map.get(s));
         }
-        sb = sb.substring(0, sb.length() - 1);
-        // 将得到的字符串进行处理得到目标格式的字符串
-        try {
-            sb = URLEncoder.encode(sb, "UTF-8");
-        } catch (
-                UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        // 使用常见的UTF-8编码
-        sb = sb.replace("%3D", "=").replace("%26", "&");
-        return sb;
+//        sb = sb.substring(0, sb.length() - 1);
+//        // 将得到的字符串进行处理得到目标格式的字符串
+//        try {
+//            sb = URLEncoder.encode(sb, "UTF-8");
+//        } catch (
+//                UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        // 使用常见的UTF-8编码
+//        sb = sb.replace("%3D", "=").replace("%26", "&");
+        return stringMap;
     }
 
     /**
