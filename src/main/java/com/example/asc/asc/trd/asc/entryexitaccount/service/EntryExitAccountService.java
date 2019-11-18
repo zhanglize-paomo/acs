@@ -10,6 +10,7 @@ import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.*;
+import com.example.asc.asc.util.Base64;
 import com.trz.netwk.api.ntc.NoticeRequest;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import com.trz.netwk.api.system.TrdMessenger;
@@ -26,10 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * 入金直通车_异步交易[T2031]业务层
@@ -143,7 +141,8 @@ public class EntryExitAccountService {
             /** 支付方式-二级分类(1：企业网银PayType=2必输;2：个人网银PayType=2必输;3：支付宝PayType=6/8/A必输;4：微信PayType=6/8/A必输；5：银联PayType=6必输) */
             String billinfo_secpaytype = req.getParameter("payType");
             /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
-            String billinfo_paytype = getPayType(billinfo_secpaytype);
+            Map<String,String> stringMap = getPayType(billinfo_secpaytype);
+            String billinfo_paytype = stringMap.get("billinfo_secpaytype");
             if (StringUtils.isEmpty(billinfo_paytype)) {
                 response.setCode("ZF310");
                 response.setMsg("支付方式不存在");
@@ -154,9 +153,9 @@ public class EntryExitAccountService {
                 billinfo_secpaytype = "5";
             }
             /** 订单标题:PayType=6/8/A时必输 */
-            String billinfo_subject = req.getParameter("subject");
+            String billinfo_subject = stringMap.get("subject");  //商品主题描述
             /** 商品描述:PayType=6/8/A时必输 */
-            String billinfo_goodsdesc = req.getParameter("goodsDesc");
+            String billinfo_goodsdesc = stringMap.get("goodsDesc");  //商品描述
             /** 是否小程序支付 0 不是 1 是 */
             String billinfo_minitag = "0";
             /** 发送端标记:0手机;1PC端 */
@@ -233,15 +232,28 @@ public class EntryExitAccountService {
      * @param billinfo_secpaytype
      * @return
      */
-    private String getPayType(String billinfo_secpaytype) {
-        if (billinfo_secpaytype.equals("3")) {
-            return "6";
-        } else if (billinfo_secpaytype.equals("4")) {
-            return "6";
-        } else if (billinfo_secpaytype.equals("5")) {
-            return "6";
-        } else if (billinfo_secpaytype.equals("6")) {
-            return "H";
+    private Map<String,String> getPayType(String billinfo_secpaytype) {
+        Map<String,String> map = new HashMap<>();
+        if (billinfo_secpaytype.equals("3")) {  //支付宝
+            map.put("billinfo_secpaytype","6");
+            map.put("subject","支付宝");
+            map.put("goodsDesc","支付宝");
+            return map;
+        } else if (billinfo_secpaytype.equals("4")) {  //微信
+            map.put("billinfo_secpaytype","6");
+            map.put("subject","微信");
+            map.put("goodsDesc","微信");
+            return map;
+        } else if (billinfo_secpaytype.equals("5")) {  //银联
+            map.put("billinfo_secpaytype","6");
+            map.put("subject","银联");
+            map.put("goodsDesc","银联");
+            return map;
+        } else if (billinfo_secpaytype.equals("6")) {  //H5支付
+            map.put("billinfo_secpaytype","H");
+            map.put("subject","云闪付");
+            map.put("goodsDesc","云闪付");
+            return map;
         }
         return null;
     }

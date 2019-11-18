@@ -276,6 +276,12 @@ public class EntryExitAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
+        if(Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000){
+            baseResponse.setCode("ZF312");
+            baseResponse.setMsg("请注意支付金额单笔不能大于300000分不能低于5000分");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         String ptnSrl = request.getParameter("ptnSrl");  //客户方流水号（客户程序逻辑生成）
         if (StringUtils.isEmpty(ptnSrl)) {
             baseResponse.setCode("ZF302");
@@ -311,20 +317,6 @@ public class EntryExitAccountController {
         if (StringUtils.isEmpty(servNoticeUrl)) {
             baseResponse.setCode("ZF306");
             baseResponse.setMsg("后台异步通知url不能为空");
-            baseResponse.setData(null);
-            return baseResponse;
-        }
-        String subject = request.getParameter("subject");  //商品主题描述
-        if (StringUtils.isEmpty(subject)) {
-            baseResponse.setCode("ZF307");
-            baseResponse.setMsg("商品主题描述不可为空");
-            baseResponse.setData(null);
-            return baseResponse;
-        }
-        String goodsDesc = request.getParameter("goodsDesc");  //商品描述
-        if (StringUtils.isEmpty(goodsDesc)) {
-            baseResponse.setCode("ZF308");
-            baseResponse.setMsg("商品描述不可为空");
             baseResponse.setData(null);
             return baseResponse;
         }
