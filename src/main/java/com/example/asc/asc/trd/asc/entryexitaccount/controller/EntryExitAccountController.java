@@ -128,8 +128,6 @@ public class EntryExitAccountController {
         TreeMap<String,String> treeMap = new TreeMap<>();
         treeMap.put("subNo",request.getParameter("subNo"));
         treeMap.put("ptnSrl",request.getParameter("ptnSrl"));
-        treeMap.put("goodsDesc",request.getParameter("goodsDesc"));
-        treeMap.put("subject",request.getParameter("subject"));
         treeMap.put("servNoticeUrl",servNoticeUrl);
         treeMap.put("money",request.getParameter("money"));
         treeMap.put("payType",request.getParameter("payType"));
@@ -155,8 +153,6 @@ public class EntryExitAccountController {
             stringObjectMap.put("digest", digest);
             stringObjectMap.put("subNo", request.getParameter("subNo"));
             stringObjectMap.put("ptnSrl", request.getParameter("ptnSrl"));
-            stringObjectMap.put("goodsDesc", request.getParameter("goodsDesc"));
-            stringObjectMap.put("subject", request.getParameter("subject"));
             stringObjectMap.put("servNoticeUrl", servNoticeUrl);
             stringObjectMap.put("money", request.getParameter("money"));
             stringObjectMap.put("payType", request.getParameter("payType"));
@@ -181,6 +177,12 @@ public class EntryExitAccountController {
         if (StringUtils.isEmpty(money)) {
             baseResponse.setCode("ZF301");
             baseResponse.setMsg("请检查支付金额");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        if(Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000){
+            baseResponse.setCode("ZF312");
+            baseResponse.setMsg("请注意支付金额单笔不能大于300000分不能低于5000分");
             baseResponse.setData(null);
             return baseResponse;
         }
@@ -219,20 +221,6 @@ public class EntryExitAccountController {
         if (StringUtils.isEmpty(servNoticeUrl)) {
             baseResponse.setCode("ZF306");
             baseResponse.setMsg("后台异步通知url不能为空");
-            baseResponse.setData(null);
-            return baseResponse;
-        }
-        String subject = treeMap.get("subject");  //商品主题描述
-        if (StringUtils.isEmpty(subject)) {
-            baseResponse.setCode("ZF307");
-            baseResponse.setMsg("商品主题描述不可为空");
-            baseResponse.setData(null);
-            return baseResponse;
-        }
-        String goodsDesc = treeMap.get("goodsDesc");  //商品描述
-        if (StringUtils.isEmpty(goodsDesc)) {
-            baseResponse.setCode("ZF308");
-            baseResponse.setMsg("商品描述不可为空");
             baseResponse.setData(null);
             return baseResponse;
         }
