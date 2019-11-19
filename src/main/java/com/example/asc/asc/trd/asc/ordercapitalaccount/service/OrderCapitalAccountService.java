@@ -71,10 +71,8 @@ public class OrderCapitalAccountService {
             /** 收款方账户名称 */
             String billinfo_rcltnm = getReciveSubbName(req);
             req.getParameter("reciveSubbName");
-            /** 业务单号 */
-            String billinfo_orderno = GenerateOrderNoUtil.gens("eea", 530L);
             /** 支付流水号(唯一) */
-            String billinfo_billno = req.getParameter("ptnSrl");
+            String billinfo_billno = GenerateOrderNoUtil.gens("eea", 530L);
             /** 本次支付金额 */
             long billinfo_aclamt = Long.valueOf(req.getParameter("money"));
             /** 付款方手续费,暂定0 */
@@ -99,7 +97,6 @@ public class OrderCapitalAccountService {
             trdRequest.setBillinfo_pnm(billinfo_pnm);
             trdRequest.setBillinfo_rsubno(billinfo_rsubno);
             trdRequest.setBillinfo_rcltnm(billinfo_rcltnm);
-            trdRequest.setBillinfo_orderno(billinfo_orderno);
             trdRequest.setBillinfo_billno(billinfo_billno);
             trdRequest.setBillinfo_aclamt(billinfo_aclamt);
             trdRequest.setBillinfo_payfee(billinfo_payfee);
@@ -172,7 +169,7 @@ public class OrderCapitalAccountService {
         OrderCapitalAccount account = new OrderCapitalAccount();
         account.setDate(new Date());
         account.setMoney(trdRequest.getBillinfo_aclamt());
-        account.setOrderNo(trdRequest.getBillinfo_orderno());
+        account.setOrderNo(trdRequest.getBillinfo_billno());
         account.setPayFee(String.valueOf(trdRequest.getBillinfo_payfee()));
         account.setReciveFee(String.valueOf(trdRequest.getBillinfo_payeefee()));
         account.setPaySubbNo(trdRequest.getBillinfo_psubno());
@@ -183,7 +180,6 @@ public class OrderCapitalAccountService {
         } else {
             account.setStatus("2");
         }
-        account.setPtnSrl(trdRequest.getBillinfo_billno());
         account.setUsage(trdRequest.getBillinfo_usage());
         account.setPaySubbName(trdRequest.getBillinfo_pnm());
         account.setReciveSubbName(trdRequest.getBillinfo_rcltnm());

@@ -6,7 +6,6 @@
         <result column="time" jdbcType="VARCHAR" property="time"/>
         <result column="date" jdbcType="DATE" property="date"/>
         <result column="money" jdbcType="INTEGER" property="money"/>
-        <result column="ptn_srl" jdbcType="VARCHAR" property="ptnSrl"/>
         <result column="plat_srl" jdbcType="VARCHAR" property="platSrl"/>
         <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -22,17 +21,15 @@
         <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt"/>
     </resultMap>
     <insert id="insert">
-         insert into order_capital_account (time,date,money,ptn_srl,plat_srl,order_no,status,`usage`,pay_fee,
+         insert into order_capital_account (time,date,money,plat_srl,order_no,status,`usage`,pay_fee,
          recive_fee,pay_subb_no,pay_subb_name,recive_subb_no,recive_subb_name,created_at,updated_at)
-        values(#{time,jdbcType=CHAR},#{date,jdbcType=DATE}, #{money,jdbcType=INTEGER},#{ptnSrl,jdbcType=CHAR},#{platSrl,jdbcType=CHAR},
+        values(#{time,jdbcType=CHAR},#{date,jdbcType=DATE}, #{money,jdbcType=INTEGER},#{platSrl,jdbcType=CHAR},
         #{orderNo,jdbcType=CHAR},#{status,jdbcType=CHAR},#{usage,jdbcType=CHAR}, #{payFee,jdbcType=CHAR},#{reciveFee,jdbcType=INTEGER},
         #{paySubbNo,jdbcType=CHAR},#{paySubbName,jdbcType=CHAR},#{reciveSubbNo,jdbcType=CHAR},#{reciveSubbName,jdbcType=CHAR},
         #{createdAt,jdbcType=CHAR}, #{updatedAt,jdbcType=CHAR})
     </insert>
 
-    <select id="findByPtnSrl" resultMap="resultMap">
-         select * from order_capital_account where ptn_srl = #{ptnSrl}
-    </select>
+
 
 
 </mapper>
