@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper">
-    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount">
+<mapper namespace="com.example.asc.asc.trd.asc.ordercapitalaccount.mapper.OrderCapitalAccountMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.ordercapitalaccount.domain.OrderCapitalAccount">
         <result column="id" jdbcType="INTEGER" property="id"/>
-        <result column="userId" jdbcType="INTEGER" property="userId"/>
-        <result column="userAccountId" jdbcType="INTEGER" property="userAccountId"/>
+        <result column="time" jdbcType="VARCHAR" property="time"/>
         <result column="date" jdbcType="DATE" property="date"/>
         <result column="money" jdbcType="INTEGER" property="money"/>
-        <result column="payType" jdbcType="VARCHAR" property="payType"/>
-        <result column="secPayType" jdbcType="VARCHAR" property="secPayType"/>
-        <result column="subject" jdbcType="VARCHAR" property="subject"/>
-        <result column="goodsDesc" jdbcType="VARCHAR" property="goodsDesc"/>
-        <result column="ptnSrl" jdbcType="VARCHAR" property="ptnSrl"/>
-        <result column="platSrl" jdbcType="VARCHAR" property="platSrl"/>
-        <result column="orderNo" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="ptn_srl" jdbcType="VARCHAR" property="ptnSrl"/>
+        <result column="plat_srl" jdbcType="VARCHAR" property="platSrl"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
-        <result column="clientStatus" jdbcType="VARCHAR" property="clientStatus"/>
-        <result column="sendToClientTimes" jdbcType="VARCHAR" property="sendToClientTimes"/>
         <result column="usage" jdbcType="VARCHAR" property="usage"/>
-        <result column="reqFlg" jdbcType="VARCHAR" property="reqFlg"/>
-        <result column="notificationUrl" jdbcType="VARCHAR" property="notificationUrl"/>
-        <result column="servnoticeUrl" jdbcType="VARCHAR" property="servnoticeUrl"/>
-        <result column="url" jdbcType="VARCHAR" property="url"/>
-        <result column="imageUrl" jdbcType="VARCHAR" property="imageUrl"/>
+        <result column="pay_fee" jdbcType="VARCHAR" property="payFee"/>
+        <result column="recive_fee" jdbcType="VARCHAR" property="reciveFee"/>
+        <result column="pay_subb_no" jdbcType="VARCHAR" property="paySubbNo"/>
+        <result column="pay_subb_name" jdbcType="VARCHAR" property="paySubbName"/>
+        <result column="recive_subb_no" jdbcType="VARCHAR" property="reciveSubbNo"/>
+        <result column="recive_subb_name" jdbcType="VARCHAR" property="reciveSubbName"/>
         <result column="created_at" jdbcType="TIMESTAMP" property="createdAt"/>
         <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt"/>
         <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt"/>
     </resultMap>
+
 
 </mapper>
