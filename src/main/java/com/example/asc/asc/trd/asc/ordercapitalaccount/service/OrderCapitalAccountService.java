@@ -1,11 +1,15 @@
 package com.example.asc.asc.trd.asc.ordercapitalaccount.service;
 
+import com.blue.util.DateUtil;
 import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
+import com.example.asc.asc.trd.asc.ordercapitalaccount.domain.OrderCapitalAccount;
 import com.example.asc.asc.trd.asc.ordercapitalaccount.mapper.OrderCapitalAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
+import com.example.asc.asc.trd.common.FileConfigure;
+import com.example.asc.asc.util.DateUtils;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdCommonResponse;
@@ -19,6 +23,9 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 订单支付业务层
@@ -29,19 +36,19 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class OrderCapitalAccountService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderCapitalAccountService.class);
     private UserAccountService userAccountService;
+    private OrderCapitalAccountMapper mapper;
+
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
     }
 
-    private OrderCapitalAccountMapper mapper;
     @Autowired
     public void setMapper(OrderCapitalAccountMapper mapper) {
         this.mapper = mapper;
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderCapitalAccountService.class);
 
     /**
      * 订单支付
@@ -49,6 +56,7 @@ public class OrderCapitalAccountService {
      * @return
      */
     public BaseResponse orderCapitalAccount(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
         try {
             req.setCharacterEncoding("UTF-8");
             resp.setCharacterEncoding("UTF-8");
@@ -61,7 +69,8 @@ public class OrderCapitalAccountService {
             /** 收款方资金账号 */
             String billinfo_rsubno = req.getParameter("reciveSubbNo");
             /** 收款方账户名称 */
-            String billinfo_rcltnm = getReciveSubbName(req);req.getParameter("reciveSubbName");
+            String billinfo_rcltnm = getReciveSubbName(req);
+            req.getParameter("reciveSubbName");
             /** 业务单号 */
             String billinfo_orderno = GenerateOrderNoUtil.gens("eea", 530L);
             /** 支付流水号(唯一) */
@@ -80,6 +89,9 @@ public class OrderCapitalAccountService {
              * 业务标示 A00 普通订单支付 B00 收款方支付冻结 [付款冻结] PS：冻结失败，资金回滚 B01 付款方解冻支付 [解冻退款]
              */
             String trsflag = "A00";
+            //加载配置文件信息
+            FileConfigure.getFileConfigure(billinfo_psubno);
+            FileConfigure.getFileConfigure(billinfo_rsubno);
             // 2. 实例化交易对象
             TrdT3004Request trdRequest = new TrdT3004Request();
             trdRequest.setMsghd_trdt(msghd_trdt);
@@ -107,48 +119,77 @@ public class OrderCapitalAccountService {
             // 5. 处理交易结果
             TrdT3004Response trdResponse = new TrdT3004Response(respMsg);
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
-            System.out.println();
-            // 交易成功 000000
-            if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                // ！！！ 在这里添加合作方处理逻辑！！！
-                logger.info("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");// 返回信息
-                logger.info("[srl_billno]=[" + trdResponse.getSrl_billno() + "]");// 支付单号(唯一)
-                logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
-            } else {
-                // ！！！ 在这里添加合作方处理逻辑！！！
-            }
-            if (false) {
-                final TrdT3004Request trdRequest2 = new TrdT3004Request();
-                trdRequest2.setMsghd_trdt(msghd_trdt);
-                trdRequest2.setBillinfo_psubno(billinfo_psubno);
-                trdRequest2.setBillinfo_pnm(billinfo_pnm);
-                trdRequest2.setBillinfo_rsubno(billinfo_rsubno);
-                trdRequest2.setBillinfo_rcltnm(billinfo_rcltnm);
-                trdRequest2.setBillinfo_orderno(billinfo_orderno);
-                trdRequest2.setBillinfo_billno(billinfo_billno);
-                trdRequest2.setBillinfo_aclamt(billinfo_aclamt);
-                trdRequest2.setBillinfo_payfee(billinfo_payfee);
-                trdRequest2.setBillinfo_payeefee(billinfo_payeefee);
-                trdRequest2.setBillinfo_usage(billinfo_usage);
-                trdRequest2.setTrsflag(trsflag);
-                new Thread() {
-                    @SuppressWarnings("deprecation")
-                    public void run() {
-                        try {
-                            test_batch(trdRequest2);
-                        } catch (Throwable e) {
-                        } finally {
-                            stop();
-                        }
-
-                    }
-                }.start();
-            }
+            //判断响应报文的处理信息
+            response = judgeResponse(trdRequest, trdResponse);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return response;
     }
+
+    private BaseResponse judgeResponse(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+        BaseResponse baseResponse = new BaseResponse();
+        if("PYSUCC".equals(trdResponse.getMsghd_rspcode())){
+            return reternData(trdRequest,trdResponse);
+        }
+        // 交易成功 000000
+        if ("000000".equals(trdResponse.getMsghd_rspcode())) {
+            logger.info("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");// 返回信息
+            logger.info("[srl_billno]=[" + trdResponse.getSrl_billno() + "]");// 支付单号(唯一)
+            logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
+            //添加数据到数据订单支付表中
+            addOrderCapitalAccount(trdRequest, trdResponse);
+            baseResponse = reternData(trdRequest,trdResponse);
+        } else {
+            //添加数据到数据订单支付表中
+            addOrderCapitalAccount(trdRequest, trdResponse);
+            baseResponse = reternData(trdRequest,trdResponse);
+        }
+        return baseResponse;
+    }
+
+
+    private BaseResponse reternData(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+        BaseResponse baseResponse = new BaseResponse();
+        Map<String,String> map = new HashMap<>();
+        baseResponse.setCode(trdResponse.getMsghd_rspcode());
+        baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
+        map.put("paySubbNo",trdRequest.getBillinfo_psubno());
+        map.put("paySubbName",trdRequest.getBillinfo_pnm());
+        map.put("reciveSubbNo",trdRequest.getBillinfo_rsubno());
+        map.put("reciveSubbName",trdRequest.getBillinfo_rcltnm());
+        baseResponse.setData(map);
+        return baseResponse;
+    }
+
+    /**
+     * 添加数据到数据订单支付表中
+     *
+     * @param trdRequest
+     * @param trdResponse
+     */
+    private void addOrderCapitalAccount(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+        OrderCapitalAccount account = new OrderCapitalAccount();
+        account.setDate(new Date());
+        account.setMoney(trdRequest.getBillinfo_aclamt());
+        account.setOrderNo(trdRequest.getBillinfo_orderno());
+        account.setPayFee(String.valueOf(trdRequest.getBillinfo_payfee()));
+        account.setReciveFee(String.valueOf(trdRequest.getBillinfo_payeefee()));
+        account.setPaySubbNo(trdRequest.getBillinfo_psubno());
+        account.setReciveSubbNo(trdRequest.getBillinfo_rsubno());
+        account.setPlatSrl(trdResponse.getSrl_platsrl());
+        if (trdResponse.getMsghd_rspcode().equals("000000")) {
+            account.setStatus("1");
+        } else {
+            account.setStatus("2");
+        }
+        account.setPtnSrl(trdRequest.getBillinfo_billno());
+        account.setUsage(trdRequest.getBillinfo_usage());
+        account.setPaySubbName(trdRequest.getBillinfo_pnm());
+        account.setReciveSubbName(trdRequest.getBillinfo_rcltnm());
+        insert(account);
+    }
+
 
     /**
      * 获取收款方的账户名称信息
@@ -158,7 +199,7 @@ public class OrderCapitalAccountService {
      */
     private String getReciveSubbName(HttpServletRequest request) {
         String paySubbName = request.getParameter("reciveSubbName");
-        if(StringUtils.isEmpty(paySubbName)){
+        if (StringUtils.isEmpty(paySubbName)) {
             //根据收款账户的编号获取到账户名称
             return userAccountService.findBySubNo(request.getParameter("reciveSubbNo")).getName();
         }
@@ -172,50 +213,33 @@ public class OrderCapitalAccountService {
      * @return
      */
     private String getPaySubbName(HttpServletRequest request) {
-       String paySubbName = request.getParameter("paySubbName");
-        if(StringUtils.isEmpty(paySubbName)){
+        String paySubbName = request.getParameter("paySubbName");
+        if (StringUtils.isEmpty(paySubbName)) {
             //根据付款账户的编号获取到账户名称
             return userAccountService.findBySubNo(request.getParameter("paySubbNo")).getName();
         }
         return paySubbName;
     }
 
-    private void test_batch(TrdT3004Request trdRequest2) {
-        if (true) {
-            return;
-        }
-        long start = System.currentTimeMillis();
-        TrdT3004Request trdRequest3 = new TrdT3004Request();
-        trdRequest3.setMsghd_trdt(trdRequest2.getMsghd_trdt());
-        trdRequest3.setBillinfo_psubno(trdRequest2.getBillinfo_psubno());
-        trdRequest3.setBillinfo_pnm(trdRequest2.getBillinfo_pnm());
-        trdRequest3.setBillinfo_rsubno(trdRequest2.getBillinfo_rsubno());
-        trdRequest3.setBillinfo_rcltnm(trdRequest2.getBillinfo_rcltnm());
-        trdRequest3.setBillinfo_orderno(trdRequest2.getBillinfo_orderno());
-        trdRequest3.setBillinfo_aclamt(trdRequest2.getBillinfo_aclamt());
-        trdRequest3.setBillinfo_payfee(trdRequest2.getBillinfo_payfee());
-        trdRequest3.setBillinfo_payeefee(trdRequest2.getBillinfo_payeefee());
-        trdRequest3.setBillinfo_usage(trdRequest2.getBillinfo_usage());
-        trdRequest3.setTrsflag("A00");
-        for (int i = 1; i < 10000; i++) {
-            try {
-                logger.info("==============START i=" + i);
-                trdRequest3.setBillinfo_billno(trdRequest2.getBillinfo_billno() + "_" + i);
-                trdRequest3.process();
-                logger.info("请求报文[" + trdRequest3.getRequestPlainText() + "]");
-                // 4. 与融资平台通信
-                TrdMessenger trdMessenger = new TrdMessenger();
-                // message
-                String respMsg = trdMessenger.send(trdRequest3);
+    /**
+     * 根据订单流水号查询对应的交易订单信息
+     *
+     * @param ptnSrl
+     * @return
+     */
+    public OrderCapitalAccount findByPtnSrl(String ptnSrl) {
+        return mapper.findByPtnSrl(ptnSrl);
+    }
 
-                // 5. 处理交易结果
-                TrdCommonResponse trdResponse = new TrdCommonResponse(respMsg);
-                logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
-                logger.info("==============END i=" + i);
-            } catch (Throwable e) {
-            }
-        }
-        long end = System.currentTimeMillis();
-        logger.info("测试结束，总耗时=" + (end - start) + "毫秒");
+    /**
+     * 添加数据到数据库中
+     *
+     * @param account
+     * @return
+     */
+    private int insert(OrderCapitalAccount account) {
+        account.setTime(DateUtil.formatToHms(DateUtils.stringToDate()));
+        account.setCreatedAt(DateUtils.toTimestamp()); //创建时间
+        return mapper.insert(account);
     }
 }
