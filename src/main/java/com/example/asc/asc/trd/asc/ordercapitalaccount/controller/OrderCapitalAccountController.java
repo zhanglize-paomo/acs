@@ -5,6 +5,7 @@ import com.example.asc.asc.trd.asc.ordercapitalaccount.service.OrderCapitalAccou
 import com.example.asc.asc.trd.common.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,7 +59,30 @@ public class OrderCapitalAccountController {
      */
     private BaseResponse checkData(HttpServletRequest request, HttpServletResponse response) {
         BaseResponse baseResponse = new BaseResponse();
-
+        if(StringUtils.isEmpty(request.getParameter("money"))){
+            baseResponse.setCode("DD300");
+            baseResponse.setMsg("资金数据信息不符合");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        if(StringUtils.isEmpty(request.getParameter("ptnSrl"))){
+            baseResponse.setCode("DD301");
+            baseResponse.setMsg("客户交易流水号不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        if(StringUtils.isEmpty(request.getParameter("paySubbNo"))){
+            baseResponse.setCode("DD302");
+            baseResponse.setMsg("付款方资金账户不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        if(StringUtils.isEmpty(request.getParameter("reciveSubbNo"))){
+            baseResponse.setCode("DD303");
+            baseResponse.setMsg("收款方资金账户不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         return null;
     }
 }
