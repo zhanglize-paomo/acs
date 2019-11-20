@@ -31,11 +31,12 @@
     <insert id="insert">
         insert into entry_exit_account (userId,userAccountId,date,money,payType,secPayType,subject,goodsDesc,ptnSrl,platSrl,
             orderNo,status,clientStatus,sendToClientTimes,`usage`,reqFlg,notificationUrl,servnoticeUrl,url,imageUrl,created_at,updated_at)
-        values(#{userId,jdbcType=INTEGER},#{userAccountId,jdbcType=INTEGER},#{date,jdbcType=DATE}, #{money,jdbcType=INTEGER},
-        #{payType,jdbcType=CHAR},#{secPayType,jdbcType=CHAR},#{subject,jdbcType=CHAR},#{goodsDesc,jdbcType=CHAR},#{ptnSrl,jdbcType=CHAR},
-        #{platSrl,jdbcType=CHAR},#{orderNo,jdbcType=INTEGER},#{status,jdbcType=CHAR},#{clientStatus,jdbcType=CHAR},#{sendToClientTimes,jdbcType=CHAR},
-        #{usage,jdbcType=CHAR},#{reqFlg,jdbcType=CHAR},#{notificationUrl,jdbcType=CHAR},#{servnoticeUrl,jdbcType=CHAR},#{url,jdbcType=CHAR},
-        #{imageUrl,jdbcType=CHAR},#{createdAt,jdbcType=CHAR}, #{updatedAt,jdbcType=CHAR})
+        values(#{account.userId,jdbcType=INTEGER},#{account.userAccountId,jdbcType=INTEGER},#{account.date,jdbcType=DATE},
+         #{account.money,jdbcType=INTEGER},#{account.payType,jdbcType=CHAR},#{account.secPayType,jdbcType=CHAR},#{account.subject,jdbcType=CHAR},
+         #{account.goodsDesc,jdbcType=CHAR},#{account.ptnSrl,jdbcType=CHAR}, #{account.platSrl,jdbcType=CHAR},#{account.orderNo,jdbcType=INTEGER},
+         #{account.status,jdbcType=CHAR},#{account.clientStatus,jdbcType=CHAR},#{account.sendToClientTimes,jdbcType=CHAR},
+        #{account.usage,jdbcType=CHAR},#{account.reqFlg,jdbcType=CHAR},#{account.notificationUrl,jdbcType=CHAR},#{account.servnoticeUrl,jdbcType=CHAR},
+        #{account.url,jdbcType=CHAR},#{account.imageUrl,jdbcType=CHAR},now(), #{account.updatedAt,jdbcType=CHAR})
     </insert>
 
     <select id="findByPtnSrl" resultMap="resultMap">

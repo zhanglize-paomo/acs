@@ -17,7 +17,7 @@ public interface EntryExitAccountMapper {
      * @param account
      * @return
      */
-    int insert(EntryExitAccount account);
+    int insert(@Param("account") EntryExitAccount account);
 
     /**
      * 根据根据客户方交易流水号判断该交易流水号是否存在
