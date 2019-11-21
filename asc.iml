@@ -29,8 +29,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="blue-tools-1.0.9.2" level="project" />
     <orderEntry type="library" name="javax.annotation" level="project" />
-    <orderEntry type="library" name="UPPayPluginExPro" level="project" />
-    <orderEntry type="library" name="UPPayAssistEx" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.2.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.2.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.2.0.RELEASE" level="project" />
@@ -113,5 +111,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.2.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: dom4j:dom4j:1.1" level="project" />
     <orderEntry type="library" name="blue-tools-1.0.9.2" level="project" />
+    <orderEntry type="library" name="UPPayPluginExPro" level="project" />
   </component>
 </module>

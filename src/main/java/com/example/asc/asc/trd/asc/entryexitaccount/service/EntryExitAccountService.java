@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.service;
 
 import com.blue.util.StringUtil;
+import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
@@ -16,10 +17,13 @@ import com.trz.netwk.api.ntc.NoticeResponse;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT2031Request;
 import com.trz.netwk.api.trd.TrdT2031Response;
+import com.unionpay.UPPayAssistEx;
+import com.unionpay.mobile.android.plugin.BaseActivity;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -44,6 +48,12 @@ public class EntryExitAccountService {
     private UserAccountService userAccountService;
     private UsersService usersService;
     private EntryExitAccountMapper mapper;
+
+
+    /*****************************************************************
+     * mMode参数解释： "00" - 启动银联正式环境 "01" - 连接银联测试环境
+     *****************************************************************/
+    private final String mode = "00";
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -597,6 +607,12 @@ public class EntryExitAccountService {
             }
         }
         return treeMap;
+    }
+
+
+    public static void main(String[] args) {
+        String code = "PGZvcm0gIG1ldGhvZD0ncG9zdCcgYWN0aW9uPSdodHRwczovL2dhdGV3YXkuOTU1MTYuY29tL2dhdGV3YXkvYXBpL2Zyb250VHJhbnNSZXEuZG8nICBpZD0nZm9ybTEnIGNoYXJzZXQ9J1VURi04JyA+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0iYml6VHlwZSIgaWQ9ImJpelR5cGUiIHZhbHVlPSIwMDAyMDEiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJvcmRlcklkIiBpZD0ib3JkZXJJZCIgdmFsdWU9IjE5MTEyMTE4MzUwNDUxNDg0MTYzODMwNzgiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJiYWNrVXJsIiBpZD0iYmFja1VybCIgdmFsdWU9Imh0dHA6Ly93d3cuY2hpbmEtY2xlYXJpbmcuY29tL2Jtci9iYW5rdXA2NjFfc2NhbmNvZGVfYmFja2dyb3VuZCIvPjxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9InR4blN1YlR5cGUiIGlkPSJ0eG5TdWJUeXBlIiB2YWx1ZT0iMDEiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJzaWduYXR1cmUiIGlkPSJzaWduYXR1cmUiIHZhbHVlPSJYS3VKbmhqTnpGYnphZGpOd09iaWorUDVSVlJEYXhmeHBrNEpaOWtGdDF3OFZKU2l2ZC9kcFdUejJFK1cwYm0zcWRwdHFIV2NLVW5ZMW1WeVJHMXR2cFd1V2VhWHUyTlA1ODg3blhOc0JQWnZGV1dQeUFTOFlwdE5EeGhweVBjZHVhaFQxOTlYTFBOWkliNGNwcWV3TkdUNzFXK1dNQ2FwaVFlREVZa090RUQ3TDhBNER5dWZRUWd6TUtqZ0NvMmFQSkYyamZSUCsvbEhyemNFYU5wWG9Tdmw4eDJHUUViOFFXVjBLVzZmclpDdTBZRlY3eno5WkRGd3pjcVdBWUxtd1VHNlROUjZPdmY2MWQxSy9idGFRWlFuaFBka1JSZkFVQWlRdG56aG5yZEZDeWdjS2t5NEVvcEZVSFJnL3V1djJQQ0ptdkJSanFkOVhoTEhtQzM1c0E9PSIvPjxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9InR4blR5cGUiIGlkPSJ0eG5UeXBlIiB2YWx1ZT0iMDEiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJjaGFubmVsVHlwZSIgaWQ9ImNoYW5uZWxUeXBlIiB2YWx1ZT0iMDciLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJmcm9udFVybCIgaWQ9ImZyb250VXJsIiB2YWx1ZT0iaHR0cDovL3d3dy5jaGluYS1jbGVhcmluZy5jb20vYm1yL2Jhbmt1cDY2MV9zY2FuY29kZV9wYWdlIi8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0iY2VydElkIiBpZD0iY2VydElkIiB2YWx1ZT0iNzgxNzM3MTAzNTYiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJlbmNvZGluZyIgaWQ9ImVuY29kaW5nIiB2YWx1ZT0iVVRGLTgiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJ2ZXJzaW9uIiBpZD0idmVyc2lvbiIgdmFsdWU9IjUuMS4wIi8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0iYWNjZXNzVHlwZSIgaWQ9ImFjY2Vzc1R5cGUiIHZhbHVlPSIwIi8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0idHhuVGltZSIgaWQ9InR4blRpbWUiIHZhbHVlPSIyMDE5MTEyMTE4MzUwNCIvPjxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9Im1lcklkIiBpZD0ibWVySWQiIHZhbHVlPSI4NjU2NTAwNDgxNjIxNjkiLz48aW5wdXQgdHlwZT0iaGlkZGVuIiBuYW1lPSJwYXlUaW1lb3V0IiBpZD0icGF5VGltZW91dCIgdmFsdWU9IjIwMTkxMTIxMTg0NTA0Ii8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0iY3VycmVuY3lDb2RlIiBpZD0iY3VycmVuY3lDb2RlIiB2YWx1ZT0iMTU2Ii8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0ic2lnbk1ldGhvZCIgaWQ9InNpZ25NZXRob2QiIHZhbHVlPSIwMSIvPjxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9InR4bkFtdCIgaWQ9InR4bkFtdCIgdmFsdWU9IjQ5OTkzIi8+PGlucHV0IHR5cGU9ImhpZGRlbiIgbmFtZT0icmlza1JhdGVJbmZvIiBpZD0icmlza1JhdGVJbmZvIiB2YWx1ZT0ie2NvbW1vZGl0eU5hbWU95LqR6Zeq5LuYfSIvPjwvZm9ybT4=";
+        String string =  Base64.getFromBase64(code);
     }
 
 }

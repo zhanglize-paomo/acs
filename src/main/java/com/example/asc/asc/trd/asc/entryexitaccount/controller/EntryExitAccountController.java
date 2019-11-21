@@ -13,10 +13,7 @@ import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -63,17 +60,17 @@ public class EntryExitAccountController {
     @ResponseBody
     public BaseResponse checkDigest(HttpServletRequest request, HttpServletResponse response) {
         BaseResponse baseResponse = new BaseResponse();
-        TreeMap<String,String> treeMap = service.getDigest(request);
+        TreeMap<String, String> treeMap = service.getDigest(request);
         UserAccount userAccount = userAccountService.findBySubNo(request.getParameter("subNo"));
         String appid = usersService.findById(userAccount.getUserId()).getAppId();
         String timestamp = request.getParameter("timestamp");
-        String digest = service.checkDigest(appid, timestamp,treeMap);
+        String digest = service.checkDigest(appid, timestamp, treeMap);
         if (!StringUtils.isEmpty(digest)) {
             baseResponse.setCode("200");
             baseResponse.setMsg("生成签名成功");
-            Map<String,String> map = new HashMap<>();
-            map.put("digest",digest);
-            map.put("timestamp",timestamp);
+            Map<String, String> map = new HashMap<>();
+            map.put("digest", digest);
+            map.put("timestamp", timestamp);
             baseResponse.setData(JSONObject.fromObject(map));
         }
         return baseResponse;
@@ -125,17 +122,17 @@ public class EntryExitAccountController {
             timestamp = String.valueOf(System.currentTimeMillis());
         }
         String servNoticeUrl = "http://39.107.40.13:8080/entry-exit-account/notifyurl";
-        TreeMap<String,String> treeMap = new TreeMap<>();
-        treeMap.put("subNo",request.getParameter("subNo"));
-        treeMap.put("ptnSrl",request.getParameter("ptnSrl"));
-        treeMap.put("servNoticeUrl",servNoticeUrl);
-        treeMap.put("money",request.getParameter("money"));
-        treeMap.put("payType",request.getParameter("payType"));
+        TreeMap<String, String> treeMap = new TreeMap<>();
+        treeMap.put("subNo", request.getParameter("subNo"));
+        treeMap.put("ptnSrl", request.getParameter("ptnSrl"));
+        treeMap.put("servNoticeUrl", servNoticeUrl);
+        treeMap.put("money", request.getParameter("money"));
+        treeMap.put("payType", request.getParameter("payType"));
         //生产签名的信息
-        String digest = service.checkDigest(appid,timestamp,treeMap);
-        treeMap.put("digest",digest);
-        treeMap.put("appid",appid);
-        treeMap.put("timestamp",timestamp);
+        String digest = service.checkDigest(appid, timestamp, treeMap);
+        treeMap.put("digest", digest);
+        treeMap.put("appid", appid);
+        treeMap.put("timestamp", timestamp);
         BaseResponse baseResponse = checkData(treeMap);
         Map<String, String> map = new HashMap<>();
         map.put("timestamp", timestamp);
@@ -156,7 +153,7 @@ public class EntryExitAccountController {
             stringObjectMap.put("servNoticeUrl", servNoticeUrl);
             stringObjectMap.put("money", request.getParameter("money"));
             stringObjectMap.put("payType", request.getParameter("payType"));
-            stringObjectMap.put("appid",appid);
+            stringObjectMap.put("appid", appid);
             baseResponse1.setData(JSONObject.fromObject(stringObjectMap));
         } else {
             baseResponse1.setData(map);
@@ -180,7 +177,7 @@ public class EntryExitAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
-        if(Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000){
+        if (Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000) {
             baseResponse.setCode("ZF312");
             baseResponse.setMsg("请注意支付金额单笔不能大于300000分不能低于5000分");
             baseResponse.setData(null);
@@ -264,7 +261,7 @@ public class EntryExitAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
-        if(Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000){
+        if (Long.valueOf(money) > 300000 || Long.valueOf(money) < 5000) {
             baseResponse.setCode("ZF312");
             baseResponse.setMsg("请注意支付金额单笔不能大于300000分不能低于5000分");
             baseResponse.setData(null);
@@ -323,9 +320,9 @@ public class EntryExitAccountController {
             return baseResponse;
         }
         //获取request的参数信息
-        TreeMap<String,String> treeMap = service.getDigest(request);
+        TreeMap<String, String> treeMap = service.getDigest(request);
         //对签名的信息进行数据的校验
-        String redigest = service.checkDigest(request, response,treeMap);
+        String redigest = service.checkDigest(request, response, treeMap);
         if (!StringUtils.isEmpty(redigest)) {
             if (!redigest.equals(digest)) {
                 baseResponse.setCode("ZF311");
@@ -336,5 +333,7 @@ public class EntryExitAccountController {
         }
         return null;
     }
+
+
 
 }
