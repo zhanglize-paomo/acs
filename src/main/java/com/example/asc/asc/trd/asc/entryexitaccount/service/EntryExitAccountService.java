@@ -336,7 +336,7 @@ public class EntryExitAccountService {
             TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(trdResponse.getAuthcode()));
             //将数据添加到云闪付数据库中
             Long id = addCloudFlashoverOrder(treeMap,trdResponse);
-            String url = "http://localhost:8080/entry-exit-account/unifiedOrder/url/" + id;
+            String url = "http://39.107.40.13:8080/entry-exit-account/unifiedOrder/" + id;
             map.put("url", url);
             response.setData(JSONObject.fromObject(map));
         } else {

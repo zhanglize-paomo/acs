@@ -14,6 +14,7 @@ import com.trz.netwk.api.ntc.NoticeResponse;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +40,7 @@ public class EntryExitAccountController {
     private UsersService usersService;
 
     private CloudFlashoverOrderService cloudFlashoverOrderService;
+
     @Autowired
     public void setCloudFlashoverOrderService(CloudFlashoverOrderService cloudFlashoverOrderService) {
         this.cloudFlashoverOrderService = cloudFlashoverOrderService;
@@ -99,14 +101,34 @@ public class EntryExitAccountController {
     /**
      * 跳转页面信息
      *
-     * @param id  云闪付支付信息id
+     * @param id 云闪付支付信息id
      * @return
      */
     @RequestMapping(value = "unifiedOrder/{id}", method = RequestMethod.GET)
-    public BaseResponse unifiedOrder(@PathVariable Long id) {
+    public String unifiedOrder(@PathVariable Long id, Model model) {
         CloudFlashoverOrder order = cloudFlashoverOrderService.findById(id);
-        return null;
+        model.addAttribute("accessType",order.getAccessType());
+        model.addAttribute("backUrl",order.getBackUrl());
+        model.addAttribute("bizType",order.getBizType());
+        model.addAttribute("",order.getCertId());
+        model.addAttribute("certId",order.getChannelType());
+        model.addAttribute("currencyCode",order.getCurrencyCode());
+        model.addAttribute("encoding",order.getEncoding());
+        model.addAttribute("frontUrl",order.getFrontUrl());
+        model.addAttribute("merId",order.getMerId());
+        model.addAttribute("orderId",order.getOrderId());
+        model.addAttribute("payTimeout",order.getPayTimeout());
+        model.addAttribute("riskRateInfo",order.getRiskRateInfo());
+        model.addAttribute("signature",order.getSignature());
+        model.addAttribute("signMethod",order.getSignMethod());
+        model.addAttribute("txnAmt",order.getTxnAmt());
+        model.addAttribute("txnSubType",order.getTxnSubType());
+        model.addAttribute("txnTime",order.getTxnTime());
+        model.addAttribute("txnType",order.getTxnType());
+        model.addAttribute("version",order.getVersion());
+        return "/cloud";
     }
+
 
     /**
      * 支付,调用云闪付的平台进行支付
@@ -353,7 +375,6 @@ public class EntryExitAccountController {
         }
         return null;
     }
-
 
 
 }

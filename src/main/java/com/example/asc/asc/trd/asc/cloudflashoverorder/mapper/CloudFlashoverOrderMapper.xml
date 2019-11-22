@@ -35,7 +35,7 @@
                 #{order.frontUrl,jdbcType=CHAR},#{order.certId,jdbcType=CHAR},#{order.encoding,jdbcType=INTEGER},#{order.version,jdbcType=CHAR},
                 #{order.accessType,jdbcType=CHAR},#{order.txnTime,jdbcType=CHAR},#{order.merId,jdbcType=CHAR}, #{order.payTimeout,jdbcType=CHAR},
                 #{order.currencyCode,jdbcType=INTEGER},#{order.signMethod,jdbcType=CHAR},#{order.txnAmt,jdbcType=DECIMAL},
-                #{riskRateInfo,jdbcType=CHAR},#{authCode,jdbcType=CHAR},#{createAt,jdbcType=CHAR})
+                #{order.riskRateInfo,jdbcType=CHAR},#{order.authCode,jdbcType=CHAR},#{order.createAt,jdbcType=CHAR})
     </insert>
 
     <select id="findById" resultMap="resultMap">

@@ -1,0 +1,35 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>H5</title>
+    <script language="JavaScript">
+        function onload() {
+            document.getElementById("form").submit();
+        }
+    </script>
+</head>
+<body onload="onload()">
+<form method='post' action='https://gateway.95516.com/gateway/api/frontTransReq.do' id='form' charset='UTF-8'>
+        <input type="hidden" name="bizType" th:id="bizType" th:value="${bizType}" />
+        <input type="hidden" name="orderId" th:id="orderId" th:value="${orderId}" />
+        <input type="hidden" name="backUrl" th:id="backUrl" th:value="${backUrl}" />
+        <input type="hidden" name="txnSubType" th:id="txnSubType" th:value="${txnSubType}" />
+        <input type="hidden" name="signature" th:id="signature" th:value="${signature}" />
+        <input type="hidden" name="txnType" th:id="txnType" th:value="${txnType}" />
+        <input type="hidden" name="channelType" th:id="channelType" th:value="${channelType}" />
+        <input type="hidden" name="frontUrl" th:id="frontUrl" th:value="${frontUrl}" />
+        <input type="hidden" name="certId" th:id="certId" th:value="${certId}" />
+        <input type="hidden" name="encoding" th:id="encoding" th:value="${encoding}" />
+        <input type="hidden" name="version" th:id="version" th:value="${version}" />
+        <input type="hidden" name="accessType" th:id="accessType" th:value="${accessType}" />
+        <input type="hidden" name="txnTime" th:id="txnTime" th:value="${txnTime}" />
+        <input type="hidden" name="merId" th:id="merId" th:value="${merId}" />
+        <input type="hidden" name="payTimeout" th:id="payTimeout" th:value="${payTimeout}" />
+        <input type="hidden" name="currencyCode" th:id="currencyCode" th:value="${currencyCode}" />
+        <input type="hidden" name="signMethod" th:id="signMethod" th:value="${signMethod}" />
+        <input type="hidden" name="txnAmt" th:id="txnAmt" th:value="${txnAmt}" />
+        <input type="hidden" name="riskRateInfo" th:id="riskRateInfo" th:value="${riskRateInfo}" />
+</form>
+
+</body>
+</html>
