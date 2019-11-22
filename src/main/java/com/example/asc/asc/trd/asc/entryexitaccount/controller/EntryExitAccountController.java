@@ -88,6 +88,13 @@ public class EntryExitAccountController {
         return service.orderScantoPay(request, response);
     }
 
+//
+//    @RequestMapping(value = "unifiedOrder", method = RequestMethod.GET)
+//    @ResponseBody
+//    public BaseResponse unifiedOrder(HttpServletRequest request, HttpServletResponse response) {
+//        return service.unifiedOrder(request, response);
+//    }
+
     /**
      * 支付,调用云闪付的平台进行支付
      *

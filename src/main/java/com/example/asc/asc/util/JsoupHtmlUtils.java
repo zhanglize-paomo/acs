@@ -23,8 +23,8 @@ public class JsoupHtmlUtils {
      * @param html 待解析的html
      * @return
      */
-    public static TreeMap<String, String> getJsoupHtmlUtils(String html) {
-        TreeMap<String, String> treeMap = new TreeMap<>();
+    public static TreeMap<String,Object> getJsoupHtmlUtils(String html) {
+        TreeMap<String,Object> treeMap = new TreeMap<>();
         //第一步，将字符内容解析成一个Document类
         Document doc = Jsoup.parse(html);
         //第二步，根据我们需要得到的标签，选择提取相应标签的内容

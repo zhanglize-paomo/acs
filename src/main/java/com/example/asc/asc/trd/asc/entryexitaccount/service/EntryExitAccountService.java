@@ -1,7 +1,6 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.service;
 
 import com.blue.util.StringUtil;
-import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
@@ -10,20 +9,17 @@ import com.example.asc.asc.trd.asc.users.service.UsersService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
-import com.example.asc.asc.util.*;
 import com.example.asc.asc.util.Base64;
+import com.example.asc.asc.util.*;
 import com.trz.netwk.api.ntc.NoticeRequest;
 import com.trz.netwk.api.ntc.NoticeResponse;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT2031Request;
 import com.trz.netwk.api.trd.TrdT2031Response;
-import com.unionpay.UPPayAssistEx;
-import com.unionpay.mobile.android.plugin.BaseActivity;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -48,12 +44,6 @@ public class EntryExitAccountService {
     private UserAccountService userAccountService;
     private UsersService usersService;
     private EntryExitAccountMapper mapper;
-
-
-    /*****************************************************************
-     * mMode参数解释： "00" - 启动银联正式环境 "01" - 连接银联测试环境
-     *****************************************************************/
-    private final String mode = "00";
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -335,8 +325,12 @@ public class EntryExitAccountService {
         BaseResponse response = new BaseResponse();
         if (billinfo_paytype.equals("H")) {
             Map<String, String> map = new TreeMap<>();
-            map.put("authcode", trdResponse.getAuthcode());
+           // map.put("authcode", trdResponse.getAuthcode());
             response.setData(JSONObject.fromObject(map));
+            //解析code的内容信息
+            TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(trdResponse.getAuthcode()));
+            String url = "https://gateway.95516.com/gateway/api/frontTransReq.do";
+            map.put("url",HttpUtil2.doPost(url,treeMap, "utf-8"));
         } else {
             Map<String, String> map = new TreeMap<>();
             map.put("url", trdResponse.getUrl());
@@ -346,6 +340,7 @@ public class EntryExitAccountService {
         response.setMsg(trdResponse.getMsghd_rspmsg());
         return response;
     }
+
 
     /**
      * 添加数据到入金支付数据中
@@ -611,4 +606,8 @@ public class EntryExitAccountService {
 
 
 
+//    public BaseResponse unifiedOrder(HttpServletRequest request, HttpServletResponse response) {
+//        UPPayAssistEx.startPay();
+//        return null;
+//    }
 }

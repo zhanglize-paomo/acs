@@ -2,6 +2,7 @@ package com.example.asc.asc.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpUtil2 {
+
 
 	private static final CloseableHttpClient httpClient;
 
@@ -73,6 +75,7 @@ public class HttpUtil2 {
 				}
 			}
 			HttpPost httpPost = new HttpPost(url);
+			HttpHost httpHost = new HttpHost(url);
 			httpPost.addHeader("Content-Type", APPLICATION_FORM);
 			if (pairs != null && pairs.size() > 0) {
 				httpPost.setEntity(new UrlEncodedFormEntity(pairs, CHARSET));
