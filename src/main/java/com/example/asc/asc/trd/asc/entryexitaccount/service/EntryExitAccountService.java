@@ -1,6 +1,8 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.service;
 
 import com.blue.util.StringUtil;
+import com.example.asc.asc.trd.asc.cloudflashoverorder.domain.CloudFlashoverOrder;
+import com.example.asc.asc.trd.asc.cloudflashoverorder.service.CloudFlashoverOrderService;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
@@ -43,7 +45,12 @@ public class EntryExitAccountService {
     private static final String TAG_ = "{入金支付异步}-";
     private UserAccountService userAccountService;
     private UsersService usersService;
+    private CloudFlashoverOrderService cloudFlashoverOrderService;
     private EntryExitAccountMapper mapper;
+    @Autowired
+    public void setCloudFlashoverOrderService(CloudFlashoverOrderService cloudFlashoverOrderService) {
+        this.cloudFlashoverOrderService = cloudFlashoverOrderService;
+    }
 
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
@@ -325,12 +332,13 @@ public class EntryExitAccountService {
         BaseResponse response = new BaseResponse();
         if (billinfo_paytype.equals("H")) {
             Map<String, String> map = new TreeMap<>();
-           // map.put("authcode", trdResponse.getAuthcode());
-            response.setData(JSONObject.fromObject(map));
             //解析code的内容信息
             TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(trdResponse.getAuthcode()));
-            String url = "https://gateway.95516.com/gateway/api/frontTransReq.do";
-            map.put("url",HttpUtil2.doPost(url,treeMap, "utf-8"));
+            //将数据添加到云闪付数据库中
+            Long id = addCloudFlashoverOrder(treeMap,trdResponse);
+            String url = "http://localhost:8080/entry-exit-account/unifiedOrder/url/" + id;
+            map.put("url", url);
+            response.setData(JSONObject.fromObject(map));
         } else {
             Map<String, String> map = new TreeMap<>();
             map.put("url", trdResponse.getUrl());
@@ -341,6 +349,42 @@ public class EntryExitAccountService {
         return response;
     }
 
+
+    /**
+     * 新增云闪付信息
+     *
+     * @param treeMap
+     * @param trdResponse
+     * @return
+     */
+    private Long addCloudFlashoverOrder(TreeMap<String, Object> treeMap, TrdT2031Response trdResponse) {
+        CloudFlashoverOrder order = new CloudFlashoverOrder();
+        Long id = new SnowflakeIdUtils().nextId();
+        order.setId(id);
+        order.setAuthCode(trdResponse.getAuthcode());
+        order.setAccessType(treeMap.get("accessType").toString());
+        order.setBackUrl(treeMap.get("backUrl").toString());
+        order.setBizType(treeMap.get("bizType").toString());
+        order.setCertId(treeMap.get("certId").toString());
+        order.setChannelType(treeMap.get("channelType").toString());
+        order.setCurrencyCode(treeMap.get("currencyCode").toString());
+        order.setEncoding(treeMap.get("encoding").toString());
+        order.setFrontUrl(treeMap.get("frontUrl").toString());
+        order.setMerId(treeMap.get("merId").toString());
+        order.setOrderId(treeMap.get("orderId").toString());
+        order.setPayTimeout(treeMap.get("payTimeout").toString());
+        order.setRiskRateInfo(treeMap.get("riskRateInfo").toString());
+        order.setSignature(treeMap.get("signature").toString());
+        order.setSignMethod(treeMap.get("signMethod").toString());
+        order.setTxnAmt(Long.valueOf(treeMap.get("txnAmt").toString()));
+        order.setTxnSubType(treeMap.get("txnSubType").toString());
+        order.setTxnTime(treeMap.get("txnTime").toString());
+        order.setTxnType(treeMap.get("txnType").toString());
+        order.setVersion(treeMap.get("version").toString());
+        order.setCreateAt(DateUtils.stringToDate());
+        cloudFlashoverOrderService.insert(order);
+        return id;
+    }
 
     /**
      * 添加数据到入金支付数据中

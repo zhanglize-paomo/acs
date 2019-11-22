@@ -3,6 +3,7 @@ package com.example.asc.asc.util;
 
 import java.security.MessageDigest;
 
+
 /**
  * sha1算法
  *
@@ -13,7 +14,7 @@ import java.security.MessageDigest;
 public class SecuritySHA1Utils {
 
     /**
-     * SHA1实现
+     * SHA1实现加密
      *
      * @param inStr
      * @return
@@ -40,4 +41,41 @@ public class SecuritySHA1Utils {
         }
         return hexValue.toString();
     }
+
+    /**
+     * 实现解密
+     *
+     * @param str
+     * @return
+     */
+    public static String encode(String str) {
+        if (str == null) {
+            return null;
+        }
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+            messageDigest.update(str.getBytes());
+            return getFormattedText(messageDigest.digest());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 实现加密
+     *
+     * @param bytes
+     * @return
+     */
+    private static String getFormattedText(byte[] bytes) {
+        int len = bytes.length;
+        StringBuilder buf = new StringBuilder(len * 2);
+        // 把密文转换成十六进制的字符串形式
+        for (int j = 0; j < len; j++) {
+            buf.append((bytes[j] >> 4) & 0x0f);
+            buf.append(bytes[j] & 0x0f);
+        }
+        return buf.toString();
+    }
+
 }

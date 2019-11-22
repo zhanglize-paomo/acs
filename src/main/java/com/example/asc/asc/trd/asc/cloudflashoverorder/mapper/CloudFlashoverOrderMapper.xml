@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.cloudflashoverorder.mapper.CloudFlashoverOrderMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.cloudflashoverorder.domain.CloudFlashoverOrder">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="order_id" jdbcType="VARCHAR" property="orderId"/>
+        <result column="biz_type" jdbcType="VARCHAR" property="bizType"/>
+        <result column="back_url" jdbcType="VARCHAR" property="backUrl"/>
+        <result column="txn_sub_type" jdbcType="VARCHAR" property="txnSubType"/>
+        <result column="signature" jdbcType="VARCHAR" property="signature"/>
+        <result column="txn_type" jdbcType="VARCHAR" property="txnType"/>
+        <result column="channel_type" jdbcType="VARCHAR" property="channelType"/>
+        <result column="front_url" jdbcType="VARCHAR" property="frontUrl"/>
+        <result column="cert_id" jdbcType="VARCHAR" property="certId"/>
+        <result column="encoding" jdbcType="INTEGER" property="encoding"/>
+        <result column="version" jdbcType="VARCHAR" property="version"/>
+        <result column="access_type" jdbcType="VARCHAR" property="accessType"/>
+        <result column="txn_time" jdbcType="VARCHAR" property="txnTime"/>
+        <result column="mer_id" jdbcType="VARCHAR" property="merId"/>
+        <result column="pay_timeout" jdbcType="VARCHAR" property="payTimeout"/>
+        <result column="currency_code" jdbcType="VARCHAR" property="currencyCode"/>
+        <result column="sign_method" jdbcType="VARCHAR" property="signMethod"/>
+        <result column="txn_amt" jdbcType="INTEGER" property="txnAmt"/>
+        <result column="risk_rate_info" jdbcType="VARCHAR" property="riskRateInfo"/>
+        <result column="auth_code" jdbcType="INTEGER" property="authCode"/>
+        <result column="create_at" jdbcType="VARCHAR" property="createAt"/>
+    </resultMap>
+
+    <insert id="insert">
+          insert into cloud_flashover_order (id,order_id,biz_type,back_url,txn_sub_type,signature,txn_type,channel_type,front_url,
+            cert_id,encoding,version,access_type,txn_time,mer_id,pay_timeout,currency_code,sign_method,txn_amt,risk_rate_info,
+            auth_code,create_at)
+          values (#{order.id,jdbcType=DECIMAL}, #{order.orderId,jdbcType=CHAR},#{order.bizType,jdbcType=CHAR},#{order.backUrl,jdbcType=CHAR},
+                #{order.txnSubType,jdbcType=CHAR},#{order.signature,jdbcType=CHAR},#{order.txnType,jdbcType=CHAR},#{order.channelType,jdbcType=CHAR},
+                #{order.frontUrl,jdbcType=CHAR},#{order.certId,jdbcType=CHAR},#{order.encoding,jdbcType=INTEGER},#{order.version,jdbcType=CHAR},
+                #{order.accessType,jdbcType=CHAR},#{order.txnTime,jdbcType=CHAR},#{order.merId,jdbcType=CHAR}, #{order.payTimeout,jdbcType=CHAR},
+                #{order.currencyCode,jdbcType=INTEGER},#{order.signMethod,jdbcType=CHAR},#{order.txnAmt,jdbcType=DECIMAL},
+                #{riskRateInfo,jdbcType=CHAR},#{authCode,jdbcType=CHAR},#{createAt,jdbcType=CHAR})
+    </insert>
+
+    <select id="findById" resultMap="resultMap">
+         select * from cloud_flashover_order where id = #{id}
+    </select>
+
+</mapper>

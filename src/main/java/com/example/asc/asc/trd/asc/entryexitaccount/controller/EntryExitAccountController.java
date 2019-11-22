@@ -1,5 +1,7 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.controller;
 
+import com.example.asc.asc.trd.asc.cloudflashoverorder.domain.CloudFlashoverOrder;
+import com.example.asc.asc.trd.asc.cloudflashoverorder.service.CloudFlashoverOrderService;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
@@ -35,6 +37,12 @@ public class EntryExitAccountController {
     private EntryExitAccountService service;
     private UserAccountService userAccountService;
     private UsersService usersService;
+
+    private CloudFlashoverOrderService cloudFlashoverOrderService;
+    @Autowired
+    public void setCloudFlashoverOrderService(CloudFlashoverOrderService cloudFlashoverOrderService) {
+        this.cloudFlashoverOrderService = cloudFlashoverOrderService;
+    }
 
     @Autowired
     public void setUsersService(UsersService usersService) {
@@ -88,12 +96,17 @@ public class EntryExitAccountController {
         return service.orderScantoPay(request, response);
     }
 
-//
-//    @RequestMapping(value = "unifiedOrder", method = RequestMethod.GET)
-//    @ResponseBody
-//    public BaseResponse unifiedOrder(HttpServletRequest request, HttpServletResponse response) {
-//        return service.unifiedOrder(request, response);
-//    }
+    /**
+     * 跳转页面信息
+     *
+     * @param id  云闪付支付信息id
+     * @return
+     */
+    @RequestMapping(value = "unifiedOrder/{id}", method = RequestMethod.GET)
+    public BaseResponse unifiedOrder(@PathVariable Long id) {
+        CloudFlashoverOrder order = cloudFlashoverOrderService.findById(id);
+        return null;
+    }
 
     /**
      * 支付,调用云闪付的平台进行支付
@@ -140,16 +153,16 @@ public class EntryExitAccountController {
         treeMap.put("digest", digest);
         treeMap.put("appid", appid);
         treeMap.put("timestamp", timestamp);
-        BaseResponse baseResponse = checkData(treeMap);
+        //BaseResponse baseResponse = checkData(treeMap);
         Map<String, String> map = new HashMap<>();
         map.put("timestamp", timestamp);
-        //对数据进行校验
-        if (baseResponse != null) {
-            if (baseResponse.getCode() != null) {
-                baseResponse.setData(map);
-                return baseResponse;
-            }
-        }
+//        //对数据进行校验
+//        if (baseResponse != null) {
+//            if (baseResponse.getCode() != null) {
+//                baseResponse.setData(map);
+//                return baseResponse;
+//            }
+//        }
         BaseResponse baseResponse1 = service.scantoPay(request, response);
         if (baseResponse1.getData() != null) {
             Map<Object, Object> stringObjectMap = StringUtil.jsonToMap(JSONObject.fromObject(baseResponse1.getData()));
