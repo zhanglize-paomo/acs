@@ -107,12 +107,12 @@ public class EntryExitAccountController {
      */
     @RequestMapping(value = "unifiedOrder/{id}", method = RequestMethod.GET)
     @ResponseBody
-    public void unifiedOrder(@PathVariable Long id) {
+    public String unifiedOrder(@PathVariable Long id) {
         CloudFlashoverOrder order = cloudFlashoverOrderService.findById(id);
         //解析code的内容信息
         TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(order.getAuthCode()));
         String url = "https://gateway.95516.com/gateway/api/frontTransReq.do";
-        JsoupHtmlUtils.createAutoFormHtml(url,treeMap,"UTF-8");
+        return JsoupHtmlUtils.createAutoFormHtml(url,treeMap,"UTF-8");
     }
 
     /**
