@@ -1,35 +1,34 @@
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>H5</title>
     <script language="JavaScript">
         function onload() {
-            document.getElementById("form").submit();
+            document.getElementById("form1").submit();
         }
     </script>
 </head>
 <body onload="onload()">
-<form method='post' action='https://gateway.95516.com/gateway/api/frontTransReq.do' id='form' charset='UTF-8'>
-        <input type="hidden" name="bizType" th:id="bizType" th:value="${bizType}" />
-        <input type="hidden" name="orderId" th:id="orderId" th:value="${orderId}" />
-        <input type="hidden" name="backUrl" th:id="backUrl" th:value="${backUrl}" />
-        <input type="hidden" name="txnSubType" th:id="txnSubType" th:value="${txnSubType}" />
-        <input type="hidden" name="signature" th:id="signature" th:value="${signature}" />
-        <input type="hidden" name="txnType" th:id="txnType" th:value="${txnType}" />
-        <input type="hidden" name="channelType" th:id="channelType" th:value="${channelType}" />
-        <input type="hidden" name="frontUrl" th:id="frontUrl" th:value="${frontUrl}" />
-        <input type="hidden" name="certId" th:id="certId" th:value="${certId}" />
-        <input type="hidden" name="encoding" th:id="encoding" th:value="${encoding}" />
-        <input type="hidden" name="version" th:id="version" th:value="${version}" />
-        <input type="hidden" name="accessType" th:id="accessType" th:value="${accessType}" />
-        <input type="hidden" name="txnTime" th:id="txnTime" th:value="${txnTime}" />
-        <input type="hidden" name="merId" th:id="merId" th:value="${merId}" />
-        <input type="hidden" name="payTimeout" th:id="payTimeout" th:value="${payTimeout}" />
-        <input type="hidden" name="currencyCode" th:id="currencyCode" th:value="${currencyCode}" />
-        <input type="hidden" name="signMethod" th:id="signMethod" th:value="${signMethod}" />
-        <input type="hidden" name="txnAmt" th:id="txnAmt" th:value="${txnAmt}" />
-        <input type="hidden" name="riskRateInfo" th:id="riskRateInfo" th:value="${riskRateInfo}" />
+<form method='post' action='https://gateway.95516.com/gateway/api/frontTransReq.do' id='form1' charset='UTF-8'>
+    <input type="hidden" name="bizType" id="bizType" value="000201"/>
+    <input type="hidden" name="orderId" id="orderId" value="1911231636427183744999115"/>
+    <input type="hidden" name="backUrl" id="backUrl" value="http://www.china-clearing.com/bmr/bankup661_scancode_background"/>
+    <input type="hidden" name="txnSubType" id="txnSubType" value="01"/>
+    <input type="hidden" name="signature" id="signature" value="PJfBlH40Sn4kcazJTKwrjDUt1sCG5wgOrhlXoYlSoaPHsZ6EOH2vGo53RMAXFfCHQaCjCQlhynctG+Zbkun8TUFyhS7F7sCiD/17PN5cZQ8sogiMuOsOFMrAb9hRD1uO58jg2T/akYfjeF1JQNZoT08t2ungk4nk7TAgKQW2IZNcBNSPG/t76v50gIbtfqir5tISTJ4YSTn3tgHslZg8hTYWbTFvgz6k3TaqSrspQuQIYiLkWCQH9eWPUL/tHmzRf0OzouX0bPqUpyxiM3kzJqbabH/B2t5NUuRUyT3Aa2hH9ZG9N0r0NjGitJFXIxnt7rlmkq6O3m1ez8cvgKAlYg=="/>
+    <input type="hidden" name="txnType" id="txnType" value="01"/>
+    <input type="hidden" name="channelType" id="channelType" value=""/>
+    <input type="hidden" name="frontUrl" id="frontUrl" value="http://www.china-clearing.com/bmr/bankup661_scancode_page"/>
+    <input type="hidden" name="certId" id="certId" value="07"/>
+    <input type="hidden" name="encoding" id="encoding" value="UTF-8"/>
+    <input type="hidden" name="version" id="version" value="5.1.0"/>
+    <input type="hidden" name="accessType" id="accessType" value="0"/>
+    <input type="hidden" name="txnTime" id="txnTime" value="20191123163642"/>
+    <input type="hidden" name="merId" id="merId" value="865650048162169"/>
+    <input type="hidden" name="payTimeout" id="payTimeout" value="20191123164642"/>
+    <input type="hidden" name="currencyCode" id="currencyCode" value="156"/>
+    <input type="hidden" name="signMethod" id="signMethod" value="01"/>
+    <input type="hidden" name="txnAmt" id="txnAmt" value="100"/>
+    <input type="hidden" name="riskRateInfo" id="riskRateInfo" value="{commodityName=云闪付}"/>
 </form>
-
 </body>
 </html>

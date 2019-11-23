@@ -5,6 +5,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,6 +56,38 @@ public class JsoupHtmlUtils {
             str = m.group(1);
         }
         return str;
+    }
+
+    /**
+     * 功能：前台交易构造HTTP POST自动提交表单<br>
+     * @param action 表单提交地址<br>
+     * @param hiddens 以MAP形式存储的表单键值<br>
+     * @param encoding 上送请求报文域encoding字段的值<br>
+     * @return 构造好的HTTP POST交易表单<br>
+     */
+    public static String createAutoFormHtml(String action, Map<String,Object> hiddens, String encoding) {
+        StringBuffer sf = new StringBuffer();
+        sf.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset="+encoding+"\"/></head><body>");
+        sf.append("<form id = \"pay_form\" action=\"" + action
+                + "\" method=\"post\">");
+        if (null != hiddens && 0 != hiddens.size()) {
+            Set<Map.Entry<String, Object>> set = hiddens.entrySet();
+            Iterator<Map.Entry<String, Object>> it = set.iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Object> ey = it.next();
+                String key = ey.getKey();
+                String value = ey.getValue().toString();
+                sf.append("<input type=\"hidden\" name=\"" + key + "\" id=\""
+                        + key + "\" value=\"" + value + "\"/>");
+            }
+        }
+        sf.append("</form>");
+        sf.append("</body>");
+        sf.append("<script type=\"text/javascript\">");
+        sf.append("document.all.pay_form.submit();");
+        sf.append("</script>");
+        sf.append("</html>");
+        return sf.toString();
     }
 
 
