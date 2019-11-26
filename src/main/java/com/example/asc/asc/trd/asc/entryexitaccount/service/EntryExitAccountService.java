@@ -448,6 +448,14 @@ public class EntryExitAccountService {
     }
 
     /**
+     * 查询订单不同状态的数据信息
+     *
+     * @param status
+     */
+    public List<EntryExitAccount> findByStatus(String status) {
+        return mapper.findByStatus(status);
+    }
+    /**
      * 根据id修改入金支付对象的信息
      *
      * @param id
@@ -507,7 +515,7 @@ public class EntryExitAccountService {
                 /**
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
                  */
-                map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl);
+                map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl,"000000");
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
@@ -523,7 +531,7 @@ public class EntryExitAccountService {
                 /**
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
                  */
-                map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl);
+                map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl,"0000001");
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
@@ -546,10 +554,10 @@ public class EntryExitAccountService {
      * @param SrcPtnSrl
      * @return
      */
-    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl) {
+    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl,String code) {
         Map<String, Object> hashMap = new TreeMap<>();
         Map<String, String> map = new TreeMap<>();
-        hashMap.put("code", "000000");
+        hashMap.put("code", code);
         hashMap.put("msg", msg);
         map.put("SrcPtnSrl", SrcPtnSrl);
         map.put("AclAmt", com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Amt")).get("AclAmt").toString());
@@ -647,11 +655,4 @@ public class EntryExitAccountService {
         }
         return treeMap;
     }
-
-
-
-//    public BaseResponse unifiedOrder(HttpServletRequest request, HttpServletResponse response) {
-//        UPPayAssistEx.startPay();
-//        return null;
-//    }
 }

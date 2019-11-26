@@ -42,6 +42,9 @@
     <select id="findByPtnSrl" resultMap="resultMap">
          select * from entry_exit_account where ptnSrl = #{ptnSrl}
     </select>
+    <select id="findByStatus" resultMap="resultMap">
+         select * from entry_exit_account where status = #{status}
+    </select>
 
     <update id="update" parameterType="com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount">
         UPDATE entry_exit_account

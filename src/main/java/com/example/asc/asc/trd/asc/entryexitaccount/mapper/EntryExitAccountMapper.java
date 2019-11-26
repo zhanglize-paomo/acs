@@ -4,6 +4,8 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author zhanglize
  * @create 2019/11/8
@@ -35,4 +37,11 @@ public interface EntryExitAccountMapper {
      * @return
      */
     int update(@Param("id") int id,@Param("account") EntryExitAccount account);
+
+    /**
+     * 查询订单不同状态的数据信息
+     *
+     * @param status
+     */
+    List<EntryExitAccount> findByStatus(String status);
 }
