@@ -517,7 +517,7 @@ public class EntryExitAccountService {
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
             } else {
-                account.setStatus("1");
+                account.setStatus("2");
                 update(account.getId(), account);
                 //给上游客户响应信息
                 noticeResponse = getNoticeResponse("ERROR", "业务办理失败", SrcPtnSrl);
