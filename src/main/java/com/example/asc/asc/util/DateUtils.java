@@ -125,11 +125,12 @@ public class DateUtils {
     /**
      * yyyy-MM-dd HH:mm:ss --->HH:mm
      *
-     * @param date
+     * @param time
      * @return
      */
-    public static String dateToOnlyTime(String date) {
-        return TIME_FORMAT.format(date);
+    public static String dateToOnlyTime(String time) {
+        Date date = DateUtils.stringToDate(time);
+        return new SimpleDateFormat(DEFAULT_TIME_PATTERN).format(date);
     }
 
     /**

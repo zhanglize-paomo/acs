@@ -36,6 +36,7 @@ public class ScheduledTasks {
     private ApplicationDepositService applicationDepositService;
 
     private EntryExitAccountService entryExitAccountService;
+
     @Autowired
     public void setEntryExitAccountService(EntryExitAccountService entryExitAccountService) {
         this.entryExitAccountService = entryExitAccountService;
@@ -86,7 +87,7 @@ public class ScheduledTasks {
     }
 
     /**
-     * 每隔20分钟查询支付订单信息
+     * 每隔10分钟查询支付订单信息
      */
     @Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
@@ -97,7 +98,7 @@ public class ScheduledTasks {
             long minutes = 0L;
             try {
                 //判断该笔订单的交易时间
-                String createTime =   DateUtils.dateToOnlyTime(account.getCreatedAt().toString().trim());
+                String createTime = DateUtils.dateToOnlyTime(account.getCreatedAt().toString());
                 //获取当前时间的HH：mm:ss
                 String time = DateUtils.nowTime();
                 DateFormat df = new SimpleDateFormat("HH:mm");
@@ -109,10 +110,10 @@ public class ScheduledTasks {
                 logger.info("抱歉，时间日期解析出错");
             }
             if (minutes != 0L) {
-                if (minutes > 11) {
+                if (minutes > 11 || minutes < 0L) {
                     account.setStatus("2");
                     //请求后台接口,将该笔客户交易流水信息置为交易失败
-                    entryExitAccountService.update(account.getId(),account);
+                    entryExitAccountService.update(account.getId(), account);
                     //并发送消息给下游客户
                     String servnoticeUrl = account.getServnoticeUrl();
                     if (!StringUtils.isEmpty(servnoticeUrl)) {
@@ -124,11 +125,12 @@ public class ScheduledTasks {
                         map.put("SrcPtnSrl", account.getPtnSrl());
                         hashMap.put("data", map);
                         //发送消息给下游客户
-                        entryExitAccountService.doPostOrGet(servnoticeUrl, hashMap, num, account.getSendToClientTimes(),account);
+                        entryExitAccountService.doPostOrGet(servnoticeUrl, hashMap, num, account.getSendToClientTimes(), account);
                     }
                 }
             }
         });
     }
+
 
 }
