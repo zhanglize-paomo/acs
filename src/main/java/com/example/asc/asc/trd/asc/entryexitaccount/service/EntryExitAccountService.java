@@ -511,6 +511,8 @@ public class EntryExitAccountService {
                 map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl);
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
+                    logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
+                    logger.info(TAG_ + "返回给下游的信息" + map);
                     int num = 0;
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
@@ -522,12 +524,11 @@ public class EntryExitAccountService {
                 /**
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
                  */
-                /**
-                 * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
-                 */
                 map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl);
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
+                    logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
+                    logger.info(TAG_ + "返回给下游的信息" + map);
                     int num = 0;
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
