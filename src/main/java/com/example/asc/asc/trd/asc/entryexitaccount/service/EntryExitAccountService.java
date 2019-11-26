@@ -501,7 +501,6 @@ public class EntryExitAccountService {
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
             if (noticeRequest.getMsghd_trcd().equals("T2008")) {
                 account.setStatus("1");
-                account.setClientStatus("1");
                 update(account.getId(), account);
                 //给上游客户响应信息
                 noticeResponse = getNoticeResponse("000000", "业务办理成功", SrcPtnSrl);
