@@ -95,7 +95,7 @@ public class ApplicationDepositService {
             //查询单笔金额是否超过5万的额度
             if (amt_tamt > 5000000) {
                 response.setCode("CJ302");
-                response.setMsg("单笔资金提现总额超过规定额度");
+                response.setMsg("单笔资金提现总额超过规定额度5W");
                 response.setData(null);
                 return response;
             } else if (amt_tamt == 0) {
@@ -104,6 +104,12 @@ public class ApplicationDepositService {
                 response.setData(null);
                 return response;
             }
+//            else if(amt_tamt < 1000000){
+//                response.setCode("CJ304");
+//                response.setMsg("单笔资金提现总额不能低于规定额度1W");
+//                response.setData(null);
+//                return response;
+//            }
             //根据总金额计算出手续费以及发生额度
             Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
             /** 发生额(资金单位:分) */
@@ -161,11 +167,11 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                insertAccount(trdRequest, trdResponse, "3");
+                insertAccount(trdRequest, trdResponse, "3",map.get("feeRate"));
                 response = getTreeMap(trdResponse, cltacc_subno);
             } else {
                 //交易失败添加到出库申请表中
-                insertAccount(trdRequest, trdResponse, "2");
+                insertAccount(trdRequest, trdResponse, "2", map.get("feeRate"));
                 response = getTreeMap(trdResponse, cltacc_subno);
             }
         } catch (Exception e) {
@@ -176,12 +182,12 @@ public class ApplicationDepositService {
 
     /**
      * 添加数据到出金申请表中
-     *
-     * @param trdRequest
+     *  @param trdRequest
      * @param trdResponse
      * @param status
+     * @param feeRate
      */
-    private void insertAccount(TrdT2022Request trdRequest, TrdCommonResponse trdResponse, String status) {
+    private void insertAccount(TrdT2022Request trdRequest, TrdCommonResponse trdResponse, String status, Long feeRate) {
         ApplyDepositAccount account = new ApplyDepositAccount();
         account.setAmtAclamt(String.valueOf(trdRequest.getAmt_aclamt()));
         account.setAmtFeeamt(String.valueOf(trdRequest.getAmt_feeamt()));
@@ -191,7 +197,7 @@ public class ApplicationDepositService {
         account.setBkaccAccno(trdRequest.getBkacc_accno());
         account.setCltaccCltnm(trdRequest.getCltacc_cltnm());
         account.setCltaccSubno(trdRequest.getCltacc_subno());
-        account.setFeeRate((int) trdRequest.getAmt_feeamt());
+        account.setFeeRate(Integer.valueOf(String.valueOf(feeRate)));
         account.setMsghdTrdt(trdRequest.getMsghd_trdt());
         account.setSrlPlatsrl(trdResponse.getSrl_platsrl());
         account.setSrlPtnsrl(trdRequest.getSrl_ptnsrl());
@@ -228,6 +234,7 @@ public class ApplicationDepositService {
         long amt_aclamt = amt_tamt - amt_feeamt;
         map.put("amt_feeamt", amt_feeamt);
         map.put("amt_aclamt", amt_aclamt);
+        map.put("feeRate", Long.valueOf(feeRate));
         return map;
     }
 
