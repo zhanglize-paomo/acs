@@ -587,11 +587,11 @@ public class EntryExitAccountService {
      *
      * @param request  request请求
      * @param response
+     * @param appid
      * @return
      */
-    public String checkDigest(HttpServletRequest request, HttpServletResponse response, TreeMap<String, String> treeMap) {
+    public String checkDigest(HttpServletRequest request, HttpServletResponse response, TreeMap<String, String> treeMap, String appid) {
         String digest = null;
-        String appid = request.getParameter("appid");
         String timestamp = request.getParameter("timestamp");
         try {
             String sortvalue = usersService.findAppId(appid).getSecret();

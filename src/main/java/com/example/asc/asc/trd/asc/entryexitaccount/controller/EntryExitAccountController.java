@@ -110,9 +110,9 @@ public class EntryExitAccountController {
     public String unifiedOrder(@PathVariable Long id) {
         CloudFlashoverOrder order = cloudFlashoverOrderService.findById(id);
         //解析code的内容信息
-        TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(order.getAuthCode()));
+        TreeMap<String, Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(order.getAuthCode()));
         String url = "https://gateway.95516.com/gateway/api/frontTransReq.do";
-        return JsoupHtmlUtils.createAutoFormHtml(url,treeMap,"UTF-8");
+        return JsoupHtmlUtils.createAutoFormHtml(url, treeMap, "UTF-8");
     }
 
     /**
@@ -349,13 +349,19 @@ public class EntryExitAccountController {
         //获取request的参数信息
         TreeMap<String, String> treeMap = service.getDigest(request);
         //对签名的信息进行数据的校验
-        String redigest = service.checkDigest(request, response, treeMap);
+        String redigest = service.checkDigest(request, response, treeMap, request.getParameter("appid"));
         if (!StringUtils.isEmpty(redigest)) {
             if (!redigest.equals(digest)) {
-                baseResponse.setCode("ZF311");
-                baseResponse.setMsg("签名信息验证失败");
-                baseResponse.setData(null);
-                return baseResponse;
+                //如果签名不相等,将数据中的appid替换掉
+                //根据subNo查询出对应的appid信息
+                String newAppid = usersService.findById(userAccountService.findBySubNo(subNo).getUserId()).getAppId();
+                String newRedigest = service.checkDigest(request, response, treeMap, newAppid);
+                if (!redigest.equals(newRedigest)) {
+                    baseResponse.setCode("ZF311");
+                    baseResponse.setMsg("签名信息验证失败");
+                    baseResponse.setData(null);
+                    return baseResponse;
+                }
             }
         }
         return null;
