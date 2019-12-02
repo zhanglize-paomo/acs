@@ -115,17 +115,17 @@ public class OrderCapitalAccountService {
             TrdT3004Response trdResponse = new TrdT3004Response(respMsg);
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            response = judgeResponse(trdRequest, trdResponse,ptnSrl);
+            response = judgeResponse(trdRequest, trdResponse,ptnSrl,billinfo_pnm,billinfo_rcltnm);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return response;
     }
 
-    private BaseResponse judgeResponse(TrdT3004Request trdRequest, TrdT3004Response trdResponse, String ptnSrl) {
+    private BaseResponse judgeResponse(TrdT3004Request trdRequest, TrdT3004Response trdResponse,String ptnSrl,String billinfo_pnm, String billinfo_rcltnm) {
         BaseResponse baseResponse = new BaseResponse();
         if("PYSUCC".equals(trdResponse.getMsghd_rspcode())){
-            return reternData(trdRequest,trdResponse);
+            return reternData(trdRequest,trdResponse, billinfo_pnm, billinfo_rcltnm, billinfo_pnm);
         }
         // 交易成功 000000
         if ("000000".equals(trdResponse.getMsghd_rspcode())) {
@@ -134,25 +134,26 @@ public class OrderCapitalAccountService {
             logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
             //添加数据到数据订单支付表中
             addOrderCapitalAccount(trdRequest, trdResponse,ptnSrl);
-            baseResponse = reternData(trdRequest,trdResponse);
+            baseResponse = reternData(trdRequest,trdResponse,billinfo_pnm,billinfo_rcltnm,ptnSrl);
         } else {
             //添加数据到数据订单支付表中
             addOrderCapitalAccount(trdRequest, trdResponse, ptnSrl);
-            baseResponse = reternData(trdRequest,trdResponse);
+            baseResponse = reternData(trdRequest,trdResponse, billinfo_pnm, billinfo_rcltnm,ptnSrl);
         }
         return baseResponse;
     }
 
 
-    private BaseResponse reternData(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+    private BaseResponse reternData(TrdT3004Request trdRequest, TrdT3004Response trdResponse, String billinfo_pnm, String billinfo_rcltnm, String ptnSrl) {
         BaseResponse baseResponse = new BaseResponse();
         Map<String,String> map = new HashMap<>();
         baseResponse.setCode(trdResponse.getMsghd_rspcode());
         baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         map.put("paySubbNo",trdRequest.getBillinfo_psubno());
-        map.put("paySubbName",trdRequest.getBillinfo_pnm());
+        map.put("paySubbName",billinfo_pnm);
         map.put("reciveSubbNo",trdRequest.getBillinfo_rsubno());
-        map.put("reciveSubbName",trdRequest.getBillinfo_rcltnm());
+        map.put("reciveSubbName",billinfo_rcltnm);
+        map.put("ptnSrl",ptnSrl);
         baseResponse.setData(map);
         return baseResponse;
     }
