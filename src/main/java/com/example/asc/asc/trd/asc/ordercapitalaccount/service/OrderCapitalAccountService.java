@@ -1,10 +1,8 @@
 package com.example.asc.asc.trd.asc.ordercapitalaccount.service;
 
 import com.blue.util.DateUtil;
-import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
 import com.example.asc.asc.trd.asc.ordercapitalaccount.domain.OrderCapitalAccount;
 import com.example.asc.asc.trd.asc.ordercapitalaccount.mapper.OrderCapitalAccountMapper;
-import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
@@ -12,7 +10,6 @@ import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.DateUtils;
 import com.example.asc.asc.util.GenerateOrderNoUtil;
 import com.trz.netwk.api.system.TrdMessenger;
-import com.trz.netwk.api.trd.TrdCommonResponse;
 import com.trz.netwk.api.trd.TrdT3004Request;
 import com.trz.netwk.api.trd.TrdT3004Response;
 import org.slf4j.Logger;
@@ -87,6 +84,7 @@ public class OrderCapitalAccountService {
              * 业务标示 A00 普通订单支付 B00 收款方支付冻结 [付款冻结] PS：冻结失败，资金回滚 B01 付款方解冻支付 [解冻退款]
              */
             String trsflag = "A00";
+            String ptnSrl = req.getParameter("ptnSrl");
             //加载配置文件信息
             FileConfigure.getFileConfigure(billinfo_psubno);
             FileConfigure.getFileConfigure(billinfo_rsubno);
@@ -117,14 +115,14 @@ public class OrderCapitalAccountService {
             TrdT3004Response trdResponse = new TrdT3004Response(respMsg);
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            response = judgeResponse(trdRequest, trdResponse);
+            response = judgeResponse(trdRequest, trdResponse,ptnSrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return response;
     }
 
-    private BaseResponse judgeResponse(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+    private BaseResponse judgeResponse(TrdT3004Request trdRequest, TrdT3004Response trdResponse, String ptnSrl) {
         BaseResponse baseResponse = new BaseResponse();
         if("PYSUCC".equals(trdResponse.getMsghd_rspcode())){
             return reternData(trdRequest,trdResponse);
@@ -135,11 +133,11 @@ public class OrderCapitalAccountService {
             logger.info("[srl_billno]=[" + trdResponse.getSrl_billno() + "]");// 支付单号(唯一)
             logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
             //添加数据到数据订单支付表中
-            addOrderCapitalAccount(trdRequest, trdResponse);
+            addOrderCapitalAccount(trdRequest, trdResponse,ptnSrl);
             baseResponse = reternData(trdRequest,trdResponse);
         } else {
             //添加数据到数据订单支付表中
-            addOrderCapitalAccount(trdRequest, trdResponse);
+            addOrderCapitalAccount(trdRequest, trdResponse, ptnSrl);
             baseResponse = reternData(trdRequest,trdResponse);
         }
         return baseResponse;
@@ -161,11 +159,11 @@ public class OrderCapitalAccountService {
 
     /**
      * 添加数据到数据订单支付表中
-     *
-     * @param trdRequest
+     *  @param trdRequest
      * @param trdResponse
+     * @param ptnSrl
      */
-    private void addOrderCapitalAccount(TrdT3004Request trdRequest, TrdT3004Response trdResponse) {
+    private void addOrderCapitalAccount(TrdT3004Request trdRequest, TrdT3004Response trdResponse, String ptnSrl) {
         OrderCapitalAccount account = new OrderCapitalAccount();
         account.setDate(new Date());
         account.setMoney(trdRequest.getBillinfo_aclamt());
@@ -175,6 +173,7 @@ public class OrderCapitalAccountService {
         account.setPaySubbNo(trdRequest.getBillinfo_psubno());
         account.setReciveSubbNo(trdRequest.getBillinfo_rsubno());
         account.setPlatSrl(trdResponse.getSrl_platsrl());
+       account.setPtnSrl(ptnSrl);
         if (trdResponse.getMsghd_rspcode().equals("000000")) {
             account.setStatus("1");
         } else {

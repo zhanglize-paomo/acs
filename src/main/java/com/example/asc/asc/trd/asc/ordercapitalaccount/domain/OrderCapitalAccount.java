@@ -31,6 +31,11 @@ public class OrderCapitalAccount {
     private Long money;
 
     /**
+     * 客户流水号
+     */
+    private String ptnSrl;
+
+    /**
      * 中金平台流水号
      */
     private String platSrl;
@@ -90,11 +95,12 @@ public class OrderCapitalAccount {
     public OrderCapitalAccount() {
     }
 
-    public OrderCapitalAccount(int id, String time, Date date, Long money, String platSrl, String orderNo, String status, String usage, String payFee, String reciveFee, String paySubbNo, String paySubbName, String reciveSubbNo, String reciveSubbName, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt) {
+    public OrderCapitalAccount(int id, String time, Date date, Long money, String ptnSrl, String platSrl, String orderNo, String status, String usage, String payFee, String reciveFee, String paySubbNo, String paySubbName, String reciveSubbNo, String reciveSubbName, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt) {
         this.id = id;
         this.time = time;
         this.date = date;
         this.money = money;
+        this.ptnSrl = ptnSrl;
         this.platSrl = platSrl;
         this.orderNo = orderNo;
         this.status = status;
@@ -108,6 +114,14 @@ public class OrderCapitalAccount {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
+    }
+
+    public String getPtnSrl() {
+        return ptnSrl;
+    }
+
+    public void setPtnSrl(String ptnSrl) {
+        this.ptnSrl = ptnSrl;
     }
 
     public int getId() {

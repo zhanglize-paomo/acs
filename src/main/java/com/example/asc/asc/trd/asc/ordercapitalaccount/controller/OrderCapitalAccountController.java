@@ -77,6 +77,14 @@ public class OrderCapitalAccountController {
             baseResponse.setData(null);
             return baseResponse;
         }
+        String ptnSrl = request.getParameter("ptnSrl");
+        OrderCapitalAccount account = service.findByPtnSrl(ptnSrl);
+        if(account != null){
+            baseResponse.setCode("DD304");
+            baseResponse.setMsg("订单编号已经存在");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         return null;
     }
 }
