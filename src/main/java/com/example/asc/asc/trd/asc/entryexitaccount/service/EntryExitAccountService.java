@@ -203,7 +203,7 @@ public class EntryExitAccountService {
             trdRequest.setBillinfo_secpaytype(billinfo_secpaytype);
             trdRequest.setBillinfo_minitag(billinfo_minitag);
 //            trdRequest.setNotificationurl(notificationurl);
-            trdRequest.setServnoticurl(servnoticurl);
+//            trdRequest.setServnoticurl(servnoticurl);
             trdRequest.setReqflg(reqflg);
             trdRequest.setUsage(usage);
             trdRequest.setDremark1(dremark1);
@@ -226,7 +226,7 @@ public class EntryExitAccountService {
             TrdT2031Response trdResponse = new TrdT2031Response(respMsg);
             logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            response = judgeResponse(trdRequest, trdResponse, notificationurl);
+            response = judgeResponse(trdRequest, trdResponse, notificationurl,servnoticurl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -270,11 +270,12 @@ public class EntryExitAccountService {
      *
      * @param trdRequest
      * @param trdResponse
+     * @param s
      * @param notificationurl
      * @return
      * @throws UnsupportedEncodingException
      */
-    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl) throws UnsupportedEncodingException {
+    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse,String notificationurl,String servnoticurl) throws UnsupportedEncodingException {
         BaseResponse baseResponse = new BaseResponse();
         String billinfo_paytype = trdRequest.getBillinfo_paytype();
         String billinfo_kjsmsflg = trdRequest.getBillinfo_kjsmsflg();
@@ -287,7 +288,7 @@ public class EntryExitAccountService {
                 logger.info(TAG + "[url]=[" + trdResponse.getUrl() + "]");  // PayType=6时为二维码的CODE地址
                 logger.info(TAG + "[imageurl]=[" + trdResponse.getImageurl() + "]"); // PayType=6时返回二维码图片地址
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl,servnoticurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
@@ -308,13 +309,13 @@ public class EntryExitAccountService {
             } else if ("H".equals(billinfo_paytype)) {
                 logger.info(TAG + "[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl, notificationurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             }
         } else {
             //添加数据到入金支付数据库中
-            addEntryExitAccount(trdRequest, trdResponse, notificationurl);
+            addEntryExitAccount(trdRequest, trdResponse, notificationurl, notificationurl);
             baseResponse.setCode(trdResponse.getMsghd_rspcode());
             baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         }
@@ -388,12 +389,12 @@ public class EntryExitAccountService {
 
     /**
      * 添加数据到入金支付数据中
-     *
-     * @param trdRequest
+     *  @param trdRequest
      * @param trdResponse
+     *@param servnoticurl
      * @param notificationurl
      */
-    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl) {
+    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse,String notificationurl,String servnoticurl) {
         EntryExitAccount account = new EntryExitAccount();
         account.setSecPayType(trdRequest.getBillinfo_secpaytype());
         //根据资金账户查询到对应的用户id以及用户Account的id
@@ -410,7 +411,7 @@ public class EntryExitAccountService {
         } else {
             account.setStatus("2");
         }
-        account.setServnoticeUrl(trdRequest.getServnoticurl());
+        account.setServnoticeUrl(servnoticurl);
 //        account.setSendToClientTimes(0);
         account.setReqFlg(trdRequest.getReqflg());
         account.setPtnSrl(trdResponse.getSrl_ptnsrl());

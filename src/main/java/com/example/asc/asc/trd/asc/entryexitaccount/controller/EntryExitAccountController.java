@@ -352,16 +352,14 @@ public class EntryExitAccountController {
         String redigest = service.checkDigest(request, response, treeMap, request.getParameter("appid"));
         if (!StringUtils.isEmpty(redigest)) {
             if (!redigest.equals(digest)) {
-                //如果签名不相等,将数据中的appid替换掉
-                //根据subNo查询出对应的appid信息
-                String newAppid = usersService.findById(userAccountService.findBySubNo(subNo).getUserId()).getAppId();
-                String newRedigest = service.checkDigest(request, response, treeMap, newAppid);
-                if (!redigest.equals(newRedigest)) {
-                    baseResponse.setCode("ZF311");
-                    baseResponse.setMsg("签名信息验证失败");
-                    baseResponse.setData(null);
-                    return baseResponse;
-                }
+                baseResponse.setCode("ZF311");
+                baseResponse.setMsg("签名信息验证失败");
+                baseResponse.setData(null);
+                return baseResponse;
+//                //如果签名不相等,将数据中的appid替换掉
+//                //根据subNo查询出对应的appid信息
+//                String newAppid = usersService.findById(userAccountService.findBySubNo(subNo).getUserId()).getAppId();
+//                String newRedigest = service.checkDigest(request, response, treeMap, newAppid);
             }
         }
         return null;
