@@ -13,7 +13,7 @@ import com.trz.netwk.api.system.InitSystem;
 public class FileConfigure {
 
     /**
-     * 加载配置文件信息
+     * 加载配 置文件信息
      *
      * @param cltacc_subno
      * @throws Exception
