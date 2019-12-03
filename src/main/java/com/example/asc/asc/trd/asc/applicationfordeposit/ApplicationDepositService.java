@@ -126,7 +126,7 @@ public class ApplicationDepositService {
              * T0=T0代付出金 <br>
              * T1=T1代付出金
              */
-            String balflag = "T0";
+            String balflag = "T1";
             /** 资金用途(附言) */
             String usage = req.getParameter("usage");
             //查询该资金账户在当天是否超过提现次数五次
