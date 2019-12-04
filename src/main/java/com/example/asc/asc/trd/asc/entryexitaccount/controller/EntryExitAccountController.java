@@ -134,6 +134,18 @@ public class EntryExitAccountController {
     }
 
     /**
+     * 内部异步消息通知地址
+     *
+     * @return
+     */
+    @RequestMapping(value = "my-notifyurl", method = RequestMethod.POST)
+    @ResponseBody
+    public String myOrderScantoPay(HttpServletRequest request, HttpServletResponse response) {
+        //对数据进行校验
+        return service.myOrderScantoPay(request, response);
+    }
+
+    /**
      * 内部使用支付接口信息
      *
      * @return
@@ -170,6 +182,7 @@ public class EntryExitAccountController {
 //                return baseResponse;
 //            }
 //        }
+        request.setAttribute("servNoticeUrl",servNoticeUrl);
         BaseResponse baseResponse1 = service.scantoPay(request, response);
         if (baseResponse1.getData() != null) {
             Map<Object, Object> stringObjectMap = StringUtil.jsonToMap(JSONObject.fromObject(baseResponse1.getData()));
