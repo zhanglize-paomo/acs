@@ -309,13 +309,13 @@ public class EntryExitAccountService {
             } else if ("H".equals(billinfo_paytype)) {
                 logger.info(TAG + "[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl, notificationurl);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl,servnoticurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             }
         } else {
             //添加数据到入金支付数据库中
-            addEntryExitAccount(trdRequest, trdResponse, notificationurl, notificationurl);
+            addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
             baseResponse.setCode(trdResponse.getMsghd_rspcode());
             baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         }
@@ -517,10 +517,10 @@ public class EntryExitAccountService {
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
                  */
                 map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl,"000000");
+                logger.info(TAG_ + "返回给下游的信息" + map);
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
-                    logger.info(TAG_ + "返回给下游的信息" + map);
                     int num = 0;
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
