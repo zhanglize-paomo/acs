@@ -560,6 +560,7 @@ public class EntryExitAccountService {
             String data = req.getParameter("data");
             logger.info("内部异步消息通知地址:" + data);
             if(req.getParameter("code").equals("000000")){
+                logger.info("内部异步消息通知地址:000000");
                 Map<Object, Object>  map = com.example.asc.asc.util.StringUtil.jsonToMap(data);
                 String SrcPtnSrl = map.get("SrcPtnSrl").toString();
                 //根据客户流水单号信息查询到对应的订单信息,并将其修改为接收到消息
