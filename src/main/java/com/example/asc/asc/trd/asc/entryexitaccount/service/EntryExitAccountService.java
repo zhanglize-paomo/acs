@@ -270,7 +270,7 @@ public class EntryExitAccountService {
      *
      * @param trdRequest
      * @param trdResponse
-     * @param s
+     * @param servnoticurl
      * @param notificationurl
      * @return
      * @throws UnsupportedEncodingException
