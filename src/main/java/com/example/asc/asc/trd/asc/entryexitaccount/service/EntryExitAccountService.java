@@ -47,6 +47,7 @@ public class EntryExitAccountService {
     private UsersService usersService;
     private CloudFlashoverOrderService cloudFlashoverOrderService;
     private EntryExitAccountMapper mapper;
+
     @Autowired
     public void setCloudFlashoverOrderService(CloudFlashoverOrderService cloudFlashoverOrderService) {
         this.cloudFlashoverOrderService = cloudFlashoverOrderService;
@@ -148,7 +149,7 @@ public class EntryExitAccountService {
             /** 支付方式-二级分类(1：企业网银PayType=2必输;2：个人网银PayType=2必输;3：支付宝PayType=6/8/A必输;4：微信PayType=6/8/A必输；5：银联PayType=6必输) */
             String billinfo_secpaytype = req.getParameter("payType");
             /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
-            Map<String,String> stringMap = getPayType(billinfo_secpaytype);
+            Map<String, String> stringMap = getPayType(billinfo_secpaytype);
             String billinfo_paytype = stringMap.get("billinfo_secpaytype");
             if (StringUtils.isEmpty(billinfo_paytype)) {
                 response.setCode("ZF310");
@@ -226,7 +227,7 @@ public class EntryExitAccountService {
             TrdT2031Response trdResponse = new TrdT2031Response(respMsg);
             logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
-            response = judgeResponse(trdRequest, trdResponse, notificationurl,servnoticurl);
+            response = judgeResponse(trdRequest, trdResponse, notificationurl, servnoticurl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -239,27 +240,27 @@ public class EntryExitAccountService {
      * @param billinfo_secpaytype
      * @return
      */
-    private Map<String,String> getPayType(String billinfo_secpaytype) {
-        Map<String,String> map = new HashMap<>();
+    private Map<String, String> getPayType(String billinfo_secpaytype) {
+        Map<String, String> map = new HashMap<>();
         if (billinfo_secpaytype.equals("3")) {  //支付宝
-            map.put("billinfo_secpaytype","6");
-            map.put("subject","支付宝");
-            map.put("goodsDesc","支付宝");
+            map.put("billinfo_secpaytype", "6");
+            map.put("subject", "支付宝");
+            map.put("goodsDesc", "支付宝");
             return map;
         } else if (billinfo_secpaytype.equals("4")) {  //微信
-            map.put("billinfo_secpaytype","6");
-            map.put("subject","微信");
-            map.put("goodsDesc","微信");
+            map.put("billinfo_secpaytype", "6");
+            map.put("subject", "微信");
+            map.put("goodsDesc", "微信");
             return map;
         } else if (billinfo_secpaytype.equals("5")) {  //银联
-            map.put("billinfo_secpaytype","6");
-            map.put("subject","银联");
-            map.put("goodsDesc","银联");
+            map.put("billinfo_secpaytype", "6");
+            map.put("subject", "银联");
+            map.put("goodsDesc", "银联");
             return map;
         } else if (billinfo_secpaytype.equals("6")) {  //H5支付
-            map.put("billinfo_secpaytype","H");
-            map.put("subject","云闪付");
-            map.put("goodsDesc","云闪付");
+            map.put("billinfo_secpaytype", "H");
+            map.put("subject", "云闪付");
+            map.put("goodsDesc", "云闪付");
             return map;
         }
         return null;
@@ -275,7 +276,7 @@ public class EntryExitAccountService {
      * @return
      * @throws UnsupportedEncodingException
      */
-    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse,String notificationurl,String servnoticurl) throws UnsupportedEncodingException {
+    private BaseResponse judgeResponse(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl, String servnoticurl) throws UnsupportedEncodingException {
         BaseResponse baseResponse = new BaseResponse();
         String billinfo_paytype = trdRequest.getBillinfo_paytype();
         String billinfo_kjsmsflg = trdRequest.getBillinfo_kjsmsflg();
@@ -288,7 +289,7 @@ public class EntryExitAccountService {
                 logger.info(TAG + "[url]=[" + trdResponse.getUrl() + "]");  // PayType=6时为二维码的CODE地址
                 logger.info(TAG + "[imageurl]=[" + trdResponse.getImageurl() + "]"); // PayType=6时返回二维码图片地址
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl,servnoticurl);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
@@ -309,7 +310,7 @@ public class EntryExitAccountService {
             } else if ("H".equals(billinfo_paytype)) {
                 logger.info(TAG + "[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
                 //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl,servnoticurl);
+                addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             }
@@ -334,9 +335,9 @@ public class EntryExitAccountService {
         if (billinfo_paytype.equals("H")) {
             Map<String, String> map = new TreeMap<>();
             //解析code的内容信息
-            TreeMap<String,Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(trdResponse.getAuthcode()));
+            TreeMap<String, Object> treeMap = JsoupHtmlUtils.getJsoupHtmlUtils(Base64.getFromBase64(trdResponse.getAuthcode()));
             //将数据添加到云闪付数据库中
-            Long id = addCloudFlashoverOrder(treeMap,trdResponse);
+            Long id = addCloudFlashoverOrder(treeMap, trdResponse);
             String url = "http://39.107.40.13:8080/entry-exit-account/unifiedOrder/" + id;
             map.put("url", url);
             response.setData(JSONObject.fromObject(map));
@@ -389,12 +390,13 @@ public class EntryExitAccountService {
 
     /**
      * 添加数据到入金支付数据中
-     *  @param trdRequest
+     *
+     * @param trdRequest
      * @param trdResponse
-     *@param servnoticurl
+     * @param servnoticurl
      * @param notificationurl
      */
-    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse,String notificationurl,String servnoticurl) {
+    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl, String servnoticurl) {
         EntryExitAccount account = new EntryExitAccount();
         account.setSecPayType(trdRequest.getBillinfo_secpaytype());
         //根据资金账户查询到对应的用户id以及用户Account的id
@@ -456,6 +458,7 @@ public class EntryExitAccountService {
     public List<EntryExitAccount> findByStatus(String status) {
         return mapper.findByStatus(status);
     }
+
     /**
      * 根据id修改入金支付对象的信息
      *
@@ -498,12 +501,17 @@ public class EntryExitAccountService {
                 return noticeResponse;
             }
             // 2 生成交易请求对象(验签)
-            noticeRequest = new NoticeRequest(message, signature);
-            if(noticeRequest == null){
+            try {
+                noticeRequest = new NoticeRequest(message, signature);
+            } catch (NullPointerException e) {
                 NoticeResponse response = new NoticeResponse();
                 response.setMsghd_rspcode("YQ0001");
                 response.setMsghd_rspmsg("验签失败");
                 response.setSrl_ptnsrl(null);
+                Map<String,String> map = new HashMap<>();
+                map.put("code",response.getMsghd_rspcode());
+                map.put("msg",response.getMsghd_rspmsg());
+                logger.info(TAG_ + "通知报文: " + map);
                 return response;
             }
             logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
@@ -522,7 +530,7 @@ public class EntryExitAccountService {
                 /**
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付成功
                  */
-                map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl,"000000");
+                map = getDownstream(toXmlMap, "支付成功", SrcPtnSrl, "000000");
                 logger.info(TAG_ + "返回给下游的信息" + map);
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
@@ -538,7 +546,7 @@ public class EntryExitAccountService {
                 /**
                  * 获取到下游通知地址信息向下游客户发送消息并通知下游客户支付失败
                  */
-                map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl,"0000001");
+                map = getDownstream(toXmlMap, "支付失败", SrcPtnSrl, "0000001");
                 //根据交易流水号获取到入金支付交易信息
                 if (!StringUtil.isEmpty(account.getServnoticeUrl())) {
                     logger.info(TAG_ + "返回给下游的地址信息" + account.getServnoticeUrl());
@@ -565,14 +573,14 @@ public class EntryExitAccountService {
             //获取到data数据
             String data = req.getParameter("data");
             logger.info("内部异步消息通知地址:" + data);
-            if(req.getParameter("code").equals("000000")){
+            if (req.getParameter("code").equals("000000")) {
                 logger.info("内部异步消息通知地址:000000");
-                Map<Object, Object>  map = com.example.asc.asc.util.StringUtil.jsonToMap(data);
+                Map<Object, Object> map = com.example.asc.asc.util.StringUtil.jsonToMap(data);
                 String SrcPtnSrl = map.get("SrcPtnSrl").toString();
                 //根据客户流水单号信息查询到对应的订单信息,并将其修改为接收到消息
                 EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
                 account.setClientStatus("1");
-                update(account.getId(),account);
+                update(account.getId(), account);
                 return "1";
             }
         } catch (Exception e) {
@@ -589,7 +597,7 @@ public class EntryExitAccountService {
      * @param SrcPtnSrl
      * @return
      */
-    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl,String code) {
+    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
         Map<String, Object> hashMap = new TreeMap<>();
         Map<String, String> map = new TreeMap<>();
         hashMap.put("code", code);
