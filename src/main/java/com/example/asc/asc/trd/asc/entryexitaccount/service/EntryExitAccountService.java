@@ -503,6 +503,7 @@ public class EntryExitAccountService {
                 noticeResponse.setMsghd_rspcode("YQ0001");
                 noticeResponse.setMsghd_rspmsg("验签失败");
                 noticeResponse.setSrl_ptnsrl(null);
+                return noticeResponse;
             }
             logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
             Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
