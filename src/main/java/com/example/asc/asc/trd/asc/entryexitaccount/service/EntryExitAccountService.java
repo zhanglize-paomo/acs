@@ -500,10 +500,11 @@ public class EntryExitAccountService {
             // 2 生成交易请求对象(验签)
             noticeRequest = new NoticeRequest(message, signature);
             if(noticeRequest == null){
-                noticeResponse.setMsghd_rspcode("YQ0001");
-                noticeResponse.setMsghd_rspmsg("验签失败");
-                noticeResponse.setSrl_ptnsrl(null);
-                return noticeResponse;
+                NoticeResponse response = new NoticeResponse();
+                response.setMsghd_rspcode("YQ0001");
+                response.setMsghd_rspmsg("验签失败");
+                response.setSrl_ptnsrl(null);
+                return response;
             }
             logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
             Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
