@@ -487,11 +487,6 @@ public class EntryExitAccountService {
             logger.info(TAG_ + "trdcode=" + trdcode);
             logger.info(TAG_ + "message=" + message);
             logger.info(TAG_ + "signature=" + signature);
-            // 2 生成交易请求对象(验签)
-            noticeRequest = new NoticeRequest(message, signature);
-            logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
-            Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
-            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             if (StringUtil.isEmpty(ptncode) || StringUtil.isEmpty(trdcode) || StringUtil.isEmpty(message) || StringUtil.isEmpty(signature)) {
                 Map<String, String> map = new TreeMap<>();
                 map.put("ptncode", ptncode);
@@ -500,9 +495,13 @@ public class EntryExitAccountService {
                 map.put("signature", signature);
                 noticeResponse.setMsghd_rspcode("SDER04");
                 noticeResponse.setMsghd_rspmsg("参数错误");
-                noticeResponse.setSrl_ptnsrl(SrcPtnSrl);
                 return noticeResponse;
             }
+            // 2 生成交易请求对象(验签)
+            noticeRequest = new NoticeRequest(message, signature);
+            logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
+            Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
+            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             //获取到给下游客户返回的数据信息
             Map<String, Object> map;
             // 3 业务处理  接收到上游的支付返回成功的信息通知
