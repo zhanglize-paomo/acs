@@ -90,7 +90,7 @@ public class ScheduledTasks {
      * 每隔10分钟查询支付订单信息
      */
     @Scheduled(cron = " 0 0/11 * * * ?")
-//    @Scheduled(cron = "1 * * * * ?")
+    //@Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
         logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
         //查询所有订单消息的交易中的状态
@@ -119,7 +119,7 @@ public class ScheduledTasks {
                     String servnoticeUrl = account.getServnoticeUrl();
                     if (!StringUtils.isEmpty(servnoticeUrl)) {
                         int num = 0;
-                        Map<String, Object> hashMap = new TreeMap<>();
+                        TreeMap<String, Object> hashMap = new TreeMap<>();
                         Map<String, String> map = new TreeMap<>();
                         hashMap.put("code", "000001");
                         hashMap.put("msg", "支付失败");

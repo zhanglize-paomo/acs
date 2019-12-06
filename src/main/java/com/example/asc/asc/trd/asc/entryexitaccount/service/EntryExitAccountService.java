@@ -7,6 +7,7 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.mapper.EntryExitAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
+import com.example.asc.asc.trd.asc.users.domain.Users;
 import com.example.asc.asc.trd.asc.users.service.UsersService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
@@ -77,11 +78,38 @@ public class EntryExitAccountService {
      * @param sendToClientTimes 发送次数
      * @param account           订单号信息
      */
-    public String doPostOrGet(String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
+    public String doPostOrGet(String pathUrl, TreeMap<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         String str = HttpUtil2.doPost(pathUrl, data, "utf-8");
+        //对数据进行签名验证
+        String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(data.get("data")).get("SrcPtnSrl").toString();
+        EntryExitAccount entryExitAccount = findByPtnSrl(SrcPtnSrl);
+        Users users = usersService.findById(entryExitAccount.getUserId());
+        checkDigest(users.getAppId(),data);
         sendMessage(str, pathUrl, data, num, sendToClientTimes, account);
         return str;
     }
+
+
+    public String checkDigest(String appid,TreeMap<String, Object> treeMap) {
+        String digest = null;
+        try {
+            String sortvalue = usersService.findAppId(appid).getSecret();
+            for (Map.Entry<String, Object> entry : treeMap.entrySet()) {
+                sortvalue += entry.getValue().toString().trim();
+            }
+            digest = Base64.getBase64(
+                    SecuritySHA1Utils.shaEncode(
+                            appid +
+                                    SecuritySHA1Utils.shaEncode(sortvalue).toUpperCase())
+                            .toUpperCase()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return digest;
+
+    }
+
 
     /**
      * 判断下游消息是否为空,如果为空,每隔5秒发送一次请求,
@@ -94,7 +122,7 @@ public class EntryExitAccountService {
      * @param sendToClientTimes
      * @param account
      */
-    private void sendMessage(String str, String pathUrl, Map<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
+    private void sendMessage(String str, String pathUrl, TreeMap<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         if (StringUtil.isEmpty(str)) {
             if (StringUtils.isEmpty(sendToClientTimes)) {
                 //默认发送给下游客户四次请求
@@ -492,13 +520,14 @@ public class EntryExitAccountService {
             logger.info(TAG_ + "signature=" + signature);
             if (StringUtil.isEmpty(ptncode) || StringUtil.isEmpty(trdcode) || StringUtil.isEmpty(message) || StringUtil.isEmpty(signature)) {
                 Map<String, String> map = new TreeMap<>();
+                NoticeResponse response = new NoticeResponse();
                 map.put("ptncode", ptncode);
                 map.put("trdcode", trdcode);
                 map.put("message", message);
                 map.put("signature", signature);
-                noticeResponse.setMsghd_rspcode("SDER04");
-                noticeResponse.setMsghd_rspmsg("参数错误");
-                return noticeResponse;
+                response.setMsghd_rspcode("SDER04");
+                response.setMsghd_rspmsg("参数错误");
+                return response;
             }
             // 2 生成交易请求对象(验签)
             try {
@@ -518,7 +547,7 @@ public class EntryExitAccountService {
             Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
             String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             //获取到给下游客户返回的数据信息
-            Map<String, Object> map;
+            TreeMap<String, Object> map;
             // 3 业务处理  接收到上游的支付返回成功的信息通知
             //根据交易流水号修改该条交易的状态
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
@@ -597,9 +626,9 @@ public class EntryExitAccountService {
      * @param SrcPtnSrl
      * @return
      */
-    private Map<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
-        Map<String, Object> hashMap = new TreeMap<>();
-        Map<String, String> map = new TreeMap<>();
+    private TreeMap<String, Object>  getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
+        TreeMap<String, Object>  hashMap = new TreeMap<>();
+        TreeMap<String, Object>  map = new TreeMap<>();
         hashMap.put("code", code);
         hashMap.put("msg", msg);
         map.put("SrcPtnSrl", SrcPtnSrl);
