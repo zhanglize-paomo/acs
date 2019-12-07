@@ -89,8 +89,8 @@ public class ScheduledTasks {
     /**
      * 每隔10分钟查询支付订单信息
      */
-    @Scheduled(cron = " 0 0/11 * * * ?")
-    //@Scheduled(cron = "1 * * * * ?")
+   // @Scheduled(cron = " 0 0/11 * * * ?")
+    @Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
         logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
         //查询所有订单消息的交易中的状态
@@ -134,4 +134,14 @@ public class ScheduledTasks {
     }
 
 
+//    @Scheduled(cron = "1 * * * * ?")
+//    public void OrderTask() {
+//        logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
+//        String text = "<?xml version=\"1.0\" encoding=\"GBK\"?><MSG version=\"1.5\"><MSGHD><TrCd>T2008</TrCd><TrDt>20191207</TrDt><TrTm>104600</TrTm><TrSrc>R</TrSrc><PtnCd>HLYI2019</PtnCd><BkCd>YLYH0001</BkCd></MSGHD><CltAcc><CltNo>Ol6aBIBCeorcw9eTWq4=b6GD=IshIW</CltNo><SubNo>1933216000190594</SubNo><CltNm>李艳清</CltNm></CltAcc><Amt><AclAmt>99972</AclAmt><FeeAmt>0</FeeAmt><TAmt>99972</TAmt><CcyCd>CNY</CcyCd></Amt><BkAcc></BkAcc><Srl><PlatSrl>1934000013363127</PlatSrl><SrcPtnSrl>Y157564448910335835</SrcPtnSrl></Srl><TrsFlag>1</TrsFlag><Usage>H5支付</Usage><DTrsFlag>A00</DTrsFlag><RestTime>20191206230328</RestTime><State>1</State><FDate>20191206</FDate><FTime>230129</FTime></MSG>\n";
+//        //查询所有订单消息的交易中的状态
+//        Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(text).get("MSG"));
+//        String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
+//        TreeMap<String,Object> treeMap = entryExitAccountService.getDownstream(toXmlMap,"支付成功",SrcPtnSrl,"000000");
+//        System.out.println(treeMap);
+//    }
 }

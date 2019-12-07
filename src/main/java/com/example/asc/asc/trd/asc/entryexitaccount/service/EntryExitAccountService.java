@@ -80,11 +80,6 @@ public class EntryExitAccountService {
      */
     public String doPostOrGet(String pathUrl, TreeMap<String, Object> data, int num, int sendToClientTimes, EntryExitAccount account) {
         String str = HttpUtil2.doPost(pathUrl, data, "utf-8");
-        //对数据进行签名验证
-        String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(data.get("data")).get("SrcPtnSrl").toString();
-        EntryExitAccount entryExitAccount = findByPtnSrl(SrcPtnSrl);
-        Users users = usersService.findById(entryExitAccount.getUserId());
-        checkDigest(users.getAppId(),data);
         sendMessage(str, pathUrl, data, num, sendToClientTimes, account);
         return str;
     }
@@ -618,6 +613,7 @@ public class EntryExitAccountService {
         return null;
     }
 
+
     /**
      * 返回给下游客户的数据信息
      *
@@ -626,7 +622,7 @@ public class EntryExitAccountService {
      * @param SrcPtnSrl
      * @return
      */
-    private TreeMap<String, Object>  getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
+    public TreeMap<String, Object>  getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
         TreeMap<String, Object>  hashMap = new TreeMap<>();
         TreeMap<String, Object>  map = new TreeMap<>();
         hashMap.put("code", code);
@@ -634,6 +630,11 @@ public class EntryExitAccountService {
         map.put("SrcPtnSrl", SrcPtnSrl);
         map.put("AclAmt", com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Amt")).get("AclAmt").toString());
         hashMap.put("data", map);
+        //对数据进行签名验证
+        EntryExitAccount entryExitAccount = findByPtnSrl(SrcPtnSrl);
+        Users users = usersService.findById(entryExitAccount.getUserId());
+        String string = checkDigest(users.getAppId(),hashMap);
+        hashMap.put("digest",string);
         return hashMap;
     }
 
