@@ -49,6 +49,7 @@ public class EntryExitAccountService {
     private CloudFlashoverOrderService cloudFlashoverOrderService;
     private EntryExitAccountMapper mapper;
 
+    
     @Autowired
     public void setCloudFlashoverOrderService(CloudFlashoverOrderService cloudFlashoverOrderService) {
         this.cloudFlashoverOrderService = cloudFlashoverOrderService;
