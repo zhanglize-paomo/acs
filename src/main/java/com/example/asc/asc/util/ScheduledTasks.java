@@ -5,6 +5,8 @@ import com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccoun
 import com.example.asc.asc.trd.asc.applydepositaccount.service.ApplyDepositAccountService;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
+import com.example.asc.asc.trd.asc.users.domain.Users;
+import com.example.asc.asc.trd.asc.users.service.UsersService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,13 @@ public class ScheduledTasks {
     private ApplicationDepositService applicationDepositService;
 
     private EntryExitAccountService entryExitAccountService;
+
+    private UsersService usersService;
+
+    @Autowired
+    public void setUsersService(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     @Autowired
     public void setEntryExitAccountService(EntryExitAccountService entryExitAccountService) {
@@ -89,8 +98,8 @@ public class ScheduledTasks {
     /**
      * 每隔10分钟查询支付订单信息
      */
-   // @Scheduled(cron = " 0 0/11 * * * ?")
-    @Scheduled(cron = "1 * * * * ?")
+    @Scheduled(cron = " 0 0/11 * * * ?")
+    //@Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
         logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
         //查询所有订单消息的交易中的状态
@@ -125,6 +134,11 @@ public class ScheduledTasks {
                         hashMap.put("msg", "支付失败");
                         map.put("SrcPtnSrl", account.getPtnSrl());
                         hashMap.put("data", map);
+                        //对数据进行签名验证
+                        EntryExitAccount entryExitAccount = entryExitAccountService.findByPtnSrl(account.getPtnSrl());
+                        Users users = usersService.findById(entryExitAccount.getUserId());
+                        String string = entryExitAccountService.checkDigest(users.getAppId(), hashMap);
+                        hashMap.put("digest", string);
                         //发送消息给下游客户
                         entryExitAccountService.doPostOrGet(servnoticeUrl, hashMap, num, account.getSendToClientTimes(), account);
                     }
