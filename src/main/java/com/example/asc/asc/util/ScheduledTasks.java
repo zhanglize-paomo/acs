@@ -98,8 +98,8 @@ public class ScheduledTasks {
     /**
      * 每隔10分钟查询支付订单信息
      */
-    @Scheduled(cron = " 0 0/11 * * * ?")
-    //@Scheduled(cron = "1 * * * * ?")
+    //@Scheduled(cron = " 0 0/11 * * * ?")
+    @Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
         logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
         //查询所有订单消息的交易中的状态
