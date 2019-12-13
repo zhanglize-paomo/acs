@@ -143,6 +143,7 @@ public class EntryExitAccountService {
                 }
             }
         } else {
+            logger.info("定时任务修改数据："+ account.getId());
             account.setClientStatus("1");
             update(account.getId(), account);
         }
@@ -548,6 +549,7 @@ public class EntryExitAccountService {
             //根据交易流水号修改该条交易的状态
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
             if (noticeRequest.getMsghd_trcd().equals("T2008")) {
+                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付成功："+ account.getId());
                 account.setStatus("1");
                 update(account.getId(), account);
                 //给上游客户响应信息
@@ -564,6 +566,7 @@ public class EntryExitAccountService {
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
             } else {
+                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付失败："+ account.getId());
                 account.setStatus("2");
                 update(account.getId(), account);
                 //给上游客户响应信息
@@ -604,6 +607,7 @@ public class EntryExitAccountService {
                 String SrcPtnSrl = map.get("SrcPtnSrl").toString();
                 //根据客户流水单号信息查询到对应的订单信息,并将其修改为接收到消息
                 EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
+                logger.info("内部消息异步通知地址："+ account.getId());
                 account.setClientStatus("1");
                 update(account.getId(), account);
                 return "1";

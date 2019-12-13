@@ -122,6 +122,7 @@ public class ScheduledTasks {
             }
             if (minutes != 0L) {
                 if (minutes > 11 || minutes < 0L) {
+                    logger.info(TAG_ + "定时任务支付交易失败："+ account.getId());
                     account.setStatus("2");
                     //请求后台接口,将该笔客户交易流水信息置为交易失败
                     entryExitAccountService.update(account.getId(), account);
