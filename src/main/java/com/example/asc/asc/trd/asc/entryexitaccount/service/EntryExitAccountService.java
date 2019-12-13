@@ -548,7 +548,7 @@ public class EntryExitAccountService {
             // 3 业务处理  接收到上游的支付返回成功的信息通知
             //根据交易流水号修改该条交易的状态
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
-            if (noticeRequest.getMsghd_trcd().equals("T2008")) {
+            if (noticeRequest.getMsghd_trcd().equals("T2008") && toXmlMap.get("State").toString().equals("1")) {
                 logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付成功："+ account.getId());
                 account.setStatus("1");
                 update(account.getId(), account);
