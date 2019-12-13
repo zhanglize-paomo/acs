@@ -164,6 +164,15 @@ public class EntryExitAccountController {
         TreeMap<String, String> treeMap = new TreeMap<>();
         treeMap.put("subNo", request.getParameter("subNo"));
         treeMap.put("ptnSrl", request.getParameter("ptnSrl"));
+        //根据客户方交易流水号判断该交易流水号是否存在
+        EntryExitAccount account = service.findByPtnSrl(request.getParameter("ptnSrl"));
+        if (account != null) {
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setCode("ZF303");
+            baseResponse.setMsg("客户方流水号已经存在");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         treeMap.put("servNoticeUrl", servNoticeUrl);
         treeMap.put("money", request.getParameter("money"));
         treeMap.put("payType", request.getParameter("payType"));

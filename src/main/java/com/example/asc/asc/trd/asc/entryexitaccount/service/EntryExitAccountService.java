@@ -597,7 +597,7 @@ public class EntryExitAccountService {
             resp.setCharacterEncoding("UTF-8");
             //获取到data数据
             String data = req.getParameter("data");
-            logger.info("内部异步消息通知地址:" + data);
+            logger.info("内部异步消息通知数据:" + data);
             if (req.getParameter("code").equals("000000")) {
                 logger.info("内部异步消息通知地址:000000");
                 Map<Object, Object> map = com.example.asc.asc.util.StringUtil.jsonToMap(data);

@@ -30,6 +30,7 @@ import java.util.TreeMap;
  */
 @Component
 public class ScheduledTasks {
+    private static final String TAG_ = "{入金支付异步}-";
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -139,6 +140,8 @@ public class ScheduledTasks {
                         Users users = usersService.findById(entryExitAccount.getUserId());
                         String string = entryExitAccountService.checkDigest(users.getAppId(), hashMap);
                         hashMap.put("digest", string);
+                        logger.info(TAG_ + "轮询池定时任务返回给下游的地址信息" + account.getServnoticeUrl());
+                        logger.info(TAG_ + "轮询池定时任务返回给下游的数据信息" + hashMap);
                         //发送消息给下游客户
                         entryExitAccountService.doPostOrGet(servnoticeUrl, hashMap, num, account.getSendToClientTimes(), account);
                     }
