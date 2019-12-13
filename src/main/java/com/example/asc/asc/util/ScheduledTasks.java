@@ -99,7 +99,7 @@ public class ScheduledTasks {
     /**
      * 每隔10分钟查询支付订单信息
      */
-    @Scheduled(cron = " 0 0/11 * * * ?")
+    @Scheduled(cron = " 0 0/10 * * * ?")
     //@Scheduled(cron = "1 * * * * ?")
     public void pollOrderTask() {
         logger.info("支付订单 轮询池定时任务 :" + DateUtils.stringToDate());
@@ -121,7 +121,7 @@ public class ScheduledTasks {
                 logger.info("抱歉，时间日期解析出错");
             }
             if (minutes != 0L) {
-                if (minutes > 11 || minutes < 0L) {
+                if (minutes > 10 || minutes < 0L) {
                     logger.info(TAG_ + "定时任务支付交易失败："+ account.getId());
                     account.setStatus("2");
                     //请求后台接口,将该笔客户交易流水信息置为交易失败
