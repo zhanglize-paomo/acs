@@ -27,7 +27,7 @@
         <result column="deleted_at" jdbcType="VARCHAR" property="deletedAt"/>
     </resultMap>
     <select id="findBySubNo" resultMap="resultMap">
-         select * from user_account where subNo = #{subno}
+         select * from user_account where subNo = #{subno} and status = "1"
     </select>
 
 </mapper>

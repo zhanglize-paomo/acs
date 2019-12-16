@@ -167,7 +167,7 @@ public class ApplicationDepositService {
             logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-                insertAccount(trdRequest, trdResponse, "3",map.get("feeRate"));
+                insertAccount(trdRequest, trdResponse, "3", map.get("feeRate"));
                 response = getTreeMap(trdResponse, cltacc_subno);
             } else {
                 //交易失败添加到出库申请表中
@@ -182,7 +182,8 @@ public class ApplicationDepositService {
 
     /**
      * 添加数据到出金申请表中
-     *  @param trdRequest
+     *
+     * @param trdRequest
      * @param trdResponse
      * @param status
      * @param feeRate
@@ -358,16 +359,6 @@ public class ApplicationDepositService {
         return response;
     }
 
-    /**
-     * 出金结算时间通知[T2020]
-     *
-     * @param request
-     * @param response
-     * @return
-     */
-    public BaseResponse queryApplicationDepositTime(HttpServletRequest request, HttpServletResponse response) {
 
 
-        return null;
-    }
 }

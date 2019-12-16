@@ -565,7 +565,20 @@ public class EntryExitAccountService {
                     int num = 0;
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
-            } else {
+            } else if(noticeRequest.getMsghd_trcd().equals("T2020")){
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getPlainText());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getDocument());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trcd());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getSrl_ptnsrl());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getSrl_platsrl());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trdt());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsg_version());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_bkcd());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getROOT());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trtm());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trsrc());
+                logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_ptncd());
+            }else {
                 logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付失败："+ account.getId());
                 account.setStatus("2");
                 update(account.getId(), account);
