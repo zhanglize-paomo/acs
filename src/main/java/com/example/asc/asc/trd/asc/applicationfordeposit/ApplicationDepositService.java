@@ -278,6 +278,7 @@ public class ApplicationDepositService {
         treeMap.put("resttime", trdResponse.getResttime()); // 交易成功/失败时间(渠道通知时间)-出金时指交易成功时间，不是到账时间-格式:YYYYMMDDHH24MISS
         treeMap.put("opion", trdResponse.getMsghd_rspmsg());// 失败原因
         treeMap.put("ubalsta", trdResponse.getUbalsta());// 出金结算状态(查询出金结果时返回)0未结算;1已发送结算申请
+        treeMap.put("ubaltim", trdResponse.getUbaltim());// 出金结算时间(查询出金结 果时返回) 格式 YYYYMMDDHH24MISS UBalSta=1 时指成功发送结 算申请的时间
         // 业务标示
         // 入金业务时指：
         // A00 正常入金
@@ -357,4 +358,16 @@ public class ApplicationDepositService {
         return response;
     }
 
+    /**
+     * 出金结算时间通知[T2020]
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    public BaseResponse queryApplicationDepositTime(HttpServletRequest request, HttpServletResponse response) {
+
+
+        return null;
+    }
 }

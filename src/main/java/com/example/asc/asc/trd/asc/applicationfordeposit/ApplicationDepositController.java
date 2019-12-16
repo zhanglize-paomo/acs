@@ -48,4 +48,15 @@ public class ApplicationDepositController {
     public BaseResponse queryApplicationDeposit(HttpServletRequest request, HttpServletResponse response) {
         return service.queryApplicationDeposit(request, response);
     }
+
+    /**
+     * 出金结算时间通知[T2020]
+     *
+     * @return
+     */
+    @RequestMapping(value = "queryTime",method = RequestMethod.GET)
+    @ResponseBody
+    public BaseResponse queryApplicationDepositTime(HttpServletRequest request, HttpServletResponse response) {
+        return service.queryApplicationDepositTime(request, response);
+    }
 }
