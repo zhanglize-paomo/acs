@@ -104,12 +104,12 @@ public class ApplicationDepositService {
                 response.setData(null);
                 return response;
             }
-//            else if(amt_tamt < 1000000){
-//                response.setCode("CJ304");
-//                response.setMsg("单笔资金提现总额不能低于规定额度1W");
-//                response.setData(null);
-//                return response;
-//            }
+            else if(amt_tamt < 1000000){
+                response.setCode("CJ304");
+                response.setMsg("单笔资金提现总额不能低于规定额度1W");
+                response.setData(null);
+                return response;
+            }
             //根据总金额计算出手续费以及发生额度
             Map<String, Long> map = countAmount(cltacc_subno, amt_tamt);
             /** 发生额(资金单位:分) */
@@ -126,7 +126,7 @@ public class ApplicationDepositService {
              * T0=T0代付出金 <br>
              * T1=T1代付出金
              */
-            String balflag = "T1";
+            String balflag = "S0";
             /** 资金用途(附言) */
             String usage = req.getParameter("usage");
             //查询该资金账户在当天是否超过提现次数五次
