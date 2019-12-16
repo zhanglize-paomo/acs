@@ -23,9 +23,9 @@
         <result column="servnoticeUrl" jdbcType="VARCHAR" property="servnoticeUrl"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="imageUrl" jdbcType="VARCHAR" property="imageUrl"/>
-        <result column="created_at" jdbcType="TIMESTAMP" property="createdAt"/>
-        <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt"/>
-        <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt"/>
+        <result column="created_at" jdbcType="CHAR" property="createdAt"/>
+        <result column="updated_at" jdbcType="CHAR" property="updatedAt"/>
+        <result column="deleted_at" jdbcType="CHAR" property="deletedAt"/>
     </resultMap>
 
     <insert id="insert">

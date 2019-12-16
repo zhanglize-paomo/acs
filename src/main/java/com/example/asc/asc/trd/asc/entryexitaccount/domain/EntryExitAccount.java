@@ -1,6 +1,5 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.domain;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -115,21 +114,24 @@ public class EntryExitAccount {
     /**
      * 创建时间
      */
-    private Timestamp createdAt;
+    private String createdAt;
     /**
      * 修改时间
      */
-    private Timestamp updatedAt;
+    private String updatedAt;
 
     /**
      * 删除时间
      */
-    private Timestamp deletedAt;
+    private String deletedAt;
 
     public EntryExitAccount() {
     }
 
-    public EntryExitAccount(int id, int userId, int userAccountId, Date date, Long money, String payType, String secPayType, String subject, String goodsDesc, String ptnSrl, String platSrl, String orderNo, String status, String clientStatus, int sendToClientTimes, String reqFlg, String notificationUrl, String servnoticeUrl, String usage, String url, String imageUrl, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt) {
+    public EntryExitAccount(int id, int userId, int userAccountId, Date date, Long money, String payType, String secPayType,
+                            String subject, String goodsDesc, String ptnSrl, String platSrl, String orderNo, String status,
+                            String clientStatus, int sendToClientTimes, String reqFlg, String notificationUrl,
+                            String servnoticeUrl, String usage, String url, String imageUrl, String createdAt, String updatedAt, String deletedAt) {
         this.id = id;
         this.userId = userId;
         this.userAccountId = userAccountId;
@@ -324,27 +326,27 @@ public class EntryExitAccount {
         this.imageUrl = imageUrl;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Timestamp getDeletedAt() {
+    public String getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Timestamp deletedAt) {
+    public void setDeletedAt(String deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

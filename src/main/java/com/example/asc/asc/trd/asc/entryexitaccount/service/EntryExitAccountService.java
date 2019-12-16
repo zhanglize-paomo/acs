@@ -461,7 +461,7 @@ public class EntryExitAccountService {
     public int insert(EntryExitAccount account) {
         account.setClientStatus("0");
         account.setOrderNo(GenerateOrderNoUtil.gens("eea", 530L));
-        account.setCreatedAt(DateUtils.toTimestamp()); //创建时间
+        account.setCreatedAt(DateUtils.nowTime()); //创建时间
         return mapper.insert(account);
     }
 
