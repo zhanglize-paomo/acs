@@ -103,9 +103,8 @@ public class ApplicationDepositService {
                 response.setMsg("单笔资金提现总额不能为0或者空");
                 response.setData(null);
                 return response;
-            }
-            else if(amt_tamt < 1000000){
-                response.setCode("CJ304");
+            }else if(amt_tamt < 1000000){
+                response.setCode("CJ305");
                 response.setMsg("单笔资金提现总额不能低于规定额度1W");
                 response.setData(null);
                 return response;
