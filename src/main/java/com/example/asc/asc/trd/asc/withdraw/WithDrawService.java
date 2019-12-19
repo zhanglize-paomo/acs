@@ -111,7 +111,7 @@ public class WithDrawService {
         BaseResponse response = new BaseResponse();
         Map<String, String> treeMap = new TreeMap<>();
         treeMap.put("t0amt_ctamta00", MoneyUtils.convertPart(trdResponse.getT0amt_ctamta00()));
-        //treeMap.put("t1amt_ctamta00", MoneyUtils.convertPart(trdResponse.getT0amt_ctamta00()));
+        //treeMap.put("t1amt_ctamta00", MoneyUtils.convertPart(trdResponse.getT1amt_ctamta00()));
         treeMap.put("subNo", cltacc_subno);
         response.setCode(trdResponse.getMsghd_rspcode());
         response.setMsg(trdResponse.getMsghd_rspmsg());
