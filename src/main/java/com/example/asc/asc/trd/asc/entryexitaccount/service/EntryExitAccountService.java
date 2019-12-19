@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.service;
 
 import com.blue.util.StringUtil;
+import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.cloudflashoverorder.domain.CloudFlashoverOrder;
 import com.example.asc.asc.trd.asc.cloudflashoverorder.service.CloudFlashoverOrderService;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
@@ -23,6 +24,7 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -448,7 +450,7 @@ public class EntryExitAccountService {
         account.setNotificationUrl(notificationurl);
         account.setMoney(Long.valueOf(trdRequest.getBillinfo_aclamt()));
         account.setGoodsDesc(trdRequest.getBillinfo_goodsdesc());
-        account.setDate(new Date());
+        account.setDate(DateUtils.toStringDate(new Date()));
         insert(account);
     }
 

@@ -27,7 +27,7 @@ public class EntryExitAccount {
     /**
      * 日期
      */
-    private Date date;
+    private String date;
 
     /**
      * 金额(入金单位为分)
@@ -128,7 +128,7 @@ public class EntryExitAccount {
     public EntryExitAccount() {
     }
 
-    public EntryExitAccount(int id, int userId, int userAccountId, Date date, Long money, String payType, String secPayType,
+    public EntryExitAccount(int id, int userId, int userAccountId, String date, Long money, String payType, String secPayType,
                             String subject, String goodsDesc, String ptnSrl, String platSrl, String orderNo, String status,
                             String clientStatus, int sendToClientTimes, String reqFlg, String notificationUrl,
                             String servnoticeUrl, String usage, String url, String imageUrl, String createdAt, String updatedAt, String deletedAt) {
@@ -182,11 +182,11 @@ public class EntryExitAccount {
         this.userAccountId = userAccountId;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

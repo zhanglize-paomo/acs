@@ -5,7 +5,7 @@
         <result column="id" jdbcType="INTEGER" property="id"/>
         <result column="userId" jdbcType="INTEGER" property="userId"/>
         <result column="userAccountId" jdbcType="INTEGER" property="userAccountId"/>
-        <result column="date" jdbcType="DATE" property="date"/>
+        <result column="date" jdbcType="VARCHAR" property="date"/>
         <result column="money" jdbcType="INTEGER" property="money"/>
         <result column="payType" jdbcType="VARCHAR" property="payType"/>
         <result column="secPayType" jdbcType="VARCHAR" property="secPayType"/>
@@ -31,7 +31,7 @@
     <insert id="insert">
         insert into entry_exit_account (userId,userAccountId,date,money,payType,secPayType,subject,goodsDesc,ptnSrl,platSrl,
             orderNo,status,clientStatus,sendToClientTimes,`usage`,reqFlg,notificationUrl,servnoticeUrl,url,imageUrl,created_at,updated_at)
-        values(#{account.userId,jdbcType=INTEGER},#{account.userAccountId,jdbcType=INTEGER},#{account.date,jdbcType=DATE},
+        values(#{account.userId,jdbcType=INTEGER},#{account.userAccountId,jdbcType=INTEGER},#{account.date,jdbcType=VARCHAR},
          #{account.money,jdbcType=INTEGER},#{account.payType,jdbcType=CHAR},#{account.secPayType,jdbcType=CHAR},#{account.subject,jdbcType=CHAR},
          #{account.goodsDesc,jdbcType=CHAR},#{account.ptnSrl,jdbcType=CHAR}, #{account.platSrl,jdbcType=CHAR},#{account.orderNo,jdbcType=INTEGER},
          #{account.status,jdbcType=CHAR},#{account.clientStatus,jdbcType=CHAR},#{account.sendToClientTimes,jdbcType=CHAR},

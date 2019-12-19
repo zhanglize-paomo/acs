@@ -97,6 +97,18 @@ public class DateUtils {
     }
 
     /**
+     * 将日期转换为指定格式的日期的形式
+     * string-->yyyy-MM-dd HH:mm:ss
+     *
+     * @param date
+     * @return
+     */
+    public static String toStringDate(Date date) {
+        return DATE_FORMAT_.format(date);
+    }
+
+
+    /**
      * 日期类型转化为字符串
      * yyyy-MM-dd HH:mm:ss -->string
      *
