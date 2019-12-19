@@ -133,6 +133,33 @@ public class EntryExitAccountController {
         return service.scantoPay(request, response);
     }
 
+
+    /**
+     * 海利盈商场支付接口信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "shop-scantopay", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseResponse shopScantoPay(HttpServletRequest request, HttpServletResponse response) {
+        BaseResponse baseResponse = new BaseResponse();
+        String money = request.getParameter("money");  //金额(以分为单位)
+        if (StringUtils.isEmpty(money)) {
+            baseResponse.setCode("ZF301");
+            baseResponse.setMsg("请检查支付金额");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        String payType = request.getParameter("payType");  //金额(以分为单位)
+        if (StringUtils.isEmpty(payType)) {
+            baseResponse.setCode("ZF303");
+            baseResponse.setMsg("支付方式不可为空");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
+        return service.shopScantoPay(request, response);
+    }
+
     /**
      * 内部异步消息通知地址
      *

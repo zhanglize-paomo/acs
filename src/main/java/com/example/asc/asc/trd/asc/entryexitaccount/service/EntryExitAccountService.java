@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -749,4 +750,111 @@ public class EntryExitAccountService {
         return treeMap;
     }
 
+    /**
+     * 海利盈商场支付接口信息
+     *
+     * @return
+     */
+    public BaseResponse shopScantoPay(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
+        try {
+            req.setCharacterEncoding("UTF-8");
+            resp.setCharacterEncoding("UTF-8");
+            /** 交易日期 */
+            String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
+            /** 合作方交易流水号 */
+            String srl_ptnsrl = msghd_trdt + String.valueOf(System.currentTimeMillis());
+            /** 资金账号 */
+            String cltacc_subno = "1924016000174945";
+            UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
+            /** 户名 */
+            String cltacc_cltnm = userAccount.getName();
+            /** 支付金额 */
+            String billinfo_aclamt = req.getParameter("money");
+            /** 支付方式-二级分类(1：企业网银PayType=2必输;2：个人网银PayType=2必输;3：支付宝PayType=6/8/A必输;4：微信PayType=6/8/A必输；5：银联PayType=6必输) */
+            String billinfo_secpaytype = req.getParameter("payType");
+            /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
+            Map<String, String> stringMap = getPayType(billinfo_secpaytype);
+            String billinfo_paytype = stringMap.get("billinfo_secpaytype");
+            if (StringUtils.isEmpty(billinfo_paytype)) {
+                response.setCode("ZF310");
+                response.setMsg("支付方式不存在");
+                response.setData(null);
+                return response;
+            }
+            if (billinfo_secpaytype.equals("6")) {
+                billinfo_secpaytype = "5";
+            }
+            /** 订单标题:PayType=6/8/A时必输 */
+            String billinfo_subject = stringMap.get("subject");  //商品主题描述
+            /** 商品描述:PayType=6/8/A时必输 */
+            String billinfo_goodsdesc = stringMap.get("goodsDesc");  //商品描述
+            /** 是否小程序支付 0 不是 1 是 */
+            String billinfo_minitag = "0";
+            /** 发送端标记:0手机;1PC端 */
+            String reqflg = "1";
+            /** 页面通知URL */
+            String notificationurl = req.getParameter("notificationurl");
+            /** 后台通知URL-若不传值则默认按照后台配置的地址进行通知交易结果 */
+            String servnoticurl = "http://39.107.40.13:8080/entry-exit-account/notifyurl";
+            /** 资金用途(附言) */
+            String usage = "H5支付";
+            /** 合作方自定义备注1 */
+            String dremark1 = req.getParameter("dremark1");
+            /** 合作方自定义备注2 */
+            String dremark2 = req.getParameter("dremark2");
+            /** 合作方自定义备注3 */
+            String dremark3 = req.getParameter("dremark3");
+            /** 合作方自定义备注4 */
+            String dremark4 = req.getParameter("dremark4");
+            /** 合作方自定义备注5 */
+            String dremark5 = req.getParameter("dremark5");
+            /** 合作方自定义备注6 */
+            String dremark6 = req.getParameter("dremark6");
+            /** 业务标示:A00普通收款;B00收款方收款成功后，再冻结资金 */
+            String trsflag = "A00";
+            //加载配置文件信息
+            FileConfigure.getFileConfigure(cltacc_subno);
+            // 2. 实例化交易对象
+            TrdT2031Request trdRequest = new TrdT2031Request();
+            trdRequest.setMsghd_trdt(msghd_trdt);
+            trdRequest.setSrl_ptnsrl(srl_ptnsrl);
+            trdRequest.setCltacc_subno(cltacc_subno);
+            trdRequest.setCltacc_cltnm(cltacc_cltnm);
+            trdRequest.setBillinfo_aclamt(billinfo_aclamt);
+            trdRequest.setBillinfo_subject(billinfo_subject);
+            trdRequest.setBillinfo_ccycd("CNY");
+            trdRequest.setBillinfo_goodsdesc(billinfo_goodsdesc);
+            trdRequest.setBillinfo_paytype(billinfo_paytype);
+            trdRequest.setBillinfo_secpaytype(billinfo_secpaytype);
+            trdRequest.setBillinfo_minitag(billinfo_minitag);
+            trdRequest.setReqflg(reqflg);
+            trdRequest.setUsage(usage);
+            trdRequest.setDremark1(dremark1);
+            trdRequest.setDremark2(dremark2);
+            trdRequest.setDremark3(dremark3);
+            trdRequest.setDremark4(dremark4);
+            trdRequest.setDremark5(dremark5);
+            trdRequest.setDremark6(dremark6);
+            trdRequest.setTrsflag(trsflag);
+            // 3. 报文处理
+            trdRequest.process();
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG + "签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG + "签名数据[" + trdRequest.getRequestSignature() + "]");
+            // 4. 与融资平台通信
+            TrdMessenger trdMessenger = new TrdMessenger();
+            // message
+            String respMsg = trdMessenger.send(trdRequest);
+            // 5. 处理交易结果
+            TrdT2031Response trdResponse = new TrdT2031Response(respMsg);
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
+            //判断响应报文的处理信息
+            response = judgeResponse(trdRequest, trdResponse, notificationurl, servnoticurl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+
+    }
 }
