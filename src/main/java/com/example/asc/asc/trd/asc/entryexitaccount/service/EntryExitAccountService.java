@@ -763,7 +763,7 @@ public class EntryExitAccountService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = msghd_trdt + String.valueOf(System.currentTimeMillis());
+            String srl_ptnsrl = getPtnSrl(msghd_trdt);
             /** 资金账号 */
             String cltacc_subno = "1924016000174945";
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
@@ -856,5 +856,19 @@ public class EntryExitAccountService {
         }
         return response;
 
+    }
+
+    /**
+     *  合作方交易流水号
+     *
+     * @param msghd_trdt  交易日期
+     * @return
+     */
+    private String getPtnSrl(String msghd_trdt) {
+        String srl_ptnsrl = msghd_trdt + String.valueOf(System.currentTimeMillis());
+        if(findByPtnSrl(srl_ptnsrl) != null){
+            getPtnSrl(msghd_trdt);
+        }
+        return srl_ptnsrl;
     }
 }
