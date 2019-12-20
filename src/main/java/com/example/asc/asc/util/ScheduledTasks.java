@@ -122,7 +122,7 @@ public class ScheduledTasks {
             String t1 = StringUtil.jsonToMap(StringUtil.jsonToMap(str).get("data")).get("t1amt_ctamta00").toString();
             String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay";
             TreeMap<String, Object> map = new TreeMap<>();
-            data.put("money", 500);
+            data.put("money", t1);
             data.put("paySubbNo", "1933216000190594");
             data.put("reciveSubbNo", "1934714000194298");
             data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
