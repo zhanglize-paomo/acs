@@ -146,7 +146,7 @@ public class WithDrawService {
             data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
             String string = HttpUtil2.doPost(orderUrl, map,"utf-8");
             if(string != null){
-                return "成功";
+                return string;
             }
         }
         return null;
