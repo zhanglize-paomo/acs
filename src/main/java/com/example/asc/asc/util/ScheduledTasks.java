@@ -108,14 +108,13 @@ public class ScheduledTasks {
      * 每天晚上23:45
      * 查询今天得到账信息,将李艳青的T1账户信息全部划转到对应的浦仕林账户中
      */
-    //@Scheduled(cron = "0 45 23 * * ?")
-    @Scheduled(cron = "1 * * * * ?")
+    @Scheduled(cron = "0 45 23 * * ?")
+    //@Scheduled(cron = "1 * * * * ?")
     public void pollTransferAccounts() {
         logger.info("订单支付的定时任务 :" + DateUtils.stringToDate());
         String pathUrl = "http://39.107.40.13:8080/with-draw";
         TreeMap<String, Object> data = new TreeMap<>();
-       // data.put("subNo", "1933216000190594");
-        data.put("subNo", "1924016000174945");
+        data.put("subNo", "1933216000190594");
         data.put("flag", "flag");
         String str = HttpUtil2.doGet(pathUrl, data);
         String code = StringUtil.jsonToMap(str).get("code").toString();
@@ -124,11 +123,8 @@ public class ScheduledTasks {
             String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay";
             TreeMap<String, Object> map = new TreeMap<>();
             data.put("money", 500);
-//            data.put("paySubbNo", "1933216000190594");
-//            data.put("reciveSubbNo", "1934714000194298");
-
-            data.put("paySubbNo", "1924016000174945");
-            data.put("reciveSubbNo", "1931115000186036");
+            data.put("paySubbNo", "1933216000190594");
+            data.put("reciveSubbNo", "1934714000194298");
             data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
             HttpUtil2.doPost(orderUrl, map,"utf-8");
         }
