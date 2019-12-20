@@ -112,7 +112,7 @@ public class ScheduledTasks {
     //@Scheduled(cron = "1 * * * * ?")
     public void pollTransferAccounts() {
         logger.info("订单支付的定时任务 :" + DateUtils.stringToDate());
-        String pathUrl = "http://39.107.40.13:8080/with-draw";
+        String pathUrl = "http://39.107.40.13:8080/with-draw?subNo=1933216000190594";
         TreeMap<String, Object> data = new TreeMap<>();
         data.put("subNo", "1933216000190594");
         data.put("flag", "flag");

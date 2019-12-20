@@ -41,5 +41,16 @@ public class WithDrawController {
         return service.withDraw(request, response);
     }
 
+    /**
+     * 查询可 T0 出金额度
+     *
+     * @return
+     */
+    @RequestMapping(value = "get",method = RequestMethod.GET)
+    @ResponseBody
+    public String getWithDraw() {
+        return service.getWithDraw();
+    }
+
 
 }

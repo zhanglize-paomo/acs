@@ -5,8 +5,7 @@ import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
 import com.example.asc.asc.trd.common.FileConfigure;
-import com.example.asc.asc.util.MoneyUtils;
-import com.example.asc.asc.util.StringUtil;
+import com.example.asc.asc.util.*;
 import com.trz.netwk.api.system.TrdMessenger;
 import com.trz.netwk.api.trd.TrdT1018Request;
 import com.trz.netwk.api.trd.TrdT1018Response;
@@ -128,4 +127,28 @@ public class WithDrawService {
     }
 
 
+    public String getWithDraw() {
+        logger.info("订单支付的定时任务 :" + DateUtils.stringToDate());
+        String pathUrl = "http://39.107.40.13:8080/with-draw?subNo=1924016000174945";
+        TreeMap<String, Object> data = new TreeMap<>();
+        data.put("subNo", "1924016000174945");
+        data.put("flag", "flag");
+        String str = HttpUtil2.doGet(pathUrl, data);
+        String code = StringUtil.jsonToMap(str).get("code").toString();
+        if (code.equals("000000")) {
+            String t1 = StringUtil.jsonToMap(StringUtil.jsonToMap(str).get("data")).get("t1amt_ctamta00").toString();
+            logger.info("订单支付的定时任务 :" + t1);
+            String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay";
+            TreeMap<String, Object> map = new TreeMap<>();
+            data.put("money", 500);
+            data.put("paySubbNo", "1924016000174945");
+            data.put("reciveSubbNo", "1931115000186036");
+            data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
+            String string = HttpUtil2.doPost(orderUrl, map,"utf-8");
+            if(string != null){
+                return "成功";
+            }
+        }
+        return null;
+    }
 }
