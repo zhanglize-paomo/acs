@@ -383,7 +383,6 @@ public class EntryExitAccountService {
     }
 
 
-
     /**
      * 返回成功数据信息给前端页面
      *
@@ -548,12 +547,13 @@ public class EntryExitAccountService {
             }
             logger.info(TAG_ + "通知报文: " + noticeRequest.getPlainText());
             Map<Object, Object> toXmlMap = com.example.asc.asc.util.StringUtil.jsonToMap(XmlUtil.xmlStrToMap(noticeRequest.getPlainText()).get("MSG"));
-            String SrcPtnSrl = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
+            String orderNo = com.example.asc.asc.util.StringUtil.jsonToMap(toXmlMap.get("Srl")).get("SrcPtnSrl").toString();
             //获取到给下游客户返回的数据信息
             TreeMap<String, Object> map;
             // 3 业务处理  接收到上游的支付返回成功的信息通知
             //根据交易流水号修改该条交易的状态
-            EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
+            EntryExitAccount account = findByOrderNo(orderNo);
+            String SrcPtnSrl = account.getPtnSrl();
             if (noticeRequest.getMsghd_trcd().equals("T2008") && toXmlMap.get("State").toString().equals("1")) {
                 logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付成功：" + account.getId());
                 account.setStatus("1");
@@ -625,7 +625,7 @@ public class EntryExitAccountService {
                 Map<Object, Object> map = com.example.asc.asc.util.StringUtil.jsonToMap(data);
                 String SrcPtnSrl = map.get("SrcPtnSrl").toString();
                 //根据客户流水单号信息查询到对应的订单信息,并将其修改为接收到消息
-                EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
+                EntryExitAccount account = findByOrderNo(SrcPtnSrl);
                 logger.info("内部消息异步通知地址：" + account.getId());
                 account.setClientStatus("1");
                 update(account.getId(), account);

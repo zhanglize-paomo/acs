@@ -138,7 +138,8 @@ public class WithDrawService {
         if (code.equals("000000")) {
             String t1 = StringUtil.jsonToMap(StringUtil.jsonToMap(str).get("data")).get("t1amt_ctamta00").toString();
             logger.info("订单支付的定时任务 :" + t1);
-            String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay";
+            String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay?money=500&ptnSrl=" + GenerateOrderNoUtil.gens("eea",530L)+
+                    "&paySubbNo=1924016000174945&reciveSubbNo=1931115000186036";
             TreeMap<String, Object> map = new TreeMap<>();
             data.put("money", 500);
             data.put("paySubbNo", "1924016000174945");

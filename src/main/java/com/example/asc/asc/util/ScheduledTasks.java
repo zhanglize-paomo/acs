@@ -119,14 +119,16 @@ public class ScheduledTasks {
         String str = HttpUtil2.doGet(pathUrl, data);
         String code = StringUtil.jsonToMap(str).get("code").toString();
         if (code.equals("000000")) {
-            String t1 = StringUtil.jsonToMap(StringUtil.jsonToMap(str).get("data")).get("t1amt_ctamta00").toString();
-            String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay";
+            String t1 = MoneyUtils.changeY2F(StringUtil.jsonToMap(StringUtil.jsonToMap(str).get("data")).get("t1amt_ctamta00").toString());
+            String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay?money=" +t1+ "&ptnSrl=" + GenerateOrderNoUtil.gens("eea",530L)+
+                    "&paySubbNo=1933216000190594&reciveSubbNo=1934714000194298";
             TreeMap<String, Object> map = new TreeMap<>();
             data.put("money", t1);
             data.put("paySubbNo", "1933216000190594");
             data.put("reciveSubbNo", "1934714000194298");
             data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
-            HttpUtil2.doPost(orderUrl, map,"utf-8");
+            String string = HttpUtil2.doPost(orderUrl, map,"utf-8");
+            logger.info("订单支付的定时任务 :" + string);
         }
     }
 
