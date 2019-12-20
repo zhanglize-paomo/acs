@@ -41,6 +41,8 @@ public class ApplicationDepositService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDepositService.class);
 
+    private static final String TAG = "{出金申请}-";
+
     private UserAccountService userAccountService;
     private ApplyDepositAccountService applyDepositAccountService;
     private UserAccountSettlementService settlementService;
@@ -154,16 +156,16 @@ public class ApplicationDepositService {
             trdRequest.setMsghd_bkcd(BkCd);
             // 3. 报文处理
             trdRequest.process();
-            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
-            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG +"签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG +"签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdCommonResponse trdResponse = new TrdCommonResponse(respMsg);
-            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 insertAccount(trdRequest, trdResponse, "3", map.get("feeRate"));
@@ -330,16 +332,16 @@ public class ApplicationDepositService {
             trdRequest.setOrgsrl(orgsrl);
             // 3. 报文处理
             trdRequest.process();
-            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
-            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG + "签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG + "签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT2012Response trdResponse = new TrdT2012Response(respMsg);
-            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             String state = trdResponse.getState();  // 交易结果:1成功;2失败;3处理中
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {

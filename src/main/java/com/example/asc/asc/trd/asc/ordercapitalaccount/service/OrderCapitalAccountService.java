@@ -34,6 +34,7 @@ import java.util.Map;
 public class OrderCapitalAccountService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderCapitalAccountService.class);
+    private static final String TAG = "{订单支付}-";
     private UserAccountService userAccountService;
     private OrderCapitalAccountMapper mapper;
 
@@ -104,16 +105,16 @@ public class OrderCapitalAccountService {
             trdRequest.setBillinfo_goodsmess(billinfo_goodsmess);
             // 3. 报文处理
             trdRequest.process();
-            logger.info("请求报文[" + trdRequest.getRequestPlainText() + "]");
-            logger.info("签名原文[" + trdRequest.getRequestMessage() + "]");
-            logger.info("签名数据[" + trdRequest.getRequestSignature() + "]");
+            logger.info(TAG + "请求报文[" + trdRequest.getRequestPlainText() + "]");
+            logger.info(TAG + "签名原文[" + trdRequest.getRequestMessage() + "]");
+            logger.info(TAG + "签名数据[" + trdRequest.getRequestSignature() + "]");
             // 4. 与融资平台通信
             TrdMessenger trdMessenger = new TrdMessenger();
             // message
             String respMsg = trdMessenger.send(trdRequest);
             // 5. 处理交易结果
             TrdT3004Response trdResponse = new TrdT3004Response(respMsg);
-            logger.info("响应报文[" + trdResponse.getResponsePlainText() + "]");
+            logger.info(TAG + "响应报文[" + trdResponse.getResponsePlainText() + "]");
             //判断响应报文的处理信息
             response = judgeResponse(trdRequest, trdResponse,ptnSrl,billinfo_pnm,billinfo_rcltnm);
         } catch (Exception e) {
@@ -129,9 +130,9 @@ public class OrderCapitalAccountService {
         }
         // 交易成功 000000
         if ("000000".equals(trdResponse.getMsghd_rspcode())) {
-            logger.info("[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");// 返回信息
-            logger.info("[srl_billno]=[" + trdResponse.getSrl_billno() + "]");// 支付单号(唯一)
-            logger.info("[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
+            logger.info(TAG + "[msghd_rspmsg]=[" + trdResponse.getMsghd_rspmsg() + "]");// 返回信息
+            logger.info(TAG + "[srl_billno]=[" + trdResponse.getSrl_billno() + "]");// 支付单号(唯一)
+            logger.info(TAG + "[srl_platsrl]=[" + trdResponse.getSrl_platsrl() + "]");// 平台流水号
             //添加数据到数据订单支付表中
             addOrderCapitalAccount(trdRequest, trdResponse,ptnSrl);
             baseResponse = reternData(trdRequest,trdResponse,billinfo_pnm,billinfo_rcltnm,ptnSrl);
