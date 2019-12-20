@@ -30,6 +30,14 @@ public interface EntryExitAccountMapper {
     EntryExitAccount findByPtnSrl(String ptnSrl);
 
     /**
+     * 根据根据平台订单号查询到对应得订单信息
+     *
+     * @param orderNo 平台订单号
+     * @return
+     */
+    EntryExitAccount findByOrderNo(String orderNo);
+
+    /**
      * 根据id修改入金支付对象的信息
      *
      * @param id
@@ -44,4 +52,5 @@ public interface EntryExitAccountMapper {
      * @param status
      */
     List<EntryExitAccount> findByStatus(String status);
+
 }

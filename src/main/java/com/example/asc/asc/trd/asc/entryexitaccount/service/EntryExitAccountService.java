@@ -89,7 +89,7 @@ public class EntryExitAccountService {
     }
 
 
-    public String checkDigest(String appid,TreeMap<String, Object> treeMap) {
+    public String checkDigest(String appid, TreeMap<String, Object> treeMap) {
         String digest = null;
         try {
             String sortvalue = usersService.findAppId(appid).getSecret();
@@ -146,7 +146,7 @@ public class EntryExitAccountService {
                 }
             }
         } else {
-            logger.info("定时任务修改数据："+ account.getId());
+            logger.info("定时任务修改数据：" + account.getId());
             account.setClientStatus("1");
             update(account.getId(), account);
         }
@@ -166,7 +166,7 @@ public class EntryExitAccountService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = req.getParameter("ptnSrl");
+            String ptnsrl = req.getParameter("ptnSrl");
             /** 资金账号 */
             String cltacc_subno = req.getParameter("subNo");
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
@@ -216,6 +216,27 @@ public class EntryExitAccountService {
             String dremark6 = req.getParameter("dremark6");
             /** 业务标示:A00普通收款;B00收款方收款成功后，再冻结资金 */
             String trsflag = "A00";
+            //将订单数据信息添加到支付数据表中
+            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea", 530L);
+            EntryExitAccount account = new EntryExitAccount();
+            account.setSecPayType(billinfo_secpaytype);
+            //根据资金账户查询到对应的用户id以及用户Account的id
+            account.setUserId(userAccount.getUserId());
+            account.setUserAccountId(userAccount.getId());
+            account.setUsage(usage);
+            account.setSubject(billinfo_subject);
+            account.setStatus("0");
+            account.setServnoticeUrl(servnoticurl);
+            account.setSendToClientTimes(0);
+            account.setReqFlg(reqflg);
+            account.setPtnSrl(ptnsrl);
+            account.setOrderNo(srl_ptnsrl);
+            account.setPayType(billinfo_paytype);
+            account.setNotificationUrl(notificationurl);
+            account.setMoney(Long.valueOf(billinfo_aclamt));
+            account.setGoodsDesc(billinfo_goodsdesc);
+            account.setDate(DateUtils.toStringDate(new Date()));
+            insert(account);
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
             // 2. 实例化交易对象
@@ -316,8 +337,13 @@ public class EntryExitAccountService {
             if ("6".equals(trdRequest.getBillinfo_paytype())) {
                 logger.info(TAG + "[url]=[" + trdResponse.getUrl() + "]");  // PayType=6时为二维码的CODE地址
                 logger.info(TAG + "[imageurl]=[" + trdResponse.getImageurl() + "]"); // PayType=6时返回二维码图片地址
-                //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
+                //根据合作方交易流水号查到对应得订单信息
+                EntryExitAccount account = findByOrderNo(trdResponse.getSrl_ptnsrl());
+                account.setStatus("0");
+                account.setPlatSrl(trdResponse.getSrl_platsrl());
+                account.setUrl(trdResponse.getUrl());
+                account.setImageUrl(trdResponse.getImageurl());
+                update(account.getId(), account);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             } else if ("2".equals(billinfo_paytype) || "9".equals(billinfo_paytype)) {
@@ -337,19 +363,26 @@ public class EntryExitAccountService {
                 logger.info("[authcode]=[" + trdResponse.getAuthcode() + "]");  // PayType=8/A时返回授权码
             } else if ("H".equals(billinfo_paytype)) {
                 logger.info(TAG + "[H5支付(云闪付支付)]=[" + trdResponse.getAuthcode() + "]");  // H5支付(云闪付支付)时返回授权码
-                //添加数据到入金支付数据库中
-                addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
+                //根据合作方交易流水号查到对应得订单信息
+                EntryExitAccount account = findByOrderNo(trdResponse.getSrl_ptnsrl());
+                account.setStatus("0");
+                account.setPlatSrl(trdResponse.getSrl_platsrl());
+                update(account.getId(), account);
                 //返回成功数据信息给前端页面
                 baseResponse = reternData(trdResponse, billinfo_paytype);
             }
         } else {
-            //添加数据到入金支付数据库中
-            addEntryExitAccount(trdRequest, trdResponse, notificationurl, servnoticurl);
+            EntryExitAccount account = findByOrderNo(trdResponse.getSrl_ptnsrl());
+            account.setStatus("2");
+            account.setPlatSrl(trdResponse.getSrl_platsrl());
+            update(account.getId(), account);
             baseResponse.setCode(trdResponse.getMsghd_rspcode());
             baseResponse.setMsg(trdResponse.getMsghd_rspmsg());
         }
         return baseResponse;
     }
+
+
 
     /**
      * 返回成功数据信息给前端页面
@@ -417,45 +450,6 @@ public class EntryExitAccountService {
     }
 
     /**
-     * 添加数据到入金支付数据中
-     *
-     * @param trdRequest
-     * @param trdResponse
-     * @param servnoticurl
-     * @param notificationurl
-     */
-    private void addEntryExitAccount(TrdT2031Request trdRequest, TrdT2031Response trdResponse, String notificationurl, String servnoticurl) {
-        EntryExitAccount account = new EntryExitAccount();
-        account.setSecPayType(trdRequest.getBillinfo_secpaytype());
-        //根据资金账户查询到对应的用户id以及用户Account的id
-        String cltacc_subno = trdRequest.getCltacc_subno();
-        UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
-        account.setUserId(userAccount.getUserId());
-        account.setUserAccountId(userAccount.getId());
-        account.setUsage(trdRequest.getUsage());
-        account.setUrl(trdResponse.getUrl());
-        account.setImageUrl(trdResponse.getImageurl());
-        account.setSubject(trdRequest.getBillinfo_subject());
-        if (trdResponse.getMsghd_rspcode().equals("000000")) {
-            account.setStatus("0");
-        } else {
-            account.setStatus("2");
-        }
-        account.setServnoticeUrl(servnoticurl);
-//        account.setSendToClientTimes(0);
-        account.setReqFlg(trdRequest.getReqflg());
-        account.setPtnSrl(trdResponse.getSrl_ptnsrl());
-        account.setPlatSrl(trdResponse.getSrl_platsrl());
-        account.setPayType(trdRequest.getBillinfo_paytype());
-        account.setSecPayType(trdRequest.getBillinfo_secpaytype());
-        account.setNotificationUrl(notificationurl);
-        account.setMoney(Long.valueOf(trdRequest.getBillinfo_aclamt()));
-        account.setGoodsDesc(trdRequest.getBillinfo_goodsdesc());
-        account.setDate(DateUtils.toStringDate(new Date()));
-        insert(account);
-    }
-
-    /**
      * 新增入金支付-集成交易对象信息
      *
      * @param account
@@ -463,7 +457,6 @@ public class EntryExitAccountService {
      */
     public int insert(EntryExitAccount account) {
         account.setClientStatus("0");
-        account.setOrderNo(GenerateOrderNoUtil.gens("eea", 530L));
         account.setCreatedAt(DateUtils.nowTime()); //创建时间
         return mapper.insert(account);
     }
@@ -471,11 +464,21 @@ public class EntryExitAccountService {
     /**
      * 根据根据客户方交易流水号判断该交易流水号是否存在
      *
-     * @param ptnSrl 客户方交易流水号
+     * @param ptnSrl 平台订单号
      * @return
      */
     public EntryExitAccount findByPtnSrl(String ptnSrl) {
         return mapper.findByPtnSrl(ptnSrl);
+    }
+
+    /**
+     * 根据根据平台订单号查询到对应得订单信息
+     *
+     * @param orderNo 平台订单号
+     * @return
+     */
+    public EntryExitAccount findByOrderNo(String orderNo) {
+        return mapper.findByOrderNo(orderNo);
     }
 
     /**
@@ -537,9 +540,9 @@ public class EntryExitAccountService {
                 response.setMsghd_rspcode("YQ0001");
                 response.setMsghd_rspmsg("验签失败");
                 response.setSrl_ptnsrl(null);
-                Map<String,String> map = new HashMap<>();
-                map.put("code",response.getMsghd_rspcode());
-                map.put("msg",response.getMsghd_rspmsg());
+                Map<String, String> map = new HashMap<>();
+                map.put("code", response.getMsghd_rspcode());
+                map.put("msg", response.getMsghd_rspmsg());
                 logger.info(TAG_ + "通知报文: " + map);
                 return response;
             }
@@ -552,7 +555,7 @@ public class EntryExitAccountService {
             //根据交易流水号修改该条交易的状态
             EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
             if (noticeRequest.getMsghd_trcd().equals("T2008") && toXmlMap.get("State").toString().equals("1")) {
-                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付成功："+ account.getId());
+                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付成功：" + account.getId());
                 account.setStatus("1");
                 update(account.getId(), account);
                 //给上游客户响应信息
@@ -568,7 +571,7 @@ public class EntryExitAccountService {
                     int num = 0;
                     doPostOrGet(account.getServnoticeUrl(), map, num, account.getSendToClientTimes(), account);
                 }
-            } else if(noticeRequest.getMsghd_trcd().equals("T2020")){
+            } else if (noticeRequest.getMsghd_trcd().equals("T2020")) {
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getPlainText());
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getDocument());
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trcd());
@@ -581,8 +584,8 @@ public class EntryExitAccountService {
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trtm());
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_trsrc());
                 logger.info("出金结算时间" + "通知报文: " + noticeRequest.getMsghd_ptncd());
-            }else {
-                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付失败："+ account.getId());
+            } else {
+                logger.info(TAG_ + "支付直通车,异步交易通知地址信息支付失败：" + account.getId());
                 account.setStatus("2");
                 update(account.getId(), account);
                 //给上游客户响应信息
@@ -623,7 +626,7 @@ public class EntryExitAccountService {
                 String SrcPtnSrl = map.get("SrcPtnSrl").toString();
                 //根据客户流水单号信息查询到对应的订单信息,并将其修改为接收到消息
                 EntryExitAccount account = findByPtnSrl(SrcPtnSrl);
-                logger.info("内部消息异步通知地址："+ account.getId());
+                logger.info("内部消息异步通知地址：" + account.getId());
                 account.setClientStatus("1");
                 update(account.getId(), account);
                 return "1";
@@ -643,9 +646,9 @@ public class EntryExitAccountService {
      * @param SrcPtnSrl
      * @return
      */
-    public TreeMap<String, Object>  getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
-        TreeMap<String, Object>  hashMap = new TreeMap<>();
-        TreeMap<String, Object>  map = new TreeMap<>();
+    public TreeMap<String, Object> getDownstream(Map<Object, Object> toXmlMap, String msg, String SrcPtnSrl, String code) {
+        TreeMap<String, Object> hashMap = new TreeMap<>();
+        TreeMap<String, Object> map = new TreeMap<>();
         hashMap.put("code", code);
         hashMap.put("msg", msg);
         map.put("SrcPtnSrl", SrcPtnSrl);
@@ -654,8 +657,8 @@ public class EntryExitAccountService {
         //对数据进行签名验证
         EntryExitAccount entryExitAccount = findByPtnSrl(SrcPtnSrl);
         Users users = usersService.findById(entryExitAccount.getUserId());
-        String string = checkDigest(users.getAppId(),hashMap);
-        hashMap.put("digest",string);
+        String string = checkDigest(users.getAppId(), hashMap);
+        hashMap.put("digest", string);
         return hashMap;
     }
 
@@ -859,14 +862,14 @@ public class EntryExitAccountService {
     }
 
     /**
-     *  合作方交易流水号
+     * 合作方交易流水号
      *
-     * @param msghd_trdt  交易日期
+     * @param msghd_trdt 交易日期
      * @return
      */
     private String getPtnSrl(String msghd_trdt) {
         String srl_ptnsrl = msghd_trdt + String.valueOf(System.currentTimeMillis());
-        if(findByPtnSrl(srl_ptnsrl) != null){
+        if (findByPtnSrl(srl_ptnsrl) != null) {
             getPtnSrl(msghd_trdt);
         }
         return srl_ptnsrl;
