@@ -31,7 +31,7 @@ public class WithDrawController {
     }
 
     /**
-     * 查询可 T0/T1 出金额度
+     * 查询可 T0 出金额度
      *
      * @return
      */
@@ -40,5 +40,6 @@ public class WithDrawController {
     public BaseResponse withDraw(HttpServletRequest request, HttpServletResponse response) {
         return service.withDraw(request, response);
     }
+
 
 }

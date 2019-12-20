@@ -57,7 +57,7 @@ public class HttpUtil2 {
         return doPut(geoconvUrl, params, CHARSET);
     }
 
-    public static String doGet(String geoconvUrl, Map<String, String> params) {
+    public static String doGet(String geoconvUrl, Map<String,Object> params) {
         return doGetObj(geoconvUrl, params, CHARSET);
     }
 
@@ -364,14 +364,14 @@ public class HttpUtil2 {
      * @param charset 编码格式
      * @return 页面内容
      */
-    public static String doGetObj(String url, Map<String, String> params, String charset) {
+    public static String doGetObj(String url, Map<String, Object> params, String charset) {
         if (StringUtils.isEmpty(url)) {
             return null;
         }
         try {
             if (params != null && !params.isEmpty()) {
                 List<NameValuePair> pairs = new ArrayList<NameValuePair>(params.size());
-                for (Map.Entry<String, String> entry : params.entrySet()) {
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
                     Object value = entry.getValue();
                     if (value != null) {
                         pairs.add(new BasicNameValuePair(entry.getKey(), String.valueOf(value)));
