@@ -2,26 +2,23 @@
 <head>
     <title>支付二维码生产</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <script type="text/javascript" th:src="@{/js/jquery/jquery-3.3.1.min.js}"></script>
-    <script type="text/javascript" th:src="@{/js/jquery/jquery.timers-1.2.js}"></script>
+    <script src="../static/js/jquery-3.3.1.min.js" type="text/javascript" th:src="@{/static/js/jquery/jquery-3.3.1.min.js}"></script>
+    <script src="../static/js/jquery.timers-1.2.js" type="text/javascript" th:src="@{/static/js/jquery/jquery.timers-1.2.js}"></script>
     <script type='text/javascript'>
 
         //生成二维码
         function save() {
-            var payType = $("#payType").val();
-            $("#payImg").attr("src", '/pay/payUrl' + "?totalFee=" + $("#totalFee").val() + "&payType=" + payType);
+            $("#payImg").attr("src", '/pay/payUrl' + "?totalFee=" + $("#totalFee").val() + "&payType=" +$("#payType").val());
 
-            $('body').everyTime('2s', 'payStatusTimer', function () {
+            $('body').oneTime(function () {
                 $.ajax({
                     type: "POST",
-                    url: '/wxPay/payStatus?outTradeNo=' + outTradeNo + "&random=" + new Date().getTime(),
                     contentType: "application/json",
                     dataType: "json",
                     async: "false",
                     success: function (json) {
                         if (json != null && json.status == 0) {
                             alert("支付成功！");
-                            $('body').stopTime('payStatusTimer');
                             return false;
                         }
                     },
@@ -40,10 +37,10 @@
     </script>
 </head>
 <body>
-支付金额：<input id="totalFee" type="text" value="0.01"/>
+支付金额：<input id="totalFee" type="text"/>
 <!--下拉列表框-->
 支付方式:
-<select name="payType">
+<select id="payType" name="payType">
     <option value="3">支付宝</option>
     <option value="4">微信</option>
     <option value="6">云闪付</option>
