@@ -81,38 +81,29 @@ public class OrderCapitalAccount {
     /**
      * 创建时间
      */
-    private Timestamp createdAt;
+    private String createdAt;
     /**
      * 修改时间
      */
-    private Timestamp updatedAt;
+    private String updatedAt;
 
     /**
      * 删除时间
      */
-    private Timestamp deletedAt;
+    private String deletedAt;
 
     public OrderCapitalAccount() {
     }
 
-    public OrderCapitalAccount(int id, String time, Date date, Long money, String ptnSrl, String platSrl, String orderNo, String status, String usage, String payFee, String reciveFee, String paySubbNo, String paySubbName, String reciveSubbNo, String reciveSubbName, Timestamp createdAt, Timestamp updatedAt, Timestamp deletedAt) {
-        this.id = id;
-        this.time = time;
-        this.date = date;
-        this.money = money;
-        this.ptnSrl = ptnSrl;
-        this.platSrl = platSrl;
-        this.orderNo = orderNo;
-        this.status = status;
-        this.usage = usage;
-        this.payFee = payFee;
-        this.reciveFee = reciveFee;
-        this.paySubbNo = paySubbNo;
-        this.paySubbName = paySubbName;
-        this.reciveSubbNo = reciveSubbNo;
-        this.reciveSubbName = reciveSubbName;
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public void setDeletedAt(String deletedAt) {
         this.deletedAt = deletedAt;
     }
 
@@ -236,27 +227,15 @@ public class OrderCapitalAccount {
         this.reciveSubbName = reciveSubbName;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Timestamp getDeletedAt() {
+    public String getDeletedAt() {
         return deletedAt;
-    }
-
-    public void setDeletedAt(Timestamp deletedAt) {
-        this.deletedAt = deletedAt;
     }
 }

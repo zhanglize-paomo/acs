@@ -27,7 +27,7 @@
         values(#{time,jdbcType=CHAR},#{date,jdbcType=DATE}, #{money,jdbcType=INTEGER},#{ptnSrl},#{platSrl,jdbcType=CHAR},
         #{orderNo,jdbcType=CHAR},#{status,jdbcType=CHAR},#{usage,jdbcType=CHAR}, #{payFee,jdbcType=CHAR},#{reciveFee,jdbcType=INTEGER},
         #{paySubbNo,jdbcType=CHAR},#{paySubbName,jdbcType=CHAR},#{reciveSubbNo,jdbcType=CHAR},#{reciveSubbName,jdbcType=CHAR},
-        #{createdAt,jdbcType=CHAR}, #{updatedAt,jdbcType=CHAR})
+        now(), #{updatedAt,jdbcType=CHAR})
     </insert>
     <select id="findByPtnSrl" resultMap="resultMap">
         select * from order_capital_account where ptn_srl = #{ptnSrl}

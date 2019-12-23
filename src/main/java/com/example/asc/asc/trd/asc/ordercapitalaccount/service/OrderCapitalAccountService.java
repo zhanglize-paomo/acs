@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.ordercapitalaccount.service;
 
 import com.blue.util.DateUtil;
+import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.ordercapitalaccount.domain.OrderCapitalAccount;
 import com.example.asc.asc.trd.asc.ordercapitalaccount.mapper.OrderCapitalAccountMapper;
 import com.example.asc.asc.trd.asc.useraccount.service.UserAccountService;
@@ -15,6 +16,7 @@ import com.trz.netwk.api.trd.TrdT3004Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -236,7 +238,9 @@ public class OrderCapitalAccountService {
      */
     private int insert(OrderCapitalAccount account) {
         account.setTime(DateUtil.formatToHms(DateUtils.stringToDate()));
-        account.setCreatedAt(DateUtils.toTimestamp()); //创建时间
+        account.setCreatedAt(DateUtils.nowTime()); //创建时间
         return mapper.insert(account);
     }
+
+
 }
