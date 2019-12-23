@@ -766,7 +766,8 @@ public class EntryExitAccountService {
             /** 交易日期 */
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
             /** 合作方交易流水号 */
-            String srl_ptnsrl = getPtnSrl(msghd_trdt);
+            String ptnsrl = getPtnSrl(msghd_trdt);
+            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea",530L);
             /** 资金账号 */
             String cltacc_subno = "1924016000174945";
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
@@ -816,6 +817,25 @@ public class EntryExitAccountService {
             String dremark6 = req.getParameter("dremark6");
             /** 业务标示:A00普通收款;B00收款方收款成功后，再冻结资金 */
             String trsflag = "A00";
+            EntryExitAccount account = new EntryExitAccount();
+            account.setSecPayType(billinfo_secpaytype);
+            //根据资金账户查询到对应的用户id以及用户Account的id
+            account.setUserId(userAccount.getUserId());
+            account.setUserAccountId(userAccount.getId());
+            account.setUsage(usage);
+            account.setSubject(billinfo_subject);
+            account.setStatus("0");
+            account.setServnoticeUrl(servnoticurl);
+            account.setSendToClientTimes(0);
+            account.setReqFlg(reqflg);
+            account.setPtnSrl(ptnsrl);
+            account.setOrderNo(srl_ptnsrl);
+            account.setPayType(billinfo_paytype);
+            account.setNotificationUrl(notificationurl);
+            account.setMoney(Long.valueOf(billinfo_aclamt));
+            account.setGoodsDesc(billinfo_goodsdesc);
+            account.setDate(DateUtils.toStringDate(new Date()));
+            insert(account);
             //加载配置文件信息
             FileConfigure.getFileConfigure(cltacc_subno);
             // 2. 实例化交易对象
