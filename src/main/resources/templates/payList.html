@@ -1,19 +1,15 @@
-<html>
+<html xmlns:th="http://www.springframework.org/schema/jdbc">
 <head>
     <title>支付二维码生产</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <script type="text/javascript" src="/js/jquery/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="/js/jquery/jquery.timers-1.2.js"></script>
+    <script type="text/javascript" th:src="@{/js/jquery/jquery-3.3.1.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery/jquery.timers-1.2.js}"></script>
     <script type='text/javascript'>
-
-        $(function () {
-            getOutTradeNo();
-        });
 
         //生成二维码
         function save() {
-            var outTradeNo = $("#outTradeNo").val();
-            $("#payImg").attr("src", '/wxPay/payUrl' + "?totalFee=" + $("#totalFee").val() + "&outTradeNo=" + outTradeNo);
+            var payType = $("#payType").val();
+            $("#payImg").attr("src", '/pay/payUrl' + "?totalFee=" + $("#totalFee").val() + "&payType=" + payType);
 
             $('body').everyTime('2s', 'payStatusTimer', function () {
                 $.ajax({
@@ -41,41 +37,19 @@
             });
         }
 
-        //获取流水号
-        function getOutTradeNo() {
-            $.ajax({
-                type: "POST",
-                url: '/wxPay/outTradeNo',
-                success: function (json) {
-                    if (json != null) {
-                        $("h3").html(json);
-                        $("#outTradeNo").val(json);
-                    } else {
-                        alert("获取流水号失败！");
-                    }
-                    return false;
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert("服务器错误！状态码：" + XMLHttpRequest.status);
-                    // 状态
-                    console.log(XMLHttpRequest.readyState);
-                    // 错误信息
-                    console.log(textStatus);
-                    return false;
-                }
-            });
-        }
-
-
     </script>
 </head>
 <body>
-<p>订单流水号：
-<h3></h3></p>
 支付金额：<input id="totalFee" type="text" value="0.01"/>
-<button type="button" onclick="save();">生成二维码</button>
-<input id="outTradeNo" type="hidden" value="${outTradeNo}"/>
-&nbsp;&nbsp;<img id="payImg" width="300" height="300">
+<!--下拉列表框-->
+支付方式:
+<select name="payType">
+    <option value="3">支付宝</option>
+    <option value="4">微信</option>
+    <option value="6">云闪付</option>
+</select>
 
+<button type="button" onclick="save();">生成二维码</button>
+&nbsp;&nbsp;<img id="payImg" width="300" height="300">
 </body>
 </html>

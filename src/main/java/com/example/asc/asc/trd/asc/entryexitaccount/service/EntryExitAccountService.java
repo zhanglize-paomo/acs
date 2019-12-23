@@ -289,7 +289,7 @@ public class EntryExitAccountService {
      * @param billinfo_secpaytype
      * @return
      */
-    private Map<String, String> getPayType(String billinfo_secpaytype) {
+    public Map<String, String> getPayType(String billinfo_secpaytype) {
         Map<String, String> map = new HashMap<>();
         if (billinfo_secpaytype.equals("3")) {  //支付宝
             map.put("billinfo_secpaytype", "6");
@@ -419,7 +419,7 @@ public class EntryExitAccountService {
      * @param trdResponse
      * @return
      */
-    private Long addCloudFlashoverOrder(TreeMap<String, Object> treeMap, TrdT2031Response trdResponse) {
+    public Long addCloudFlashoverOrder(TreeMap<String, Object> treeMap, TrdT2031Response trdResponse) {
         CloudFlashoverOrder order = new CloudFlashoverOrder();
         Long id = new SnowflakeIdUtils().nextId();
         order.setId(id);

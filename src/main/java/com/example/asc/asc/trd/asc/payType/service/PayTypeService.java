@@ -11,10 +11,9 @@ public interface PayTypeService {
     /**
      * 生成支付二维码URL
      * @param totalFee 标价金额(分单位)
-     * @param outTradeNo 商户订单号
-     * @param signType 签名类型
+     * @param payType 支付类型
      * @throws Exception
      */
-    String wxPayUrl(Double totalFee, String outTradeNo, String signType) throws Exception;
+    String payUrl(Double totalFee, String payType) throws Exception;
 
 }
