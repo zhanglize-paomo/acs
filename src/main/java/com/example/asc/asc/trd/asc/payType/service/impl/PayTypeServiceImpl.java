@@ -72,6 +72,9 @@ public class PayTypeServiceImpl implements PayTypeService {
             /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
             Map<String, String> stringMap = service.getPayType(billinfo_secpaytype);
             String billinfo_paytype = stringMap.get("billinfo_secpaytype");
+            if(billinfo_paytype.equals("H")){
+                billinfo_secpaytype = "5";
+            }
             /** 订单标题:PayType=6/8/A时必输 */
             String billinfo_subject = stringMap.get("subject");  //商品主题描述
             /** 商品描述:PayType=6/8/A时必输 */
