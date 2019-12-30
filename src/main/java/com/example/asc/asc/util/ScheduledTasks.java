@@ -1,6 +1,5 @@
 package com.example.asc.asc.util;
 
-import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.applicationfordeposit.ApplicationDepositService;
 import com.example.asc.asc.trd.asc.applydepositaccount.domain.ApplyDepositAccount;
 import com.example.asc.asc.trd.asc.applydepositaccount.service.ApplyDepositAccountService;
@@ -8,11 +7,9 @@ import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
 import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
 import com.example.asc.asc.trd.asc.users.domain.Users;
 import com.example.asc.asc.trd.asc.users.service.UsersService;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.util.StringUtils;
@@ -45,10 +42,6 @@ public class ScheduledTasks {
 
     private UsersService usersService;
 
-    public static void main(String[] args) {
-        String str = "{\"code\":\"000000\",\"msg\":\"交易成功\",\"data\":{\"subNo\":\"1933216000190594\",\"t0amt_ctamta00\":\"17998.93\"}}";
-        Map<Object, Object> map = StringUtil.jsonToMap(str);
-    }
 
     @Autowired
     public void setUsersService(UsersService usersService) {
@@ -123,10 +116,10 @@ public class ScheduledTasks {
             String orderUrl = "http://39.107.40.13:8080/order-capital-account/orderpay?money=" +t1+ "&ptnSrl=" + GenerateOrderNoUtil.gens("eea",530L)+
                     "&paySubbNo=1933216000190594&reciveSubbNo=1934714000194298";
             TreeMap<String, Object> map = new TreeMap<>();
-            data.put("money", t1);
-            data.put("paySubbNo", "1933216000190594");
-            data.put("reciveSubbNo", "1934714000194298");
-            data.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
+            map.put("money", t1);
+            map.put("paySubbNo", "1933216000190594");
+            map.put("reciveSubbNo", "1934714000194298");
+            map.put("ptnSrl", GenerateOrderNoUtil.gens("eea",530L));
             String string = HttpUtil2.doPost(orderUrl, map,"utf-8");
             logger.info("订单支付的定时任务 :" + string);
         }
@@ -187,6 +180,22 @@ public class ScheduledTasks {
         });
     }
 
+
+
+    /**
+     * 每天晚上23:40
+     * 查询每天得提现状态信息
+     */
+    @Scheduled(cron = "0 40 23 * * ?")
+    //@Scheduled(cron = "1 * * * * ?")
+    public void queryApplicationDeposit() {
+        logger.info("查询每天得提现状态信息 :" + DateUtils.stringToDate());
+        List<ApplyDepositAccount> accountList = accountService.queryFlagStaus("S0","3",DateUtils.timeToDate(new Date()));
+        accountList.forEach(applyDepositAccount -> {
+            String pathUrl = "http://localhost:8080/application-deposit/query?msghd_trdt="+applyDepositAccount.getMsghdTrdt()+"&orgsrl="+applyDepositAccount.getSrlPtnsrl();
+            HttpUtil2.doGet(pathUrl,null);
+        });
+    }
 
 //    @Scheduled(cron = "1 * * * * ?")
 //    public void OrderTask() {
