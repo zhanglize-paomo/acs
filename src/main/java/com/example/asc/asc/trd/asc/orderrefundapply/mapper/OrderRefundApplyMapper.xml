@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.asc.asc.trd.asc.orderrefundapply.mapper.OrderRefundApplyMapper">
+    <resultMap id="resultMap" type="com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="msghd_trdt" jdbcType="VARCHAR" property="msghdTrdt"/>
+        <result column="srl_ptnsrl" jdbcType="VARCHAR" property="srlPtnsrl"/>
+        <result column="dptnsrl" jdbcType="VARCHAR" property="dptnsrl"/>
+        <result column="amt_aclamt" jdbcType="INTEGER" property="amtAclamt"/>
+        <result column="srl_platsrl" jdbcType="VARCHAR" property="srlPlatsrl"/>
+        <result column="state" jdbcType="VARCHAR" property="state"/>
+        <result column="restTime" jdbcType="VARCHAR" property="restTime"/>
+        <result column="opion" jdbcType="VARCHAR" property="opion"/>
+        <result column="created_at" jdbcType="CHAR" property="createdAt"/>
+        <result column="updated_at" jdbcType="CHAR" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insert">
+        insert into order_refund_apply (id,msghd_trdt,srl_ptnsrl,dptnsrl,amt_aclamt,srl_platsrl,state,rest_time,opion,created_at)
+        values(
+             #{id,jdbcType=INTEGER},#{msghdTrdt,jdbcType=CHAR},#{srlPtnsrl,jdbcType=CHAR},#{dptnsrl,jdbcType=CHAR},
+             #{amtAclamt,jdbcType=CHAR}, #{srlPlatsrl,jdbcType=CHAR}, #{state,jdbcType=INTEGER},
+             #{restTime,jdbcType=CHAR},#{opion,jdbcType=CHAR},now())
+    </insert>
+
+    <select id="findByPtnSrl" resultMap="resultMap">
+        select * from order_refund_apply where srl_ptnsrl = #{srl_ptnsrl}
+    </select>
+
+    <update id="update"  parameterType="com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply">
+        UPDATE order_refund_apply
+        SET srl_platsrl = #{orderRefundApply.srl_platsrl,jdbcType=VARCHAR},
+        state = #{orderRefundApply.state,jdbcType=VARCHAR},
+        resttime = #{orderRefundApply.restTime,jdbcType=VARCHAR},
+        opion = #{orderRefundApply.opion,jdbcType=VARCHAR},
+        updated_at = now()
+        WHERE  id = #{id}
+    </update>
+
+</mapper>
