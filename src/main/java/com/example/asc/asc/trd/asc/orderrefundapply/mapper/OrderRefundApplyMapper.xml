@@ -29,9 +29,9 @@
 
     <update id="update"  parameterType="com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply">
         UPDATE order_refund_apply
-        SET srl_platsrl = #{orderRefundApply.srl_platsrl,jdbcType=VARCHAR},
+        SET srl_platsrl = #{orderRefundApply.srlPlatsrl,jdbcType=VARCHAR},
         state = #{orderRefundApply.state,jdbcType=VARCHAR},
-        resttime = #{orderRefundApply.restTime,jdbcType=VARCHAR},
+        rest_time = #{orderRefundApply.restTime,jdbcType=VARCHAR},
         opion = #{orderRefundApply.opion,jdbcType=VARCHAR},
         updated_at = now()
         WHERE  id = #{id}

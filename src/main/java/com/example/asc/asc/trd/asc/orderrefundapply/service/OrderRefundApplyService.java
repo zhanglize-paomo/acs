@@ -189,6 +189,8 @@ public class OrderRefundApplyService {
             TrdT4043Request trdRequest = new TrdT4043Request();
             trdRequest.setMsghd_trdt(msghd_trdt);
             trdRequest.setSrl_ptnsrl(srl_ptnsrl);
+            //加载配置文件信息
+            FileConfigure.getFileConfigure("1933216000190594");
             // 3. 报文处理
             trdRequest.process();
             logger.info(TAG+ "请求报文[" + trdRequest.getRequestPlainText() + "]");
@@ -230,16 +232,21 @@ public class OrderRefundApplyService {
             map.put("opion", trdResponse.getOpion());
             map.put("fdate", trdResponse.getFdate() );
             map.put("ftime",trdResponse.getFtime());
+            OrderRefundApply orderRefundApply = findByPtnSrl(srl_ptnsrl);
             // 交易成功 000000
             if ("000000".equals(trdResponse.getMsghd_rspcode())) {
                 baseResponse.setData(map.toString());
                 baseResponse.setCode("000000");
                 baseResponse.setMsg("退款交易成功");
+                orderRefundApply.setState(trdResponse.getState());
+                mapper.update(orderRefundApply.getId(),orderRefundApply);
                 return baseResponse;
             }else{
                 baseResponse.setData(map.toString());
                 baseResponse.setCode("000001");
                 baseResponse.setMsg("退款交易失败");
+                orderRefundApply.setState(trdResponse.getState());
+                mapper.update(orderRefundApply.getId(),orderRefundApply);
                 return baseResponse;
             }
         } catch (Exception e) {
