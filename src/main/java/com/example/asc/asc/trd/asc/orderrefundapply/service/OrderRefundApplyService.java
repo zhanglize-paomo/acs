@@ -4,6 +4,7 @@ import com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply;
 import com.example.asc.asc.trd.asc.orderrefundapply.mapper.OrderRefundApplyMapper;
 import com.example.asc.asc.trd.common.BaseResponse;
 import com.example.asc.asc.trd.common.DateCommonUtils;
+import com.example.asc.asc.trd.common.FileConfigure;
 import com.example.asc.asc.util.DateUtils;
 import com.example.asc.asc.util.SnowflakeIdUtils;
 import com.trz.netwk.api.system.TrdMessenger;
@@ -68,6 +69,8 @@ public class OrderRefundApplyService {
             apply.setSrlPtnsrl(srl_ptnsrl);
             apply.setDptnsrl(dptnsrl);
             insert(apply);
+            //加载配置文件信息
+            FileConfigure.getFileConfigure("1933216000190594");
             // 2. 实例化交易对象
             TrdT4041Request trdRequest = new TrdT4041Request();
             trdRequest.setMsghd_trdt(msghd_trdt);

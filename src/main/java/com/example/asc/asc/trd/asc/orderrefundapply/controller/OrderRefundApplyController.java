@@ -37,6 +37,13 @@ public class OrderRefundApplyController {
     @RequestMapping(value = "orderrefund", method = RequestMethod.POST)
     @ResponseBody
     public BaseResponse orderRefundApply(HttpServletRequest request, HttpServletResponse response) {
+        if(service.findByPtnSrl(request.getParameter("srl_ptnsrl")) != null){
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setMsg("交易流水号已经存在");
+            baseResponse.setCode("TK000004");
+            baseResponse.setData(null);
+            return baseResponse;
+        }
         return service.orderRefundApply(request, response);
     }
 
