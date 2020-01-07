@@ -1,6 +1,9 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.domain;
 
-import java.util.Date;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.metadata.BaseRowModel;
+
+import java.io.Serializable;
 
 /**
  * 入金支付-集成交易_异步[T3061]
@@ -8,68 +11,81 @@ import java.util.Date;
  * @author zhanglize
  * @create 2019/11/8
  */
-public class EntryExitAccount {
+public class EntryExitAccount extends BaseRowModel implements Serializable {
 
     /**
      * 主键
      */
+    @ExcelProperty(value = {"主键"}, index = 0)
     private int id;
 
     /**
      * 用户id
      */
+    @ExcelProperty(value = {"用户id"}, index = 1)
     private int userId;
     /**
      * 资金账户id
      */
+    @ExcelProperty(value = {"资金账户id"}, index = 2)
     private int userAccountId;
 
     /**
      * 日期
      */
+    @ExcelProperty(value = {"日期"}, index = 3)
     private String date;
 
     /**
      * 金额(入金单位为分)
      */
+    @ExcelProperty(value = {"金额(入金单位为分)"}, index = 4)
     private Long money;
 
     /**
      * 支付方式
      */
+    @ExcelProperty(value = {"支付方式"}, index = 5)
     private String payType;
 
     /**
      * 第二支付方式
      */
+    @ExcelProperty(value = {"第二支付方式"}, index = 6)
     private String secPayType;
 
     /**
      * 商品主题描述
      */
+    @ExcelProperty(value = {"商品主题描述"}, index = 7)
     private String subject;
 
     /**
      * 商品描述
      */
+    @ExcelProperty(value = {"商品描述"}, index = 8)
     private String goodsDesc;
 
     /**
      * 客户请求流水号
      */
+    @ExcelProperty(value = {"客户请求流水号"}, index = 9)
     private String ptnSrl;
 
     /**
      * 中金平台流水号
      */
+    @ExcelProperty(value = {"中金平台流水号"}, index = 10)
     private String platSrl;
     /**
      * 平台订单号
      */
+    @ExcelProperty(value = {"平台订单号"}, index = 11)
     private String orderNo;
     /**
      * 0:支付中 1:完成 2:失败
      */
+    @ExcelProperty(value = {"交易状态"}, index = 12)
     private String status;
     /**
      * 0:未回复或者失败   1:成功
@@ -91,20 +107,24 @@ public class EntryExitAccount {
     /**
      * 页面通知url
      */
+    @ExcelProperty(value = {"页面通知url"}, index = 13)
     private String notificationUrl;
 
     /**
      * 后台通知url
      */
+    @ExcelProperty(value = {"异步通知url"}, index = 14)
     private String servnoticeUrl;
 
     /**
      * 资金用途
      */
+    @ExcelProperty(value = {"资金用途"}, index = 15)
     private String usage;
     /**
      * 返回url
      */
+    @ExcelProperty(value = {"返回url"}, index = 16)
     private String url;
 
     /**
@@ -114,7 +134,9 @@ public class EntryExitAccount {
     /**
      * 创建时间
      */
+    @ExcelProperty(value = {"交易时间"}, index = 17)
     private String createdAt;
+
     /**
      * 修改时间
      */

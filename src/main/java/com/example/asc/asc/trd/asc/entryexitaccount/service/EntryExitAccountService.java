@@ -1,7 +1,8 @@
 package com.example.asc.asc.trd.asc.entryexitaccount.service;
 
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.metadata.Sheet;
 import com.blue.util.StringUtil;
-import com.example.asc.AscApplication;
 import com.example.asc.asc.trd.asc.cloudflashoverorder.domain.CloudFlashoverOrder;
 import com.example.asc.asc.trd.asc.cloudflashoverorder.service.CloudFlashoverOrderService;
 import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
@@ -24,15 +25,13 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -490,6 +489,17 @@ public class EntryExitAccountService {
     }
 
     /**
+     * 根据订单时间以及金额查询到对应的订单信息
+     *
+     * @param createdAt
+     * @param money
+     * @return
+     */
+    public EntryExitAccount findByCreateMoney(String createdAt, String money) {
+        return mapper.findByCreateMoney(createdAt,money);
+    }
+
+    /**
      * 根据id修改入金支付对象的信息
      *
      * @param id
@@ -767,7 +777,7 @@ public class EntryExitAccountService {
             String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
             /** 合作方交易流水号 */
             String ptnsrl = getPtnSrl(msghd_trdt);
-            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea",530L);
+            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea", 530L);
             /** 资金账号 */
             String cltacc_subno = "1924016000174945";
             UserAccount userAccount = userAccountService.findBySubNo(cltacc_subno);
@@ -894,4 +904,47 @@ public class EntryExitAccountService {
         }
         return srl_ptnsrl;
     }
+
+    /**
+     * 导出Excel表格
+     */
+    public void exportPayCustomerDetail(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            InputStream inputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\ZLZ\\Desktop\\北京海利盈国际科技有限公司(总投诉）.xls"));
+            List<Object> data = EasyExcelFactory.read(inputStream, new Sheet(1, 1));
+            List<Map<String, String>> arrayList = new ArrayList<>();
+
+            for (int i = 0; i < data.size(); i++) {
+                List<Object> list = com.example.asc.asc.util.StringUtil.StringToList(data.get(i).toString());
+                Map<String, String> map = new HashMap<>();
+                map.put("createAt", list.get(1).toString());
+                map.put("money", MoneyUtils.changeY2F(list.get(4).toString().trim()));
+                arrayList.add(map);
+            }
+            List<EntryExitAccount> accountList = new ArrayList<>();
+            //根据list中的数据查询到对应的数据信息
+            arrayList.forEach(stringMap -> {
+                String createAt = stringMap.get("createAt");
+                String money = stringMap.get("money");
+                EntryExitAccount account = findByCreateMoney(createAt,money);
+                if(account == null){
+                    EntryExitAccount entryExitAccount = new EntryExitAccount();
+                    entryExitAccount.setId(1);
+                    entryExitAccount.setClientStatus("1");
+                    entryExitAccount.setStatus("1");
+                    entryExitAccount.setImageUrl("1");
+                    account = entryExitAccount;
+                }
+                accountList.add(account);
+            });
+            if (accountList.size() != 0) {
+                String fileName = "海利盈-" + DateUtils.stringToDate();
+                String sheetName = "海利盈";
+                com.example.asc.asc.util.ExcelUtil.writeExcel(response, accountList, fileName, sheetName, new EntryExitAccount());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

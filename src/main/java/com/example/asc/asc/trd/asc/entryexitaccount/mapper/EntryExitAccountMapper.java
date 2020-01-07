@@ -53,4 +53,12 @@ public interface EntryExitAccountMapper {
      */
     List<EntryExitAccount> findByStatus(String status);
 
+    /**
+     * 根据订单时间以及金额查询到对应的订单信息
+     *
+     * @param createdAt
+     * @param money
+     * @return
+     */
+    EntryExitAccount findByCreateMoney(@Param("createdAt") String createdAt,@Param("money")  String money);
 }

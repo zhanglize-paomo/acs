@@ -62,6 +62,13 @@
             <version>1.10.3</version>
         </dependency>
 
+        <!-- SpringBoot整合easyexcel实现Excel的导出 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>1.1.2-beta5</version>
+        </dependency>
+
         <!--  生成二维码 -->
         <dependency>
             <groupId>com.google.zxing</groupId>

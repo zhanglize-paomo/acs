@@ -49,6 +49,9 @@
     <select id="findByOrderNo" resultMap="resultMap">
         select * from entry_exit_account where orderNo = #{orderNo}
     </select>
+    <select id="findByCreateMoney" resultMap="resultMap">
+          select * from entry_exit_account where created_at = #{createdAt} AND money = #{money}
+    </select>
 
     <update id="update" parameterType="com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount">
         UPDATE entry_exit_account
