@@ -946,5 +946,80 @@ public class EntryExitAccountService {
             e.printStackTrace();
         }
     }
-
+    /**
+     * 银联云闪付 接口信息
+     *
+     * @return
+     */
+    public BaseResponse unionPay(HttpServletRequest req, HttpServletResponse resp) {
+        BaseResponse response = new BaseResponse();
+        try {
+            req.setCharacterEncoding("UTF-8");
+            resp.setCharacterEncoding("UTF-8");
+            /** 交易日期 */
+            String msghd_trdt = DateCommonUtils.judgeDateFormat(req.getParameter("msghdTrdt"));
+            /** 合作方交易流水号 */
+            String ptnsrl = req.getParameter("ptnSrl");
+            String appid = req.getParameter("appid");  //客户的唯一标示
+            Users users = usersService.findAppId(appid);
+            UserAccount userAccount = userAccountService.findByUserId(users.getId(),"1");
+            /** 支付金额 */
+            String billinfo_aclamt = req.getParameter("money");
+            /** 支付方式-二级分类(1：企业网银PayType=2必输;2：个人网银PayType=2必输;3：支付宝PayType=6/8/A必输;4：微信PayType=6/8/A必输；5：银联PayType=6必输) */
+            String billinfo_secpaytype = req.getParameter("payType");
+            /** 支付方式：2：网银;5：快捷支付;6：正扫支付;8：公众号支付;9：银联无卡支付;A：手机APP跳转支付 */
+            Map<String, String> stringMap = getPayType(billinfo_secpaytype);
+            String billinfo_paytype = stringMap.get("billinfo_secpaytype");
+            if (StringUtils.isEmpty(billinfo_paytype)) {
+                response.setCode("ZF310");
+                response.setMsg("支付方式不存在");
+                response.setData(null);
+                return response;
+            }
+            if (billinfo_secpaytype.equals("6")) {
+                billinfo_secpaytype = "5";
+            }
+            /** 订单标题:PayType=6/8/A时必输 */
+            String billinfo_subject = stringMap.get("subject");  //商品主题描述
+            /** 商品描述:PayType=6/8/A时必输 */
+            String billinfo_goodsdesc = stringMap.get("goodsDesc");  //商品描述
+            /** 发送端标记:0手机;1PC端 */
+            String reqflg = "1";
+            /** 页面通知URL */
+            String notificationurl = req.getParameter("notificationurl");
+            /** 后台通知URL-若不传值则默认按照后台配置的地址进行通知交易结果 */
+            String servnoticurl = req.getParameter("servNoticeUrl");
+            /** 资金用途(附言) */
+            String usage = "H5支付";
+            //将订单数据信息添加到支付数据表中
+            String srl_ptnsrl = GenerateOrderNoUtil.gens("eea", 530L);
+            EntryExitAccount account = new EntryExitAccount();
+            account.setSecPayType(billinfo_secpaytype);
+            //根据资金账户查询到对应的用户id以及用户Account的id
+            account.setUserId(userAccount.getUserId());
+            account.setUserAccountId(userAccount.getId());
+            account.setUsage(usage);
+            account.setSubject(billinfo_subject);
+            account.setStatus("0");
+            account.setServnoticeUrl(servnoticurl);
+            account.setSendToClientTimes(0);
+            account.setReqFlg(reqflg);
+            account.setPtnSrl(ptnsrl);
+            account.setOrderNo(srl_ptnsrl);
+            account.setPayType(billinfo_paytype);
+            account.setNotificationUrl(notificationurl);
+            account.setMoney(Long.valueOf(billinfo_aclamt));
+            account.setGoodsDesc(billinfo_goodsdesc);
+            account.setDate(DateUtils.toStringDate(new Date()));
+            insert(account);
+            //调用接口跳转页面
+            Map<String,Object> map = new HashMap<>();
+            map.put("money",billinfo_aclamt);
+            String pathUrl = "http://localhost:8080/entry-exit-account/unionpay-html?money="+ billinfo_aclamt;
+            String str = HttpUtil2.doGet(pathUrl,map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
 }

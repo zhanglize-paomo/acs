@@ -135,6 +135,38 @@ public class EntryExitAccountController {
 
 
     /**
+     * 银联云闪付 接口信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "unionpay", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseResponse unionPay(HttpServletRequest request, HttpServletResponse response) {
+        BaseResponse baseResponse = checkData(request, response);
+        //对数据进行校验
+        if (baseResponse != null) {
+            if (baseResponse.getCode() != null) {
+                return baseResponse;
+            }
+        }
+        return service.unionPay(request, response);
+    }
+
+    /**
+     * 银联云闪付 接口信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "unionpay-html", method = RequestMethod.GET)
+    public String unionpay(HttpServletRequest request, HttpServletResponse response) {
+        //弹出窗口信息将金额添加到窗口栏中
+        request.setAttribute("money", request.getParameter("money"));
+        return "unionpay";
+    }
+
+
+
+    /**
      * 海利盈商场支付接口信息
      *
      * @return

@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.useraccount.mapper;
 
 import com.example.asc.asc.trd.asc.useraccount.domain.UserAccount;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,4 +21,12 @@ public interface UserAccountMapper {
      */
     UserAccount findBySubNo(String subno);
 
+    /**
+     * 根据人员id以及状态查询到对应的用户申请信息
+     *
+     * @param userId      人员id
+     * @param status  状态
+     * @return
+     */
+    UserAccount findByUserId(@Param("userId") int userId,@Param("status")  String status);
 }

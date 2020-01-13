@@ -29,5 +29,8 @@
     <select id="findBySubNo" resultMap="resultMap">
          select * from user_account where subNo = #{subno} and status = "1"
     </select>
+    <select id="findByUserId" resultMap="resultMap">
+          select * from user_account where userId = #{userId} and status = #{status}
+    </select>
 
 </mapper>

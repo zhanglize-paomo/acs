@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>银联云闪付</title>
+    <script src="../static/js/jquery-3.3.1.min.js" type="text/javascript" th:src="@{/static/js/jquery/jquery-3.3.1.min.js}"></script>
+    <script src="../static/js/jquery.timers-1.2.js" type="text/javascript" th:src="@{/static/js/jquery/jquery.timers-1.2.js}"></script>
+    <script type="text/javascript">
+        function checkForm(){
+            var flag=true;
+            var message=form1.message.value;
+            if(message!='null'){
+                alert(message);
+                flag=false;
+            }
+            return flag;
+        }
+    </script>
+</head>
+<body class="backgdcolor" onload="checkForm()">
+ 订单金额:<input name="message" th:value="${money}">
+</body>
+</html>

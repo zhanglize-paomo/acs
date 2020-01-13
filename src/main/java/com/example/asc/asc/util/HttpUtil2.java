@@ -369,6 +369,7 @@ public class HttpUtil2 {
             return null;
         }
         try {
+
             if (params != null && !params.isEmpty()) {
                 List<NameValuePair> pairs = new ArrayList<NameValuePair>(params.size());
                 for (Map.Entry<String, Object> entry : params.entrySet()) {

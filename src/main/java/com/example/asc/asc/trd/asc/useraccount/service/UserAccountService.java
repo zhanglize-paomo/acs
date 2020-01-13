@@ -25,4 +25,15 @@ public class UserAccountService {
     public UserAccount findBySubNo(String subno) {
         return mapper.findBySubNo(subno);
     }
+
+    /**
+     * 根据人员id以及状态查询到对应的用户申请信息
+     *
+     * @param userId      人员id
+     * @param status  状态
+     * @return
+     */
+    public UserAccount findByUserId(int userId, String status) {
+        return mapper.findByUserId(userId,status);
+    }
 }
