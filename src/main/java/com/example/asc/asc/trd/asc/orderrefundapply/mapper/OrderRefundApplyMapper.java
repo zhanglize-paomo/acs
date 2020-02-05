@@ -1,6 +1,7 @@
 package com.example.asc.asc.trd.asc.orderrefundapply.mapper;
 
 import com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -33,5 +34,5 @@ public interface OrderRefundApplyMapper {
      * @param orderRefundApply
      * @return
      */
-    int update(Long id, OrderRefundApply orderRefundApply);
+    int update(@Param(value = "id") Long id,@Param(value = "orderRefundApply") OrderRefundApply orderRefundApply);
 }
