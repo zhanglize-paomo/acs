@@ -60,9 +60,7 @@ public class EntryExitAccountController {
     @Autowired
     public void setUserAccountService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
-    }
-
-    /**
+    }/**
      * 根据参数生成签名信息的接口
      *
      * @return
@@ -86,6 +84,8 @@ public class EntryExitAccountController {
         }
         return baseResponse;
     }
+
+
 
     /**
      * 支付直通车,异步交易通知地址信息
