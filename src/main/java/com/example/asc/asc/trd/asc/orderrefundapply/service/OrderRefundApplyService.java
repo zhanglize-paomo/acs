@@ -1,5 +1,9 @@
 package com.example.asc.asc.trd.asc.orderrefundapply.service;
 
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.metadata.Sheet;
+import com.example.asc.asc.trd.asc.entryexitaccount.domain.EntryExitAccount;
+import com.example.asc.asc.trd.asc.entryexitaccount.service.EntryExitAccountService;
 import com.example.asc.asc.trd.asc.orderrefundapply.domain.OrderRefundApply;
 import com.example.asc.asc.trd.asc.orderrefundapply.mapper.OrderRefundApplyMapper;
 import com.example.asc.asc.trd.common.BaseResponse;
@@ -19,7 +23,13 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +44,12 @@ public class OrderRefundApplyService {
     private static final Logger logger = LoggerFactory.getLogger(OrderRefundApplyService.class);
     private static final String TAG = "{退款申请}-";
     private OrderRefundApplyMapper mapper;
+
+    private EntryExitAccountService accountService;
+    @Autowired
+    public void setAccountService(EntryExitAccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @Autowired
     public void setMapper(OrderRefundApplyMapper mapper) {
@@ -253,5 +269,32 @@ public class OrderRefundApplyService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 退款申请导出Excel表格
+     */
+    public void exportPayCustomerDetail(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            InputStream inputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\ZLZ\\Desktop\\退款.xlsx"));
+            List<Object> data = EasyExcelFactory.read(inputStream, new Sheet(1, 1));
+            List<String> arrayList = new ArrayList<>();
+            for(int i = 0 ;i < data.size() ; i++){
+                arrayList.add(data.get(i).toString());
+            }
+            List<EntryExitAccount> accountList = new ArrayList<>();
+            //根据list中的数据查询到对应的数据信息
+            arrayList.forEach(stringMap -> {
+                String str = stringMap.substring(1,stringMap.length()-1);
+                accountList.add(accountService.findByOrderNo(str));
+            });
+            if (accountList.size() != 0) {
+                String fileName = "海利盈-" + DateUtils.stringToDate();
+                String sheetName = "海利盈";
+                com.example.asc.asc.util.ExcelUtil.writeExcel(response, accountList, fileName, sheetName, new EntryExitAccount());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

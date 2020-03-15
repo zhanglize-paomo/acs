@@ -59,4 +59,15 @@ public class OrderRefundApplyController {
     }
 
 
+    /**
+     * 退款申请导出Excel表格
+     *
+     */
+    @ResponseBody
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    public void exportPayCustomerDetail(HttpServletRequest request,HttpServletResponse response) {
+        service.exportPayCustomerDetail(request, response);
+    }
+
+
 }
